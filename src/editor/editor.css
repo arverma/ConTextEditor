@@ -1,0 +1,482 @@
+:root {
+  --bg: #0f0f12;
+  --surface: #17171c;
+  --surface-2: #1d1d24;
+  --surface-hover: #23232c;
+  --border: #2a2a33;
+  --text: #e7e7ea;
+  --text-muted: #9a9aa6;
+  --text-faint: #6c6c78;
+  --accent: #7c6cf0;
+  --accent-hover: #8f80f5;
+  --accent-soft: rgba(124, 108, 240, 0.14);
+  --danger: #f0656f;
+  --danger-soft: rgba(240, 101, 111, 0.16);
+  --editor-bg: #131318;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 4px 16px rgba(0, 0, 0, 0.25);
+  --font-ui: -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: "SF Mono", "JetBrains Mono", Menlo, Monaco, Consolas, monospace;
+}
+
+/* Light palette. Applied either by explicit choice (:root[data-theme="light"])
+   or, in System mode, by the OS preference — see the media query below. The
+   shared declaration block lives in a mixin-style selector list so the two
+   trigger paths never drift apart. */
+:root[data-theme="light"] {
+  --bg: #f6f6f8;
+  --surface: #ffffff;
+  --surface-2: #f0f0f3;
+  --surface-hover: #ebebef;
+  --border: #e4e4e9;
+  --text: #1c1c22;
+  --text-muted: #6b6b76;
+  --text-faint: #9a9aa4;
+  --accent: #6355e0;
+  --accent-hover: #5648d4;
+  --accent-soft: rgba(99, 85, 224, 0.1);
+  --danger: #d63e48;
+  --danger-soft: rgba(214, 62, 72, 0.1);
+  --editor-bg: #ffffff;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.06), 0 4px 16px rgba(0, 0, 0, 0.06);
+}
+
+/* System mode = no explicit data-theme: follow the OS. Explicit light/dark win. */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]):not([data-theme="light"]) {
+    --bg: #f6f6f8;
+    --surface: #ffffff;
+    --surface-2: #f0f0f3;
+    --surface-hover: #ebebef;
+    --border: #e4e4e9;
+    --text: #1c1c22;
+    --text-muted: #6b6b76;
+    --text-faint: #9a9aa4;
+    --accent: #6355e0;
+    --accent-hover: #5648d4;
+    --accent-soft: rgba(99, 85, 224, 0.1);
+    --danger: #d63e48;
+    --danger-soft: rgba(214, 62, 72, 0.1);
+    --editor-bg: #ffffff;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.06), 0 4px 16px rgba(0, 0, 0, 0.06);
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-ui);
+  -webkit-font-smoothing: antialiased;
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+}
+
+/* ---------- top bar ---------- */
+#topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 48px;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  flex-shrink: 0;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.brand-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.brand-name {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.save-status {
+  font-size: 12px;
+  color: var(--text-faint);
+  transition: color 0.2s ease;
+}
+
+.save-status[data-state="saving"] {
+  color: var(--accent);
+}
+
+/* ---------- shared icon button (stats trigger, panel close) ---------- */
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--text-faint);
+  border-radius: 7px;
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+
+.icon-btn:hover {
+  background: var(--surface-hover);
+  color: var(--text);
+}
+
+/* ---------- theme toggle (segmented control) ---------- */
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+}
+
+.theme-opt {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--text-faint);
+  border-radius: 7px;
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+
+.theme-opt:hover {
+  color: var(--text);
+}
+
+.theme-opt.active {
+  background: var(--surface);
+  color: var(--accent);
+  box-shadow: var(--shadow);
+}
+
+/* ---------- body split ---------- */
+#body {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+}
+
+/* ---------- sidebar ---------- */
+#sidebar {
+  width: 264px;
+  flex-shrink: 0;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.btn-new {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  margin: 12px;
+  padding: 9px 12px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 550;
+  font-family: inherit;
+  transition: background 0.15s ease, transform 0.05s ease;
+}
+
+.btn-new:hover {
+  background: var(--accent-hover);
+}
+
+.btn-new:active {
+  transform: translateY(1px);
+}
+
+.snippet-list {
+  list-style: none;
+  margin: 0;
+  padding: 0 8px 12px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.snippet-item {
+  position: relative;
+  padding: 10px 11px;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-bottom: 2px;
+  border: 1px solid transparent;
+  transition: background 0.12s ease;
+}
+
+.snippet-item:hover {
+  background: var(--surface-hover);
+}
+
+.snippet-item.active {
+  background: var(--accent-soft);
+  border-color: transparent;
+}
+
+.snippet-item.active::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 9px;
+  bottom: 9px;
+  width: 3px;
+  border-radius: 3px;
+  background: var(--accent);
+}
+
+.snippet-item-title {
+  font-size: 13px;
+  font-weight: 550;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding-right: 22px;
+}
+
+.snippet-item-preview {
+  font-size: 12px;
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-top: 2px;
+}
+
+.snippet-item-meta {
+  font-size: 11px;
+  color: var(--text-faint);
+  margin-top: 4px;
+}
+
+.snippet-delete-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: var(--text-faint);
+  cursor: pointer;
+  font-size: 15px;
+  line-height: 1;
+  opacity: 0;
+  transition: opacity 0.12s ease, background 0.12s ease, color 0.12s ease;
+}
+
+.snippet-item:hover .snippet-delete-btn,
+.snippet-item.active .snippet-delete-btn {
+  opacity: 1;
+}
+
+.snippet-delete-btn:hover {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.sidebar-empty {
+  padding: 24px 16px;
+  text-align: center;
+  color: var(--text-faint);
+  font-size: 12px;
+}
+
+/* ---------- main / editor ---------- */
+#main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  background: var(--editor-bg);
+}
+
+#note-titlebar {
+  height: 42px;
+  display: flex;
+  align-items: center;
+  padding: 0 18px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  background: var(--surface);
+}
+
+#note-title {
+  font-size: 13px;
+  font-weight: 550;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#monaco-container {
+  flex: 1;
+  min-height: 0;
+}
+
+/* Monaco fine-tuning to blend with the shell */
+.monaco-editor,
+.monaco-editor .margin,
+.monaco-editor-background {
+  background-color: var(--editor-bg) !important;
+}
+
+/* ---------- visually-hidden full-text mirror ---------- */
+/* Present in the DOM (and the accessibility tree) so page-content readers can
+   see the whole document, but never rendered visibly for the user. */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: pre-wrap;
+}
+
+/* ---------- stats panel ---------- */
+.stats-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.25);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.18s ease;
+  z-index: 20;
+}
+
+.stats-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.stats-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 340px;
+  max-width: 90vw;
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.2s ease;
+  z-index: 21;
+}
+
+.stats-panel.open {
+  transform: translateX(0);
+}
+
+.stats-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 48px;
+  padding: 0 10px 0 16px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.stats-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 6px 16px 20px;
+}
+
+.stats-section {
+  margin-top: 18px;
+}
+
+.stats-section-title {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-faint);
+  margin-bottom: 8px;
+}
+
+.stats-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 4px 0;
+  font-size: 12.5px;
+  cursor: help;
+}
+
+.stats-row-label {
+  color: var(--text-muted);
+  border-bottom: 1px dotted var(--text-faint);
+}
+
+.stats-row-value {
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  text-align: right;
+  white-space: nowrap;
+}

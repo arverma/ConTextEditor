@@ -1,0 +1,27 @@
+{
+  "manifest_version": 3,
+  "name": "Context Editor Tab",
+  "version": "1.0.0",
+  "description": "Opens a persistent code/text editor tab so AI tab-context tools (e.g. Gemini in Chrome) can read what you write.",
+  "action": {
+    "default_title": "Open Context Editor",
+    "default_icon": {
+      "16": "public/icons/icon-16.png",
+      "48": "public/icons/icon-48.png",
+      "128": "public/icons/icon-128.png"
+    }
+  },
+  "background": {
+    "service_worker": "src/background/background.ts",
+    "type": "module"
+  },
+  "permissions": ["tabs"],
+  "icons": {
+    "16": "public/icons/icon-16.png",
+    "48": "public/icons/icon-48.png",
+    "128": "public/icons/icon-128.png"
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  }
+}

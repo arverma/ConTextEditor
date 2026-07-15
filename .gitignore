@@ -1,0 +1,15 @@
+# Dependencies
+node_modules/
+
+# Build outputs (regenerated via `npm run build`)
+dist/
+dist-editor/
+
+# Web Store zip (npm run package)
+context-editor-tab-v*.zip
+
+# Logs
+*.log
+
+# macOS
+.DS_Store
