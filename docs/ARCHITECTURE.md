@@ -57,7 +57,7 @@ Built by [`vite.editor.config.ts`](../vite.editor.config.ts) into `dist-editor/`
 | `privacy.html` | Privacy policy (Web Store listing URL; linked from the FAB). |
 | `editor.ts` | Bootstraps Monaco (Markdown), Edit/Preview toggle, autosave + mirror sync, theme. |
 | `monaco-setup.ts` | Monaco worker + Markdown Monarch contribution (bundled locally, no CDN). |
-| `markdown-preview.ts` | `marked` → `DOMPurify` render for Preview mode. |
+| `markdown-preview.ts` | Preview: `marked` → `DOMPurify`; ` ```mermaid ` fences → official `mermaid.run` (lazy-loaded). |
 | `storage.ts` | `localStorage` CRUD for notes — the only module touching note storage. |
 | `history-panel.ts` | Renders the sidebar note list; select/delete wiring. |
 | `stats-panel.ts` | Slide-in dashboard of session/note internals (see below). |
@@ -70,7 +70,8 @@ Built by [`vite.editor.config.ts`](../vite.editor.config.ts) into `dist-editor/`
 3. `editor.ts` loads the active note from `localStorage` into Monaco (Markdown
    language); edits autosave (debounced) and continuously mirror raw Markdown into
    a hidden `<pre>` (see below). Edit | Preview toggles the visible pane; Preview
-   renders sanitized HTML via `marked` + `DOMPurify`.
+   renders sanitized HTML via `marked` + `DOMPurify`, then runs Mermaid on
+   `.mermaid` blocks (Preview only; Gemini still gets the raw fence source).
 4. User opens Gemini in Chrome, types `@`, selects the **Context Editor** tab; Gemini
    reads the tab's content as context.
 

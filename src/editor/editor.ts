@@ -126,7 +126,7 @@ function applyViewMode(mode: ViewMode, { persist = true } = {}): void {
   });
 
   if (isPreview) {
-    setPreviewContent(previewEl, editor.getValue());
+    void setPreviewContent(previewEl, editor.getValue());
   } else {
     editor.layout();
     editor.focus();
@@ -151,7 +151,7 @@ function syncMirror(): void {
   mirror.textContent = value;
   noteTitleEl.textContent = deriveTitle(value);
   if (viewMode === "preview") {
-    setPreviewContent(previewEl, value);
+    void setPreviewContent(previewEl, value);
   }
 }
 
@@ -190,7 +190,7 @@ function loadSnippet(snippet: Snippet): void {
   syncMirror();
   setSaveStatus("saved");
   if (viewMode === "preview") {
-    setPreviewContent(previewEl, snippet.content);
+    void setPreviewContent(previewEl, snippet.content);
   }
 }
 

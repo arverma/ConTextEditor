@@ -32,7 +32,8 @@ See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the full design and rationa
 ## Features
 
 - **Monaco Markdown editor** (the engine behind VS Code) in a full browser tab,
-  with an **Edit | Preview** toggle (sanitized rendered Markdown).
+  with an **Edit | Preview** toggle (sanitized rendered Markdown; Mermaid fences
+  render in Preview via the official `mermaid` package).
 - **History**: multiple saved notes with title/preview/timestamp; create, switch,
   edit, and delete. Autosaved to `localStorage`.
 - **Theme selector**: System / Light / Dark, remembered across sessions, applied

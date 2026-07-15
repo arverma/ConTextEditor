@@ -553,6 +553,29 @@ body {
   border-radius: 8px;
 }
 
+.markdown-preview .mermaid {
+  margin: 0 0 1em;
+  padding: 12px;
+  overflow-x: auto;
+  text-align: center;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.markdown-preview .mermaid svg {
+  max-width: 100%;
+  height: auto;
+}
+
+.markdown-preview .mermaid-error {
+  white-space: pre-wrap;
+  text-align: left;
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  color: var(--text-muted);
+}
+
 /* Monaco fine-tuning to blend with the shell */
 .monaco-editor,
 .monaco-editor .margin,
