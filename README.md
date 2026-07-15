@@ -9,7 +9,7 @@ No copy-paste, no DOM injection into other sites. The extension's only job is to
 a well-formed, readable tab; your notes live entirely in your browser (`localStorage`)
 on the editor origin and are never uploaded by this app.
 
-**Live editor:** [https://arverma.github.io/ConTextEditor/editor.html](https://arverma.github.io/ConTextEditor/editor.html)
+**Live editor:** [https://arverma.github.io/ConTextEditor/](https://arverma.github.io/ConTextEditor/)
 
 ---
 
@@ -50,7 +50,7 @@ See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the full design and rationa
 1. Install **Context Editor Tab** from the Chrome Web Store (once published), or for
    development load an unpacked build (see below).
 2. Pin the toolbar icon and click it — the editor opens at
-   `https://arverma.github.io/ConTextEditor/editor.html`.
+   `https://arverma.github.io/ConTextEditor/`.
 3. In Gemini in Chrome, type `@` and pick the **Context Editor** tab.
 
 Privacy policy: [privacy.html](https://arverma.github.io/ConTextEditor/privacy.html).
@@ -82,14 +82,14 @@ is deployed automatically on push to `main` (see `.github/workflows/deploy-pages
 
 ```bash
 npm run dev:editor
-# open http://localhost:5173/ConTextEditor/editor.html
+# open http://localhost:5173/ConTextEditor/
 ```
 
 Production-like local preview:
 
 ```bash
 npm run preview:editor
-# open http://127.0.0.1:4173/ConTextEditor/editor.html
+# open http://localhost:4173/ConTextEditor/
 ```
 
 Optional: point a local extension build at the Vite preview server:
@@ -142,7 +142,7 @@ rm -f ~/Library/LaunchAgents/com.contexteditor.localserver.plist
 ## Troubleshooting
 
 - **Editor tab fails to load** — check that GitHub Pages is deployed
-  (`https://arverma.github.io/ConTextEditor/editor.html`). For local work use
+  (`https://arverma.github.io/ConTextEditor/`). For local work use
   `npm run dev:editor` or `preview:editor`.
 - **Gemini's "@" picker doesn't list the tab** — make sure the tab is an
   `https://arverma.github.io/...` URL (not `chrome-extension://`). See

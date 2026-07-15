@@ -18,14 +18,14 @@ For fast iteration on the editor UI:
 
 ```bash
 npm run dev:editor
-# http://localhost:5173/ConTextEditor/editor.html
+# http://localhost:5173/ConTextEditor/
 ```
 
 Or a production-like local check:
 
 ```bash
 npm run preview:editor
-# http://127.0.0.1:4173/ConTextEditor/editor.html
+# http://localhost:4173/ConTextEditor/
 ```
 
 Changes to `background.ts` or `manifest.json` require `npm run build:extension`

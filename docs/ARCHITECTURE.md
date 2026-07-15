@@ -19,7 +19,7 @@ So the product is split into two cooperating parts (no local background server).
 flowchart TB
   ext["Chrome extension<br/>(thin launcher)<br/><code>manifest.json</code>"]
   bg["Background service worker<br/><code>src/background/background.ts</code>"]
-  editor["Editor tab<br/><code>https://arverma.github.io/ConTextEditor/editor.html</code>"]
+  editor["Editor tab<br/><code>https://arverma.github.io/ConTextEditor/</code>"]
   monaco["Monaco editor<br/>(visible UI)"]
   mirror["Hidden full-text mirror<br/>(in DOM)"]
   storage["localStorage<br/>(notes)"]
@@ -52,7 +52,8 @@ Built by [`vite.editor.config.ts`](../vite.editor.config.ts) into `dist-editor/`
 
 | File | Responsibility |
 | --- | --- |
-| `editor.html` | Page shell: topbar (brand, save-status, stats button, theme toggle), sidebar, Monaco container, hidden mirror, stats panel. Inlines the favicon and a no-FOUC theme script. |
+| `index.html` | Page shell (served at the Pages root): topbar, sidebar, Monaco, hidden mirror, stats panel. Inlines the favicon and a no-FOUC theme script. |
+| `public/editor.html` | Legacy redirect → `/` so old `/editor.html` bookmarks keep working (copied as-is). |
 | `privacy.html` | Privacy policy (Web Store listing URL). |
 | `editor.ts` | Bootstraps Monaco, wires autosave + mirror sync, and owns theme apply/persist. |
 | `monaco-setup.ts` | Configures Monaco's web worker (bundled locally via Vite `?worker`, no CDN). |
@@ -64,7 +65,7 @@ Built by [`vite.editor.config.ts`](../vite.editor.config.ts) into `dist-editor/`
 ## Data / control flow
 
 1. User clicks the toolbar icon → background worker opens/focuses the Pages tab.
-2. The tab loads `editor.html` from GitHub Pages (or Vite preview in local/dev).
+2. The tab loads `index.html` from the Pages root (or Vite preview in local/dev).
 3. `editor.ts` loads the active note from `localStorage` into Monaco; edits autosave
    (debounced) and continuously mirror into a hidden `<pre>` (see below).
 4. User opens Gemini in Chrome, types `@`, selects the **Context Editor** tab; Gemini

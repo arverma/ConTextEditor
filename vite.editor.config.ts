@@ -8,6 +8,7 @@ const pkg = JSON.parse(readFileSync(resolve(__dirname, "package.json"), "utf-8")
 // GitHub Pages at https://arverma.github.io/ConTextEditor/ — NOT bundled into
 // the extension. This is what makes the tab shareable with Gemini in Chrome's
 // "@" tab picker, which excludes chrome-extension:// pages by URL scheme.
+// Entry is index.html so the bare Pages root URL serves the editor natively.
 export default defineConfig({
   root: "src/editor",
   base: "/ConTextEditor/",
@@ -19,11 +20,12 @@ export default defineConfig({
     emptyOutDir: true,
     rollupOptions: {
       input: {
-        editor: resolve(__dirname, "src/editor/editor.html"),
+        main: resolve(__dirname, "src/editor/index.html"),
         privacy: resolve(__dirname, "src/editor/privacy.html"),
       },
     },
   },
+  // public/ copies as-is — used for the legacy /editor.html redirect page.
   worker: {
     format: "es",
   },

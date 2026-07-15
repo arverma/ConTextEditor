@@ -21,7 +21,7 @@ repo root. Upload that zip in the [Developer Dashboard](https://chrome.google.co
 | **Category** | Productivity |
 | **Language** | English |
 | **Privacy policy URL** | `https://arverma.github.io/ConTextEditor/privacy.html` |
-| **Homepage** (optional) | `https://arverma.github.io/ConTextEditor/editor.html` |
+| **Homepage** (optional) | `https://arverma.github.io/ConTextEditor/` |
 | **Support URL** (optional) | `https://github.com/arverma/ConTextEditor` |
 
 ### Description (paste)
@@ -73,4 +73,4 @@ Store listing also needs a **128×128** icon (already in `public/icons/icon-128.
    collected/sold; notes stay in browser storage only).
 2. Submit for review.
 3. After approval, install from the store and confirm the icon opens
-   `https://arverma.github.io/ConTextEditor/editor.html`.
+   `https://arverma.github.io/ConTextEditor/`.
