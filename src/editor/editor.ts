@@ -84,7 +84,39 @@ const editor = monaco.editor.create(container, {
   scrollBeyondLastLine: false,
   renderLineHighlight: "none",
   smoothScrolling: true,
+  find: {
+    seedSearchStringFromSelection: "always",
+  },
 });
+
+// Cmd/Ctrl+F comes from findController. Map Cmd/Ctrl+R to Replace and stop the
+// browser from reloading the tab while the editor is focused.
+editor.addAction({
+  id: "context-editor.startFindReplace",
+  label: "Replace",
+  keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyR],
+  precondition: "editorFocus",
+  run: (ed) => {
+    void ed.getAction("editor.action.startFindReplaceAction")?.run();
+  },
+});
+
+// Capture Cmd/Ctrl+R at the window when Monaco has focus (reload is otherwise
+// handled by Chrome before the editor action in some cases).
+window.addEventListener(
+  "keydown",
+  (e) => {
+    if (!(e.metaKey || e.ctrlKey) || e.key.toLowerCase() !== "r" || e.altKey || e.shiftKey) {
+      return;
+    }
+    if (!editor.hasTextFocus() && !container.contains(document.activeElement)) {
+      return;
+    }
+    e.preventDefault();
+    void editor.getAction("editor.action.startFindReplaceAction")?.run();
+  },
+  true
+);
 
 // Re-apply Monaco's theme on OS change only while in System mode.
 prefersDark.addEventListener("change", () => {
