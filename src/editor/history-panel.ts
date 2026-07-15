@@ -1,6 +1,13 @@
-import { type Snippet, getSnippets, deleteSnippet, setActiveSnippetId, onSnippetsChanged } from "./storage";
+import {
+  type Snippet,
+  deriveTitle,
+  getSnippets,
+  deleteSnippet,
+  setActiveSnippetId,
+  onSnippetsChanged,
+} from "./storage";
 
-export interface HistoryPanelCallbacks {
+interface HistoryPanelCallbacks {
   onSelect: (snippet: Snippet) => void;
   onActiveDeleted: (fallback: Snippet | null) => void;
 }
@@ -20,14 +27,15 @@ function formatRelativeTime(timestamp: number): string {
   return `${days}d ago`;
 }
 
-function splitTitleAndPreview(content: string): { title: string; preview: string } {
-  const lines = content.split("\n");
-  const title = lines[0]?.trim() || "Untitled";
-  const preview = lines
-    .slice(1)
-    .find((l) => l.trim().length > 0)
-    ?.trim();
-  return { title: title.slice(0, 60), preview: (preview ?? "").slice(0, 80) };
+function previewLine(content: string): string {
+  return (
+    content
+      .split("\n")
+      .slice(1)
+      .find((l) => l.trim().length > 0)
+      ?.trim()
+      .slice(0, 80) ?? ""
+  );
 }
 
 export function initHistoryPanel(cb: HistoryPanelCallbacks): void {
@@ -39,10 +47,9 @@ export function initHistoryPanel(cb: HistoryPanelCallbacks): void {
   });
 }
 
-export async function refreshHistoryPanel(activeId: string | null): Promise<void> {
+export function refreshHistoryPanel(activeId: string | null): void {
   currentActiveId = activeId;
-  const snippets = await getSnippets();
-  renderList(snippets);
+  renderList(getSnippets());
 }
 
 function renderList(snippets: Snippet[]): void {
@@ -60,15 +67,13 @@ function renderList(snippets: Snippet[]): void {
     const li = document.createElement("li");
     li.className = "snippet-item" + (snippet.id === currentActiveId ? " active" : "");
 
-    const { title, preview } = splitTitleAndPreview(snippet.content);
-
     const titleEl = document.createElement("div");
     titleEl.className = "snippet-item-title";
-    titleEl.textContent = title;
+    titleEl.textContent = deriveTitle(snippet.content);
 
     const previewEl = document.createElement("div");
     previewEl.className = "snippet-item-preview";
-    previewEl.textContent = preview || "No additional text";
+    previewEl.textContent = previewLine(snippet.content) || "No additional text";
 
     const metaEl = document.createElement("div");
     metaEl.className = "snippet-item-meta";
@@ -86,23 +91,23 @@ function renderList(snippets: Snippet[]): void {
 
     li.append(titleEl, previewEl, metaEl, deleteBtn);
 
-    li.addEventListener("click", async (event) => {
+    li.addEventListener("click", (event) => {
       if (deleteBtn.contains(event.target as Node)) return;
       currentActiveId = snippet.id;
-      await setActiveSnippetId(snippet.id);
+      setActiveSnippetId(snippet.id);
       callbacks.onSelect(snippet);
       renderList(snippets);
     });
 
-    deleteBtn.addEventListener("click", async (event) => {
+    deleteBtn.addEventListener("click", (event) => {
       event.stopPropagation();
       const wasActive = snippet.id === currentActiveId;
-      const fallback = await deleteSnippet(snippet.id);
+      const fallback = deleteSnippet(snippet.id);
       if (wasActive) {
         currentActiveId = fallback?.id ?? null;
         callbacks.onActiveDeleted(fallback);
       }
-      await refreshHistoryPanel(currentActiveId);
+      refreshHistoryPanel(currentActiveId);
     });
 
     listEl.appendChild(li);

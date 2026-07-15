@@ -1,6 +1,5 @@
-export function sanitizeFilename(title: string): string {
+function sanitizeFilename(title: string): string {
   const cleaned = title
-    .replace(/^#{1,6}\s+/, "")
     .replace(/[<>:"/\\|?*\u0000-\u001f]/g, "")
     .replace(/\s+/g, " ")
     .trim()

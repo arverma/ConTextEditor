@@ -2,7 +2,13 @@ import "./monaco-setup";
 // Import the minimal core editor API rather than the "monaco-editor" barrel,
 // which eagerly registers every bundled language and inflates the build.
 import * as monaco from "monaco-editor/esm/vs/editor/editor.api";
-import { type Snippet, getActiveSnippet, createSnippet, updateSnippetContent } from "./storage";
+import {
+  type Snippet,
+  deriveTitle,
+  getActiveSnippet,
+  createSnippet,
+  updateSnippetContent,
+} from "./storage";
 import { initHistoryPanel, refreshHistoryPanel } from "./history-panel";
 import { setPreviewContent } from "./markdown-preview";
 import { exportPdf, exportTxt } from "./export";
@@ -177,13 +183,6 @@ function setSaveStatus(state: "saved" | "saving"): void {
   saveStatusEl.textContent = state === "saving" ? "Saving…" : "Saved";
 }
 
-function deriveTitle(content: string): string {
-  const firstLine = content.split("\n", 1)[0]?.trim();
-  // Strip a leading ATX heading marker so titles look clean for Markdown notes.
-  const cleaned = firstLine?.replace(/^#{1,6}\s+/, "") ?? "";
-  return cleaned ? cleaned.slice(0, 60) : "Untitled";
-}
-
 function countWords(text: string): number {
   const trimmed = text.trim();
   return trimmed ? trimmed.split(/\s+/).length : 0;
@@ -214,10 +213,9 @@ function flushPendingSave(): void {
   if (pendingSave) {
     const { id, content } = pendingSave;
     pendingSave = null;
-    void updateSnippetContent(id, content).then(() => {
-      setSaveStatus("saved");
-      return refreshHistoryPanel(id);
-    });
+    updateSnippetContent(id, content);
+    setSaveStatus("saved");
+    refreshHistoryPanel(id);
   }
 }
 
@@ -262,12 +260,12 @@ exportBtn.addEventListener("click", () => {
   void setPreviewContent(previewEl, content).then(() => exportPdf(title));
 });
 
-async function init(): Promise<void> {
+function init(): void {
   applyViewMode(getStoredViewMode(), { persist: false });
 
-  let active = await getActiveSnippet();
+  let active = getActiveSnippet();
   if (!active) {
-    active = await createSnippet();
+    active = createSnippet();
   }
   loadSnippet(active);
 
@@ -288,18 +286,18 @@ async function init(): Promise<void> {
     },
   });
 
-  await refreshHistoryPanel(active.id);
+  refreshHistoryPanel(active.id);
   if (viewMode === "edit") editor.focus();
 }
 
-newSnippetBtn.addEventListener("click", async () => {
+newSnippetBtn.addEventListener("click", () => {
   flushPendingSave();
-  const snippet = await createSnippet();
+  const snippet = createSnippet();
   loadSnippet(snippet);
-  await refreshHistoryPanel(snippet.id);
+  refreshHistoryPanel(snippet.id);
   if (viewMode === "edit") editor.focus();
 });
 
 window.addEventListener("beforeunload", flushPendingSave);
 
-void init();
+init();
