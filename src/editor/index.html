@@ -79,15 +79,34 @@
         <main id="main">
           <div id="note-titlebar">
             <span id="note-title">Untitled</span>
+            <div id="view-toggle" class="view-toggle" role="group" aria-label="View mode">
+              <button type="button" class="view-opt active" data-view-value="edit">Edit</button>
+              <button type="button" class="view-opt" data-view-value="preview">Preview</button>
+            </div>
           </div>
           <div id="monaco-container"></div>
+          <article id="markdown-preview" class="markdown-preview" hidden></article>
         </main>
       </div>
 
       <!-- Full-document plain-text mirror. Kept in the DOM at all times (so tab
            content readers see the whole document even though Monaco only renders
-           visible lines), but visually hidden — the user never sees it. -->
+           visible lines), but visually hidden — the user never sees it.
+           Always holds raw Markdown source (never rendered HTML). -->
       <pre id="full-text-mirror" class="visually-hidden"></pre>
+
+      <a
+        id="privacy-fab"
+        class="privacy-fab"
+        href="privacy.html"
+        title="Privacy Policy"
+        aria-label="Privacy Policy"
+      >
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M12 3l7 3v6c0 4.5-2.8 7.8-7 9-4.2-1.2-7-4.5-7-9V6l7-3z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+        </svg>
+        <span>Privacy</span>
+      </a>
 
       <div id="stats-overlay" class="stats-overlay" hidden></div>
       <aside id="stats-panel" class="stats-panel" role="dialog" aria-label="App stats" aria-hidden="true">

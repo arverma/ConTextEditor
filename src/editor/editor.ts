@@ -5,10 +5,16 @@ import * as monaco from "monaco-editor/esm/vs/editor/editor.api";
 import { type Snippet, getActiveSnippet, createSnippet, updateSnippetContent } from "./storage";
 import { initHistoryPanel, refreshHistoryPanel } from "./history-panel";
 import { initStatsPanel } from "./stats-panel";
+import { setPreviewContent } from "./markdown-preview";
 
 const AUTOSAVE_DELAY_MS = 600;
+const VIEW_MODE_KEY = "context-editor.viewMode";
+
+type ViewMode = "edit" | "preview";
 
 const container = document.getElementById("monaco-container")!;
+const previewEl = document.getElementById("markdown-preview")!;
+const viewToggleEl = document.getElementById("view-toggle")!;
 const mirror = document.getElementById("full-text-mirror")!;
 const newSnippetBtn = document.getElementById("new-snippet-btn")!;
 const noteTitleEl = document.getElementById("note-title")!;
@@ -66,7 +72,7 @@ const initialMode = getThemeMode();
 
 const editor = monaco.editor.create(container, {
   value: "",
-  language: "plaintext",
+  language: "markdown",
   theme: effectiveScheme(initialMode) === "dark" ? "ce-dark" : "ce-light",
   automaticLayout: true,
   minimap: { enabled: false },
@@ -101,6 +107,31 @@ initStatsPanel({
 let currentSnippetId: string | null = null;
 let saveTimer: ReturnType<typeof setTimeout> | null = null;
 let pendingSave: { id: string; content: string } | null = null;
+let viewMode: ViewMode = "edit";
+
+function getStoredViewMode(): ViewMode {
+  return localStorage.getItem(VIEW_MODE_KEY) === "preview" ? "preview" : "edit";
+}
+
+function applyViewMode(mode: ViewMode, { persist = true } = {}): void {
+  viewMode = mode;
+  if (persist) localStorage.setItem(VIEW_MODE_KEY, mode);
+
+  const isPreview = mode === "preview";
+  container.hidden = isPreview;
+  previewEl.hidden = !isPreview;
+
+  viewToggleEl.querySelectorAll<HTMLElement>(".view-opt").forEach((btn) => {
+    btn.classList.toggle("active", btn.dataset.viewValue === mode);
+  });
+
+  if (isPreview) {
+    setPreviewContent(previewEl, editor.getValue());
+  } else {
+    editor.layout();
+    editor.focus();
+  }
+}
 
 function setSaveStatus(state: "saved" | "saving"): void {
   saveStatusEl.dataset.state = state;
@@ -109,13 +140,19 @@ function setSaveStatus(state: "saved" | "saving"): void {
 
 function deriveTitle(content: string): string {
   const firstLine = content.split("\n", 1)[0]?.trim();
-  return firstLine ? firstLine.slice(0, 60) : "Untitled";
+  // Strip a leading ATX heading marker so titles look clean for Markdown notes.
+  const cleaned = firstLine?.replace(/^#{1,6}\s+/, "") ?? "";
+  return cleaned ? cleaned.slice(0, 60) : "Untitled";
 }
 
 function syncMirror(): void {
   const value = editor.getValue();
+  // Always raw Markdown — Gemini reads this, not the rendered preview.
   mirror.textContent = value;
   noteTitleEl.textContent = deriveTitle(value);
+  if (viewMode === "preview") {
+    setPreviewContent(previewEl, value);
+  }
 }
 
 function flushPendingSave(): void {
@@ -152,9 +189,21 @@ function loadSnippet(snippet: Snippet): void {
   editor.setValue(snippet.content);
   syncMirror();
   setSaveStatus("saved");
+  if (viewMode === "preview") {
+    setPreviewContent(previewEl, snippet.content);
+  }
 }
 
+viewToggleEl.addEventListener("click", (event) => {
+  const btn = (event.target as HTMLElement).closest<HTMLElement>(".view-opt");
+  if (!btn?.dataset.viewValue) return;
+  const next = btn.dataset.viewValue === "preview" ? "preview" : "edit";
+  applyViewMode(next);
+});
+
 async function init(): Promise<void> {
+  applyViewMode(getStoredViewMode(), { persist: false });
+
   let active = await getActiveSnippet();
   if (!active) {
     active = await createSnippet();
@@ -179,7 +228,7 @@ async function init(): Promise<void> {
   });
 
   await refreshHistoryPanel(active.id);
-  editor.focus();
+  if (viewMode === "edit") editor.focus();
 }
 
 newSnippetBtn.addEventListener("click", async () => {
@@ -187,7 +236,7 @@ newSnippetBtn.addEventListener("click", async () => {
   const snippet = await createSnippet();
   loadSnippet(snippet);
   await refreshHistoryPanel(snippet.id);
-  editor.focus();
+  if (viewMode === "edit") editor.focus();
 });
 
 window.addEventListener("beforeunload", flushPendingSave);

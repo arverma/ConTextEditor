@@ -21,10 +21,13 @@
   "devDependencies": {
     "@crxjs/vite-plugin": "^2.0.0-beta.31",
     "@types/chrome": "^0.0.279",
+    "@types/dompurify": "^3.0.5",
     "typescript": "^5.5.4",
     "vite": "^5.4.2"
   },
   "dependencies": {
+    "dompurify": "^3.4.12",
+    "marked": "^18.0.6",
     "monaco-editor": "^0.50.0"
   }
 }

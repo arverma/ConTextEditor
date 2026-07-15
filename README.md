@@ -31,7 +31,8 @@ See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the full design and rationa
 
 ## Features
 
-- **Monaco editor** (the engine behind VS Code) in a full browser tab.
+- **Monaco Markdown editor** (the engine behind VS Code) in a full browser tab,
+  with an **Edit | Preview** toggle (sanitized rendered Markdown).
 - **History**: multiple saved notes with title/preview/timestamp; create, switch,
   edit, and delete. Autosaved to `localStorage`.
 - **Theme selector**: System / Light / Dark, remembered across sessions, applied
@@ -40,6 +41,7 @@ See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the full design and rationa
   up duplicates.
 - **Fully private notes**: kept in `localStorage` on your device; the host only
   serves static HTML/JS/CSS.
+- **Privacy FAB**: floating link (bottom-right) to the privacy policy page.
 - **Stats panel**: a live dashboard (bar-chart icon, top-right) of session and note
   storage internals. Updates only while open; see [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
@@ -119,9 +121,11 @@ rm -f ~/Library/LaunchAgents/com.contexteditor.localserver.plist
 
 - **New note** — the "+ New note" button in the sidebar.
 - **Switch / edit** — click a note in the sidebar; edits autosave (~0.6s debounce).
+- **Edit / Preview** — toggle in the note title bar; Preview shows rendered Markdown.
 - **Delete** — the trash icon on a note (appears on hover / when active).
 - **Theme** — the System / Light / Dark control in the top-right; your choice is
   remembered.
+- **Privacy** — the floating “Privacy” button (bottom-right) opens the privacy policy.
 
 ---
 

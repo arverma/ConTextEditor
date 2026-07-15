@@ -52,12 +52,13 @@ Built by [`vite.editor.config.ts`](../vite.editor.config.ts) into `dist-editor/`
 
 | File | Responsibility |
 | --- | --- |
-| `index.html` | Page shell (served at the Pages root): topbar, sidebar, Monaco, hidden mirror, stats panel. Inlines the favicon and a no-FOUC theme script. |
+| `index.html` | Page shell (Pages root): topbar, sidebar, Monaco, Markdown preview, Privacy FAB, hidden mirror, stats panel. |
 | `public/editor.html` | Legacy redirect → `/` so old `/editor.html` bookmarks keep working (copied as-is). |
-| `privacy.html` | Privacy policy (Web Store listing URL). |
-| `editor.ts` | Bootstraps Monaco, wires autosave + mirror sync, and owns theme apply/persist. |
-| `monaco-setup.ts` | Configures Monaco's web worker (bundled locally via Vite `?worker`, no CDN). |
-| `storage.ts` | `localStorage` CRUD for notes — the only module touching storage. |
+| `privacy.html` | Privacy policy (Web Store listing URL; linked from the FAB). |
+| `editor.ts` | Bootstraps Monaco (Markdown), Edit/Preview toggle, autosave + mirror sync, theme. |
+| `monaco-setup.ts` | Monaco worker + Markdown Monarch contribution (bundled locally, no CDN). |
+| `markdown-preview.ts` | `marked` → `DOMPurify` render for Preview mode. |
+| `storage.ts` | `localStorage` CRUD for notes — the only module touching note storage. |
 | `history-panel.ts` | Renders the sidebar note list; select/delete wiring. |
 | `stats-panel.ts` | Slide-in dashboard of session/note internals (see below). |
 | `editor.css` | All styling and the theme token system. |
@@ -66,8 +67,10 @@ Built by [`vite.editor.config.ts`](../vite.editor.config.ts) into `dist-editor/`
 
 1. User clicks the toolbar icon → background worker opens/focuses the Pages tab.
 2. The tab loads `index.html` from the Pages root (or Vite preview in local/dev).
-3. `editor.ts` loads the active note from `localStorage` into Monaco; edits autosave
-   (debounced) and continuously mirror into a hidden `<pre>` (see below).
+3. `editor.ts` loads the active note from `localStorage` into Monaco (Markdown
+   language); edits autosave (debounced) and continuously mirror raw Markdown into
+   a hidden `<pre>` (see below). Edit | Preview toggles the visible pane; Preview
+   renders sanitized HTML via `marked` + `DOMPurify`.
 4. User opens Gemini in Chrome, types `@`, selects the **Context Editor** tab; Gemini
    reads the tab's content as context.
 
@@ -80,9 +83,10 @@ id="full-text-mirror">` on every change.
 
 It's **visually hidden but kept in the DOM** (the `.visually-hidden` clip technique —
 **not** `display:none`), so it stays in the text/accessibility tree for content
-extraction while the user never sees it. Trade-off: if an extractor only reads
-strictly on-screen text, a very long note could be truncated; for typical context
-sizes this is a non-issue. (Hiding it was a deliberate product choice.)
+extraction while the user never sees it. The mirror always holds the **raw Markdown
+source** — never Preview's rendered HTML — so Gemini still receives what the user
+typed. Trade-off: if an extractor only reads strictly on-screen text, a very long
+note could be truncated; for typical context sizes this is a non-issue.
 
 ## Storage / data model — [`storage.ts`](../src/editor/storage.ts)
 
@@ -90,6 +94,7 @@ sizes this is a non-issue. (Hiding it was a deliberate product choice.)
 
 - `context-editor.snippets` → `Array<{ id, title, content, createdAt, updatedAt }>`
 - `context-editor.activeSnippetId` → `string | null`
+- `context-editor.viewMode` → `"edit"` | `"preview"` (Edit/Preview toggle preference)
 
 A single array under one key (no query/index needs; the list UI holds all in memory).
 `getActiveSnippet` falls back to the most recent note if the active id is stale.
