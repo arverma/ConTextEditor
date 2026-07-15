@@ -42,9 +42,8 @@ See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the full design and rationa
   up duplicates.
 - **Fully private notes**: kept in `localStorage` on your device; the host only
   serves static HTML/JS/CSS.
-- **Privacy FAB**: floating link (bottom-right) to the privacy policy page.
-- **Stats panel**: a live dashboard (bar-chart icon, top-right) of session and note
-  storage internals. Updates only while open; see [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+- **Word / char counts** next to Edit | Preview (live for the open note).
+- **Privacy FAB**: floating icon (bottom-right) to the privacy policy page.
 
 ---
 

@@ -4,7 +4,6 @@ import "./monaco-setup";
 import * as monaco from "monaco-editor/esm/vs/editor/editor.api";
 import { type Snippet, getActiveSnippet, createSnippet, updateSnippetContent } from "./storage";
 import { initHistoryPanel, refreshHistoryPanel } from "./history-panel";
-import { initStatsPanel } from "./stats-panel";
 import { setPreviewContent } from "./markdown-preview";
 
 const AUTOSAVE_DELAY_MS = 600;
@@ -18,6 +17,7 @@ const viewToggleEl = document.getElementById("view-toggle")!;
 const mirror = document.getElementById("full-text-mirror")!;
 const newSnippetBtn = document.getElementById("new-snippet-btn")!;
 const noteTitleEl = document.getElementById("note-title")!;
+const noteCountsEl = document.getElementById("note-counts")!;
 const saveStatusEl = document.getElementById("save-status")!;
 const themeToggleEl = document.getElementById("theme-toggle")!;
 
@@ -131,11 +131,6 @@ themeToggleEl.addEventListener("click", (event) => {
 
 applyTheme(initialMode);
 
-initStatsPanel({
-  getCurrentNoteContent: () => editor.getValue(),
-  getThemeMode: () => getThemeMode(),
-});
-
 let currentSnippetId: string | null = null;
 let saveTimer: ReturnType<typeof setTimeout> | null = null;
 let pendingSave: { id: string; content: string } | null = null;
@@ -177,11 +172,23 @@ function deriveTitle(content: string): string {
   return cleaned ? cleaned.slice(0, 60) : "Untitled";
 }
 
+function countWords(text: string): number {
+  const trimmed = text.trim();
+  return trimmed ? trimmed.split(/\s+/).length : 0;
+}
+
+function updateNoteCounts(value: string): void {
+  const words = countWords(value);
+  const chars = value.length;
+  noteCountsEl.textContent = `${words.toLocaleString()} words · ${chars.toLocaleString()} chars`;
+}
+
 function syncMirror(): void {
   const value = editor.getValue();
   // Always raw Markdown — Gemini reads this, not the rendered preview.
   mirror.textContent = value;
   noteTitleEl.textContent = deriveTitle(value);
+  updateNoteCounts(value);
   if (viewMode === "preview") {
     void setPreviewContent(previewEl, value);
   }

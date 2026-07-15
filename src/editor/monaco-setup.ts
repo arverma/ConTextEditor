@@ -3,6 +3,8 @@ import EditorWorker from "monaco-editor/esm/vs/editor/editor.worker?worker";
 import "monaco-editor/esm/vs/basic-languages/markdown/markdown.contribution";
 // Find / Replace widget + Cmd/Ctrl+F (slim editor.api does not include contribs).
 import "monaco-editor/esm/vs/editor/contrib/find/browser/findController";
+// Codicon font — without this, find-widget buttons render as garbled “line stacks”.
+import "monaco-editor/esm/vs/base/browser/ui/codicons/codicon/codicon.css";
 
 // Vite's `?worker` import resolves to a locally bundled worker file at build time —
 // no CDN fetch, so the editor stays fully self-contained (no remote script loads).

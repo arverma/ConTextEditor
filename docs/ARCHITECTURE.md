@@ -52,16 +52,15 @@ Built by [`vite.editor.config.ts`](../vite.editor.config.ts) into `dist-editor/`
 
 | File | Responsibility |
 | --- | --- |
-| `index.html` | Page shell (Pages root): topbar, sidebar, Monaco, Markdown preview, Privacy FAB, hidden mirror, stats panel. |
+| `index.html` | Page shell (Pages root): topbar, sidebar, Monaco, Markdown preview, Privacy FAB, hidden mirror. |
 | `public/editor.html` | Legacy redirect → `/` so old `/editor.html` bookmarks keep working (copied as-is). |
 | `privacy.html` | Privacy policy (Web Store listing URL; linked from the FAB). |
-| `editor.ts` | Bootstraps Monaco (Markdown), Edit/Preview toggle, autosave + mirror sync, theme. |
-| `monaco-setup.ts` | Monaco worker + Markdown Monarch contribution (bundled locally, no CDN). |
+| `editor.ts` | Bootstraps Monaco (Markdown), Edit/Preview, word/char counts, autosave + mirror sync, theme. |
+| `monaco-setup.ts` | Monaco worker, Markdown Monarch, findController, Codicon CSS (bundled locally, no CDN). |
 | `markdown-preview.ts` | Preview: `marked` → `DOMPurify`; ` ```mermaid ` fences → official `mermaid.run` (lazy-loaded). |
 | `storage.ts` | `localStorage` CRUD for notes — the only module touching note storage. |
 | `history-panel.ts` | Renders the sidebar note list; select/delete wiring. |
-| `stats-panel.ts` | Slide-in dashboard of session/note internals (see below). |
-| `editor.css` | All styling and the theme token system. |
+| `editor.css` | All styling, theme tokens, and Monaco find-widget theming. |
 
 ## Data / control flow
 
@@ -110,20 +109,6 @@ A single array under one key (no query/index needs; the list UI holds all in mem
 - A tiny synchronous script in `<head>` sets `data-theme` before first paint (no
   flash). `editor.ts` also swaps Monaco's theme (`ce-dark`/`ce-light`, whose
   backgrounds match `--editor-bg`) and, in System mode only, reacts to OS changes.
-
-## Stats panel — [`stats-panel.ts`](../src/editor/stats-panel.ts)
-
-A slide-in dashboard (bar-chart button, top-right) showing internals across two groups:
-
-- **Session** — time open, viewport/DPR, Chrome version, Monaco version (injected
-  at build time via a Vite `define` reading `package.json`), current theme mode.
-- **Notes & storage** — note count, total chars/words across all notes (via
-  `storage.ts`'s existing `getSnippets()`), `localStorage` bytes used, and the
-  currently open note's chars/words/lines (read straight from the live Monaco model).
-
-**Overhead is scoped to "panel open" only** — the client refreshes these metrics
-every 1s **only while the panel is open**; the `setInterval` is created in `open()`
-and cleared in `close()`.
 
 ## Local development
 
