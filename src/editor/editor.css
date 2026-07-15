@@ -360,6 +360,30 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
+.export-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 28px;
+  padding: 0 11px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--surface-2);
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 550;
+  font-family: inherit;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+}
+
+.export-btn:hover {
+  background: var(--surface-hover);
+  color: var(--text);
+  border-color: var(--text-faint);
+}
+
 .view-toggle {
   display: inline-flex;
   align-items: center;
@@ -664,4 +688,58 @@ body {
   background: var(--surface-hover);
   color: var(--text);
   border-color: var(--text-faint);
+}
+
+/* ---------- print / Export PDF (preview content only) ---------- */
+@page {
+  margin: 16mm;
+}
+
+@media print {
+  html,
+  body,
+  #app,
+  #body,
+  #main {
+    height: auto !important;
+    width: auto !important;
+    overflow: visible !important;
+    background: #fff !important;
+    color: #111 !important;
+  }
+
+  #topbar,
+  #sidebar,
+  #note-titlebar,
+  #monaco-container,
+  .privacy-fab,
+  .monaco-editor .find-widget {
+    display: none !important;
+  }
+
+  #markdown-preview {
+    display: block !important;
+    overflow: visible !important;
+    padding: 0 !important;
+    background: #fff !important;
+    color: #111 !important;
+  }
+
+  #markdown-preview a {
+    color: #111 !important;
+    text-decoration: underline;
+  }
+
+  #markdown-preview code,
+  #markdown-preview pre,
+  #markdown-preview .mermaid {
+    background: #f4f4f6 !important;
+    border-color: #ddd !important;
+    color: #111 !important;
+  }
+
+  #markdown-preview .mermaid svg {
+    max-width: 100% !important;
+    break-inside: avoid;
+  }
 }

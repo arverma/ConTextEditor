@@ -55,7 +55,8 @@ Built by [`vite.editor.config.ts`](../vite.editor.config.ts) into `dist-editor/`
 | `index.html` | Page shell (Pages root): topbar, sidebar, Monaco, Markdown preview, Privacy FAB, hidden mirror. |
 | `public/editor.html` | Legacy redirect → `/` so old `/editor.html` bookmarks keep working (copied as-is). |
 | `privacy.html` | Privacy policy (Web Store listing URL; linked from the FAB). |
-| `editor.ts` | Bootstraps Monaco (Markdown), Edit/Preview, word/char counts, autosave + mirror sync, theme. |
+| `editor.ts` | Bootstraps Monaco (Markdown), Edit/Preview, counts, export, autosave + mirror sync, theme. |
+| `export.ts` | Edit → `.txt` download; Preview → `window.print` (Save as PDF) with print CSS. |
 | `monaco-setup.ts` | Monaco worker, Markdown Monarch, findController, Codicon CSS (bundled locally, no CDN). |
 | `markdown-preview.ts` | Preview: `marked` → `DOMPurify`; ` ```mermaid ` fences → official `mermaid.run` (lazy-loaded). |
 | `storage.ts` | `localStorage` CRUD for notes — the only module touching note storage. |

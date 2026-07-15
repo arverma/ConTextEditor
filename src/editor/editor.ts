@@ -5,6 +5,7 @@ import * as monaco from "monaco-editor/esm/vs/editor/editor.api";
 import { type Snippet, getActiveSnippet, createSnippet, updateSnippetContent } from "./storage";
 import { initHistoryPanel, refreshHistoryPanel } from "./history-panel";
 import { setPreviewContent } from "./markdown-preview";
+import { exportPdf, exportTxt } from "./export";
 
 const AUTOSAVE_DELAY_MS = 600;
 const VIEW_MODE_KEY = "context-editor.viewMode";
@@ -14,6 +15,7 @@ type ViewMode = "edit" | "preview";
 const container = document.getElementById("monaco-container")!;
 const previewEl = document.getElementById("markdown-preview")!;
 const viewToggleEl = document.getElementById("view-toggle")!;
+const exportBtn = document.getElementById("export-btn") as HTMLButtonElement;
 const mirror = document.getElementById("full-text-mirror")!;
 const newSnippetBtn = document.getElementById("new-snippet-btn")!;
 const noteTitleEl = document.getElementById("note-title")!;
@@ -140,6 +142,15 @@ function getStoredViewMode(): ViewMode {
   return localStorage.getItem(VIEW_MODE_KEY) === "preview" ? "preview" : "edit";
 }
 
+function updateExportButton(): void {
+  const isPreview = viewMode === "preview";
+  exportBtn.textContent = isPreview ? "Export PDF" : "Export TXT";
+  exportBtn.setAttribute(
+    "aria-label",
+    isPreview ? "Export note as PDF" : "Export note as text file"
+  );
+}
+
 function applyViewMode(mode: ViewMode, { persist = true } = {}): void {
   viewMode = mode;
   if (persist) localStorage.setItem(VIEW_MODE_KEY, mode);
@@ -151,6 +162,7 @@ function applyViewMode(mode: ViewMode, { persist = true } = {}): void {
   viewToggleEl.querySelectorAll<HTMLElement>(".view-opt").forEach((btn) => {
     btn.classList.toggle("active", btn.dataset.viewValue === mode);
   });
+  updateExportButton();
 
   if (isPreview) {
     void setPreviewContent(previewEl, editor.getValue());
@@ -238,6 +250,16 @@ viewToggleEl.addEventListener("click", (event) => {
   if (!btn?.dataset.viewValue) return;
   const next = btn.dataset.viewValue === "preview" ? "preview" : "edit";
   applyViewMode(next);
+});
+
+exportBtn.addEventListener("click", () => {
+  const content = editor.getValue();
+  const title = deriveTitle(content);
+  if (viewMode === "edit") {
+    exportTxt(content, title);
+    return;
+  }
+  void setPreviewContent(previewEl, content).then(() => exportPdf(title));
 });
 
 async function init(): Promise<void> {

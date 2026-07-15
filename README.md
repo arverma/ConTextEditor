@@ -43,6 +43,7 @@ See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the full design and rationa
 - **Fully private notes**: kept in `localStorage` on your device; the host only
   serves static HTML/JS/CSS.
 - **Word / char counts** next to Edit | Preview (live for the open note).
+- **Export**: TXT in Edit mode; PDF from Preview (browser print → Save as PDF).
 - **Privacy FAB**: floating icon (bottom-right) to the privacy policy page.
 
 ---
@@ -122,6 +123,8 @@ rm -f ~/Library/LaunchAgents/com.contexteditor.localserver.plist
 - **New note** — the "+ New note" button in the sidebar.
 - **Switch / edit** — click a note in the sidebar; edits autosave (~0.6s debounce).
 - **Edit / Preview** — toggle in the note title bar; Preview shows rendered Markdown.
+- **Export** — **Export TXT** in Edit downloads the note; **Export PDF** in Preview
+  opens the print dialog (choose Save as PDF).
 - **Delete** — the trash icon on a note (appears on hover / when active).
 - **Theme** — the System / Light / Dark control in the top-right; your choice is
   remembered.
