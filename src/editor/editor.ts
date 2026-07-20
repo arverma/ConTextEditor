@@ -12,6 +12,7 @@ import {
 import { initHistoryPanel, refreshHistoryPanel } from "./history-panel";
 import { setPreviewContent } from "./markdown-preview";
 import { exportPdf, exportTxt } from "./export";
+import { registerEmojiCompletions } from "./emoji-completions";
 
 const AUTOSAVE_DELAY_MS = 600;
 const VIEW_MODE_KEY = "context-editor.viewMode";
@@ -96,6 +97,8 @@ const editor = monaco.editor.create(container, {
     seedSearchStringFromSelection: "always",
   },
 });
+
+registerEmojiCompletions();
 
 // Cmd/Ctrl+F comes from findController. Map Cmd/Ctrl+R to Replace and stop the
 // browser from reloading the tab while the editor is focused.
