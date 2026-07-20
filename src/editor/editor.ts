@@ -96,6 +96,9 @@ const editor = monaco.editor.create(container, {
   find: {
     seedSearchStringFromSelection: "always",
   },
+  suggest: {
+    showIcons: false,
+  },
 });
 
 registerEmojiCompletions();

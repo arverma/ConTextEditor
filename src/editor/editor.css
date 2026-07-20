@@ -680,9 +680,10 @@ body {
   border-radius: 10px !important;
   box-shadow: var(--shadow) !important;
   overflow: hidden;
-  width: min(280px, 90vw) !important;
+  width: min(260px, 90vw) !important;
   font-family: var(--font-ui) !important;
   font-size: 13px !important;
+  padding: 6px 0 !important;
 }
 
 .monaco-editor .suggest-widget .monaco-list {
@@ -690,9 +691,7 @@ body {
 }
 
 .monaco-editor .suggest-widget .monaco-list .monaco-list-row {
-  border-radius: 6px;
-  margin: 0 4px;
-  padding-inline: 4px;
+  border-radius: 7px !important;
 }
 
 .monaco-editor .suggest-widget .monaco-list .monaco-list-row.focused {
@@ -704,14 +703,27 @@ body {
   background: var(--surface-hover) !important;
 }
 
-/* Drop the stock kind glyph ("abc") — emoji is already in the label. */
+/* Hide kind glyphs even if showIcons is somehow on. */
 .monaco-editor .suggest-widget .monaco-list .monaco-list-row .monaco-icon-label::before,
-.monaco-editor .suggest-widget .monaco-list .monaco-list-row .icon {
+.monaco-editor .suggest-widget .monaco-list .monaco-list-row .icon,
+.monaco-editor .suggest-widget .monaco-list .monaco-list-row .suggest-icon {
   display: none !important;
+  width: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.monaco-editor .suggest-widget .monaco-list .monaco-list-row > .contents {
+  padding: 0 14px !important;
+  box-sizing: border-box !important;
 }
 
 .monaco-editor .suggest-widget .monaco-list .monaco-list-row > .contents > .main > .left > .monaco-icon-label {
-  padding-left: 4px !important;
+  padding-left: 0 !important;
+}
+
+.monaco-editor .suggest-widget .monaco-list .monaco-list-row .monaco-icon-name-container {
+  letter-spacing: 0.01em;
 }
 
 .monaco-editor .suggest-details {
