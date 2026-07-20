@@ -27,7 +27,7 @@ export function registerEmojiCompletions(): void {
       const suggestions = EMOJI_SHORTCODES.filter((item) =>
         item.id.toLowerCase().startsWith(prefix)
       ).map((item) => ({
-        label: `${item.emoji} ${item.id}`,
+        label: { label: item.emoji, description: item.id },
         kind: monaco.languages.CompletionItemKind.Text,
         insertText: item.emoji,
         range,

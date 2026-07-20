@@ -663,6 +663,65 @@ body {
   color: var(--text-faint) !important;
 }
 
+/* ---------- Monaco suggest widget (emoji picker — match app shell) ---------- */
+:root {
+  --vscode-editorSuggestWidget-background: var(--surface);
+  --vscode-editorSuggestWidget-border: var(--border);
+  --vscode-editorSuggestWidget-foreground: var(--text);
+  --vscode-editorSuggestWidget-selectedBackground: var(--accent-soft);
+  --vscode-editorSuggestWidget-selectedForeground: var(--text);
+  --vscode-editorSuggestWidget-selectedIconForeground: var(--text);
+  --vscode-editorSuggestWidget-highlightForeground: var(--accent);
+  --vscode-editorSuggestWidget-focusHighlightForeground: var(--accent);
+  --vscode-editorSuggestWidgetStatus-foreground: var(--text-muted);
+}
+
+.monaco-editor .suggest-widget {
+  border-radius: 10px !important;
+  box-shadow: var(--shadow) !important;
+  overflow: hidden;
+  width: min(280px, 90vw) !important;
+  font-family: var(--font-ui) !important;
+  font-size: 13px !important;
+}
+
+.monaco-editor .suggest-widget .monaco-list {
+  background: transparent !important;
+}
+
+.monaco-editor .suggest-widget .monaco-list .monaco-list-row {
+  border-radius: 6px;
+  margin: 0 4px;
+  padding-inline: 4px;
+}
+
+.monaco-editor .suggest-widget .monaco-list .monaco-list-row.focused {
+  background: var(--accent-soft) !important;
+  color: var(--text) !important;
+}
+
+.monaco-editor .suggest-widget .monaco-list .monaco-list-row:hover:not(.focused) {
+  background: var(--surface-hover) !important;
+}
+
+/* Drop the stock kind glyph ("abc") — emoji is already in the label. */
+.monaco-editor .suggest-widget .monaco-list .monaco-list-row .monaco-icon-label::before,
+.monaco-editor .suggest-widget .monaco-list .monaco-list-row .icon {
+  display: none !important;
+}
+
+.monaco-editor .suggest-widget .monaco-list .monaco-list-row > .contents > .main > .left > .monaco-icon-label {
+  padding-left: 4px !important;
+}
+
+.monaco-editor .suggest-details {
+  border-radius: 10px !important;
+  box-shadow: var(--shadow) !important;
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+
 /* ---------- privacy FAB ---------- */
 .privacy-fab {
   position: fixed;
