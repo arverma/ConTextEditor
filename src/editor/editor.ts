@@ -178,6 +178,31 @@ function applyViewMode(mode: ViewMode, { persist = true } = {}): void {
   }
 }
 
+function toggleViewMode(): void {
+  applyViewMode(viewMode === "edit" ? "preview" : "edit");
+}
+
+function isToggleViewShortcut(e: KeyboardEvent): boolean {
+  if (!(e.metaKey || e.ctrlKey) || e.altKey) return false;
+  const key = e.key.toLowerCase();
+  if (key === "e") return !e.shiftKey;
+  if (key === "/") return !e.shiftKey;
+  if (key === "m" || key === "v" || key === "p") return e.shiftKey;
+  return false;
+}
+
+// Toggle Edit ↔ Preview from anywhere on the page (not only when Monaco is focused).
+window.addEventListener(
+  "keydown",
+  (e) => {
+    if (!isToggleViewShortcut(e)) return;
+    e.preventDefault();
+    e.stopPropagation();
+    toggleViewMode();
+  },
+  true
+);
+
 function setSaveStatus(state: "saved" | "saving"): void {
   saveStatusEl.dataset.state = state;
   saveStatusEl.textContent = state === "saving" ? "Saving…" : "Saved";

@@ -1,6 +1,6 @@
 # Chrome Web Store publish checklist
 
-Use this when submitting **Context Editor Tab** to the Chrome Web Store.
+Use this when submitting **ConText Editor Tab** to the Chrome Web Store.
 
 ## Package
 
@@ -15,7 +15,7 @@ repo root. Upload that zip in the [Developer Dashboard](https://chrome.google.co
 
 | Field | Value |
 | --- | --- |
-| **Name** | Context Editor Tab |
+| **Name** | ConText Editor Tab |
 | **Summary** (132 chars max) | Open a persistent Monaco editor tab so Gemini in Chrome can read your notes via @ tab context. |
 | **Description** | See below |
 | **Category** | Productivity |
@@ -27,7 +27,7 @@ repo root. Upload that zip in the [Developer Dashboard](https://chrome.google.co
 ### Description (paste)
 
 ```
-Context Editor Tab opens a Monaco-powered text editor in a normal browser tab.
+ConText Editor Tab opens a Monaco-powered text editor in a normal browser tab.
 Write scratch notes or prompts, then use Gemini in Chrome’s “@” tab-context
 picker to share that tab as context — no copy-paste required.
 
@@ -51,7 +51,7 @@ Declare a single purpose along the lines of:
 
 ## Permission justification (`tabs`)
 
-> Used only to find an existing Context Editor tab, focus it, or open the known
+> Used only to find an existing ConText Editor tab, focus it, or open the known
 > editor URL. The extension does not read or modify other sites.
 
 ## Screenshots
@@ -61,7 +61,7 @@ Prepare at least one of:
 - **1280 × 800** or **640 × 400** PNG/JPEG
 
 Suggested shots: editor with a sample note; theme toggle; Gemini @ picker with
-the Context Editor tab visible (if allowed by store policy for UI chrome).
+the ConText Editor tab visible (if allowed by store policy for UI chrome).
 
 ## Icons
 

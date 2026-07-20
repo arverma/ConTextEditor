@@ -59,7 +59,7 @@ Deployed by `.github/workflows/deploy-pages.yml`.
    `#full-text-mirror`.
 3. Preview renders sanitized HTML (Mermaid only in Preview). Gemini still gets
    the raw source from the mirror.
-4. User `@`-picks the Context Editor tab in Gemini.
+4. User `@`-picks the ConText Editor tab in Gemini.
 
 ## Hidden mirror
 

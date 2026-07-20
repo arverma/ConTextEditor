@@ -1,4 +1,4 @@
-# Context Editor Tab
+# ConText Editor Tab
 
 A Chrome extension that opens a Monaco editor in a normal browser tab so
 **Gemini in Chrome** can pick it up via `@` tab context. Click the toolbar icon,
@@ -30,7 +30,7 @@ Details: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 1. Install from the Chrome Web Store (once published), or load unpacked `dist/` (see below).
 2. Pin the icon and click it → `https://arverma.github.io/ConTextEditor/`.
-3. In Gemini, type `@` and pick the **Context Editor** tab.
+3. In Gemini, type `@` and pick the **ConText Editor** tab.
 
 Privacy: [privacy.html](https://arverma.github.io/ConTextEditor/privacy.html).  
 Store checklist: [docs/STORE.md](docs/STORE.md).
