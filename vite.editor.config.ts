@@ -1,11 +1,11 @@
 import { defineConfig } from "vite";
 import { resolve } from "node:path";
 
-// Standalone static website, deployed to GitHub Pages at
-// https://arverma.github.io/ConTextEditor/. The root URL serves the editor.
-export default defineConfig({
+// Production is served at https://editor.arverma.dev/.
+// Preserve the existing local development URL without prefixing production assets.
+export default defineConfig(({ command, isPreview }) => ({
   root: "src/editor",
-  base: "/ConTextEditor/",
+  base: command === "serve" && !isPreview ? "/ConTextEditor/" : "/",
   build: {
     outDir: resolve(__dirname, "dist-editor"),
     emptyOutDir: true,
@@ -20,4 +20,4 @@ export default defineConfig({
   worker: {
     format: "es",
   },
-});
+}));

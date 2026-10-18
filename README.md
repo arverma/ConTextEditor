@@ -4,10 +4,10 @@ A local-first Markdown editor website with a comfortable writing surface,
 live preview, persistent note history, and complete backups. Open it in your
 browser and start writing; no installation or account is required.
 
-**Live editor:** [Open ConText Editor](https://arverma.github.io/ConTextEditor/)
+**Live editor:** [Open ConText Editor](https://editor.arverma.dev/)
 
 Notes stay in browser storage on the editor origin and are never uploaded by
-this app. [Privacy policy](https://arverma.github.io/ConTextEditor/privacy.html).
+this app. [Privacy policy](https://editor.arverma.dev/privacy.html).
 
 ## Features
 
@@ -28,7 +28,7 @@ Use Node.js 24 LTS (the tests also support Node 20.19+ or 22.12+).
 npm ci
 npm run dev       # http://localhost:5173/ConTextEditor/
 npm run build     # standalone website in dist-editor/
-npm run preview   # production build at http://localhost:4173/ConTextEditor/
+npm run preview   # production build at http://localhost:4173/
 ```
 
 GitHub Pages deploys the website on pushes to `main`. The editor root, privacy

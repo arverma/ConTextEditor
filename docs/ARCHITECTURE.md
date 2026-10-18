@@ -1,13 +1,13 @@
 # Architecture
 
 ConText Editor is a standalone static website hosted at
-`https://arverma.github.io/ConTextEditor/`. The application runs in the browser;
+`https://editor.arverma.dev/`. The application runs in the browser;
 there is no application server, account service, or note synchronization service.
 
 ## Build and deployment
 
-`vite.editor.config.ts` uses `src/editor/` as the source root and `/ConTextEditor/`
-as the public base path. `npm run build` creates the deployable `dist-editor/`
+`vite.editor.config.ts` uses `src/editor/` as the source root. Production and build preview use `/` as the public base
+path for the custom domain; the development server retains `/ConTextEditor/`. `npm run build` creates the deployable `dist-editor/`
 website. GitHub Pages deployment uploads that directory on pushes to `main`.
 The `build:editor`, `dev:editor`, and `preview:editor` script aliases still work.
 

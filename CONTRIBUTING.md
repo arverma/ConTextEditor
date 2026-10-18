@@ -13,7 +13,7 @@ npm run dev
 ```
 
 Open `http://localhost:5173/ConTextEditor/`. Use `npm run preview` for a production
-build served at `http://localhost:4173/ConTextEditor/`. Browser storage belongs to
+build served at `http://localhost:4173/`. Browser storage belongs to
 the origin, so use a separate local port and disposable notes for data-flow tests.
 
 ## Project layout
