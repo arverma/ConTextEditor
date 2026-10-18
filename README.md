@@ -31,6 +31,11 @@ npm run build     # standalone website in dist-editor/
 npm run preview   # production build at http://localhost:4173/
 ```
 
+A separate CodeMirror evaluation page is available during development at
+`/ConTextEditor/poc.html`. Source mode edits raw Markdown; Visual mode offers basic paragraph/heading text editing and formatting. It uses disposable content and never reads or writes
+saved notes. It is excluded from the production build; Monaco remains the main
+editor. See [the evaluation checklist](docs/codemirror-poc.md).
+
 GitHub Pages deploys the website on pushes to `main`. The editor root, privacy
 page, and sitemap are included in the production build. `localStorage` is
 per-origin: localhost notes do not appear on the deployed website.
@@ -40,8 +45,9 @@ per-origin: localhost notes do not appear on the deployed website.
 - **New note** — sidebar “+ New note”
 - **Switch / edit** — click a note; edits autosave (~0.6s)
 - **Edit / Preview** — title bar toggle
+- **Format text** — select text in Edit and use Bold, Italic, or Inline code in the formatting toolbar. Bold and Italic also support Ctrl/Cmd+B and Ctrl/Cmd+I. With no selection, a placeholder is inserted for you to replace. Line break adds an explicit Markdown line break after the selection or cursor; formatting supports Undo.
 - **Export** — TXT in Edit; PDF (print → Save as PDF) in Preview
-- **Download image** — use the download icon in a Mermaid diagram’s top-right corner or beside a Markdown table’s top-right edge. The expanded diagram also has a download icon. Images include the full content in the current theme.
+- **Download image** — use the download icon in a Mermaid diagram’s top-right corner or beside a centered Markdown table’s top-right edge. The expanded diagram also has a download icon. Images include the full content in the current theme.
 - **Delete** — trash icon on a note; Undo is available for 10 seconds
 - **Focus mode** — hide surrounding controls; use Exit focus or Escape to return. Available in the toolbar and command menu.
 - **Full width** — expand the centered writing column for wide code or diagrams

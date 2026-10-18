@@ -7,14 +7,11 @@ beforeAll(async () => {
  await import('../src/editor/monaco-setup');
 });
 afterAll(() => vi.unstubAllGlobals());
-it('loads native word navigation and selection commands with keyboard bindings', () => {
- for (const id of ['cursorWordLeft','cursorWordEndRight','cursorWordLeftSelect','cursorWordEndRightSelect']) {
-  expect(CommandsRegistry.getCommand(id),id).toBeDefined();
-  expect(KeybindingsRegistry.getDefaultKeybindings().some(binding => binding.command === id),id).toBe(true);
- }
-});
-it('loads native move-line and copy-line commands, retaining Monaco undo handling', () => {
- for (const id of ['editor.action.moveLinesUpAction','editor.action.moveLinesDownAction','editor.action.copyLinesUpAction','editor.action.copyLinesDownAction']) {
+it('loads native word, selection, and line commands with keyboard bindings', () => {
+ for (const id of [
+  'cursorWordLeft','cursorWordEndRight','cursorWordLeftSelect','cursorWordEndRightSelect',
+  'editor.action.moveLinesUpAction','editor.action.moveLinesDownAction','editor.action.copyLinesUpAction','editor.action.copyLinesDownAction',
+ ]) {
   expect(CommandsRegistry.getCommand(id),id).toBeDefined();
   expect(KeybindingsRegistry.getDefaultKeybindings().some(binding => binding.command === id),id).toBe(true);
  }

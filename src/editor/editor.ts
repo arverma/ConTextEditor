@@ -1,3 +1,4 @@
+import { formatSelection, initFormatting } from "./formatting";
 import { COMPACT_LAYOUT_QUERY } from "./responsive";
 import { initMobileActions } from "./mobile-actions";
 import { initOwnershipPanel } from "./ownership-panel";
@@ -180,6 +181,7 @@ function applyViewMode(mode: ViewMode, { persist = true } = {}): void {
 
   const isPreview = mode === "preview";
   container.hidden = isPreview;
+  document.getElementById("formatting-toolbar")!.hidden = isPreview;
   previewEl.hidden = !isPreview;
 
   viewToggleEl.querySelectorAll<HTMLElement>(".view-opt").forEach((btn) => {
@@ -342,3 +344,14 @@ initShortcuts({
 });
 
 mobileActions = initMobileActions();
+
+initFormatting(editor);
+for (const [kind, label, key] of [
+  ['bold', 'Bold', monaco.KeyCode.KeyB],
+  ['italic', 'Italic', monaco.KeyCode.KeyI],
+] as const) {
+  const button = document.querySelector<HTMLButtonElement>(`[data-format="${kind}"]`)!;
+  button.title = `${label} (${shortcutLabel(`Mod+${kind === 'bold' ? 'B' : 'I'}`)})`;
+  button.setAttribute('aria-keyshortcuts', `${/Mac|iPhone|iPad/.test(navigator.platform) ? 'Meta' : 'Control'}+${kind === 'bold' ? 'B' : 'I'}`);
+  editor.addAction({ id: `context-editor.format.${kind}`, label, keybindings: [monaco.KeyMod.CtrlCmd | key], precondition: 'editorTextFocus && !editorReadonly', run: () => { formatSelection(editor, kind); } });
+}

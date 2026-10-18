@@ -35,11 +35,20 @@ it('merges without overwriting, deduplicates exact records, and preserves Trash 
  deleteSnippet(existing.id); const trashed = readCollection().notes;
  const boundary = mergeBackup(trashed, backup.notes); expect(boundary.copied).toBe(1); expect(boundary.notes.filter(note => note.trash)).toHaveLength(1);
 });
-it('rejects malformed versions, duplicate IDs, settings and invalid timestamps before mutation', () => {
+it('rejects malformed backups before changing stored notes', () => {
  createSnippet('keep'); const original = readCollection(); const backup = makeBackup();
- for (const value of [{ ...backup, version: 2 }, { ...backup, notes: [backup.notes[0], backup.notes[0]] }, { ...backup, settings: { hacked: true } }, { ...backup, notes: [{ ...backup.notes[0], updatedAt: 1e20 }] }]) {
-  expect(() => validateBackup(JSON.stringify(value))).toThrow();
- }
+ const trash = { id:'a', content:'x', updatedAt:1, trash:{ id:'op', deletedAt:1, wasActive:false } };
+ const invalid = [
+  { ...backup, version: 2 },
+  { ...backup, notes: [backup.notes[0], backup.notes[0]] },
+  { ...backup, settings: { hacked: true } },
+  { ...backup, notes: [{ ...backup.notes[0], updatedAt: 1e20 }] },
+  { ...backup, notes: [{ ...trash, trash: { ...trash.trash, deletedAt: null } }] },
+  { ...backup, notes: [trash, { ...trash, id: 'b' }] },
+  { ...backup, notes: [trash], activeNoteId: 'a' },
+ ];
+ for (const value of invalid) expect(() => validateBackup(JSON.stringify(value))).toThrow();
+ expect(() => validateBackup(' '.repeat(INPUT_BYTE_LIMIT + 1))).toThrow(/5 MiB/);
  expect(readCollection()).toEqual(original);
 });
 it('commits batches atomically and refuses stale reviews', () => {
@@ -49,14 +58,4 @@ it('commits batches atomically and refuses stale reviews', () => {
  expect(readCollection()).toEqual(reviewed);
  createSnippet('intervening'); expect(() => commitCollection([...reviewed.notes, imported], reviewed.token)).toThrow(/changed/);
  expect(getSnippets()).toHaveLength(2); expect(getTrashEntries()).toHaveLength(0);
-});
-it('rejects oversized backups, invalid Trash, duplicate recovery IDs and active Trash references', () => {
- const backup = makeBackup();
- expect(() => validateBackup(' '.repeat(INPUT_BYTE_LIMIT + 1))).toThrow(/5 MiB/);
- const trash = { id:'a',content:'x',updatedAt:1,trash:{id:'op',deletedAt:1,wasActive:false} };
- for (const patch of [
-  {notes:[{...trash,trash:{...trash.trash,deletedAt:null}}]},
-  {notes:[trash,{...trash,id:'b'}]},
-  {notes:[trash],activeNoteId:'a'},
- ]) expect(() => validateBackup(JSON.stringify({...backup,...patch}))).toThrow();
 });

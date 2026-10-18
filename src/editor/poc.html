@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CodeMirror evaluation · ConText Editor</title><link rel="stylesheet" href="editor.css"><link rel="stylesheet" href="mobile.css"><link rel="stylesheet" href="poc/poc.css"></head>
+<body><main class="poc-page">
+<header class="poc-header"><div><h1>CodeMirror evaluation</h1><p>Disposable workspace · saved notes are never read or written</p></div><a href="./">Return to Monaco</a></header>
+<div class="poc-tools" role="group" aria-label="Prototype controls">
+<label>Fixture <select id="fixture"><option value="mixed">Mixed line endings</option><option value="technical">Technical Markdown</option><option value="large">Large document</option></select></label>
+<button id="reset" type="button">Reset fixture</button><label class="poc-file">Open local Markdown<input id="import" type="file" accept=".md,.markdown,.txt"></label>
+<button id="raw-export" type="button">Download raw text</button><button id="pdf-export" type="button">Print / PDF</button>
+<button id="poc-theme" type="button" aria-pressed="false">Dark theme</button>
+</div>
+<div class="poc-tools" role="group" aria-label="Editing mode"><button type="button" data-mode="source" aria-pressed="true">Source</button><button type="button" data-mode="visual" aria-pressed="false">Visual</button></div>
+<p id="fidelity" class="poc-fidelity" role="status"></p>
+<div class="poc-edit-tools" role="toolbar" aria-label="Selection formatting" hidden>
+<button type="button" data-format="bold" aria-label="Bold" title="Bold (Ctrl/Cmd+B)"><b>B</b></button><button type="button" data-format="italic" aria-label="Italic" title="Italic (Ctrl/Cmd+I)"><i>I</i></button><button type="button" data-format="code" aria-label="Inline code">&lt;/&gt;</button></div>
+<div class="poc-history" role="group" aria-label="Edit history"><button id="undo" type="button">Undo</button><button id="redo" type="button">Redo</button>
+</div>
+<div class="poc-workspace"><section class="poc-source" aria-label="Markdown source"><div id="poc-editor"></div>
+<details class="poc-outline" open><summary>Block organizer</summary><p>Drag a handle to reorder a whole block. Up/down buttons also work with a keyboard or phone. This organizer evaluates source moves; it is not an inline Notion editor.</p><ol id="blocks"></ol></details>
+</section><section class="poc-preview" aria-label="Rendered preview"><h2>Preview</h2><p class="visual-help">Click a paragraph or heading to edit. Select text to format it. Tables, diagrams, HTML and complex inline syntax remain editable in Source.</p><article id="markdown-preview" class="markdown-preview"></article></section></div>
+<p id="poc-status" role="status"></p><pre id="full-text-mirror" class="visually-hidden"></pre>
+</main><script type="module" src="poc/poc.ts"></script></body></html>

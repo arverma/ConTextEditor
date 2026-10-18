@@ -128,6 +128,12 @@
             </div>
           </div>
           <div id="save-error" class="save-error" role="alert" hidden><span id="save-error-message"></span><button id="retry-save" type="button">Retry save</button></div>
+          <div id="formatting-toolbar" role="group" aria-label="Text formatting">
+            <button type="button" data-format="bold" aria-label="Bold" title="Bold"><strong aria-hidden="true">B</strong></button>
+            <button type="button" data-format="italic" aria-label="Italic" title="Italic"><em aria-hidden="true">I</em></button>
+            <button type="button" data-format="code" aria-label="Inline code" title="Inline code"><span aria-hidden="true">&lt;/&gt;</span></button>
+            <button type="button" data-format="break" aria-label="Insert line break" title="Insert line break"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 5v7H4m5-5-5 5 5 5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          </div>
           <div id="monaco-container"></div>
           <article id="markdown-preview" class="markdown-preview" tabindex="-1" aria-label="Note preview" hidden></article>
         </main>

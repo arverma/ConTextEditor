@@ -97,4 +97,4 @@ head script applies the saved preference before paint. Focus mode is session-onl
 
 Use `npm test`, `npx tsc --noEmit`, and `npm run build` for verification. Test tools
 live in the independent `tests/` package; browser checks use disposable local
-origins. See `tasks/` for plans and recorded runtime evidence.
+origins.

@@ -1088,3 +1088,16 @@ body {
   .focus-exit { display: none !important; }
   #app[data-focus-mode="true"] #main { padding-top: 0 !important; }
 }
+
+/* Formatting stays close to the writing surface and is hidden in Preview. */
+#formatting-toolbar { display: flex; gap: 2px; flex-shrink: 0; padding: 4px max(24px, calc((100% - 806px) / 2)); border-bottom: 1px solid var(--border); }
+#formatting-toolbar[hidden] { display: none; }
+#formatting-toolbar button { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 32px; padding: 0; border: 0; border-radius: 6px; color: var(--text-muted); background: transparent; font: 15px var(--font-ui); cursor: pointer; -webkit-tap-highlight-color: transparent; }
+#formatting-toolbar button:hover { background: var(--surface-hover); color: var(--text); }
+#formatting-toolbar [data-format="code"] { font: 13px var(--font-mono); }
+#main[data-full-width="true"] #formatting-toolbar { padding-inline: 24px; }
+@media (max-width: 700px), (max-width: 1000px) and (max-height: 500px) {
+  #formatting-toolbar, #main[data-full-width="true"] #formatting-toolbar { padding: 0 16px; }
+  #formatting-toolbar button { width: 44px; height: 44px; }
+}
+@media print { #formatting-toolbar { display: none !important; } }

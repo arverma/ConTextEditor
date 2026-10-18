@@ -20,30 +20,25 @@ it("enters and exits without persisting mode, with visible exit and view-preserv
   expect(mode.isActive()).toBe(false); expect(sidebar.setSuppressed).toHaveBeenLastCalledWith(false);
   expect(ed.layout).toHaveBeenCalledTimes(2);
 });
-it("lets an open dialog, editor find widget, and composition consume Escape first", () => {
+it("lets Escape exit focus only when nothing else claims it", () => {
   const { mode } = setup(); document.getElementById("focus-mode-btn")!.click();
   document.body.insertAdjacentHTML("beforeend", '<dialog open></dialog>');
   window.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true })); expect(mode.isActive()).toBe(true);
   document.querySelector("dialog")!.remove();
   const overlay = document.createElement("div"); overlay.className = "find-widget visible"; document.getElementById("monaco-container")!.append(overlay);
-  const event = new KeyboardEvent("keydown", { key: "Escape", bubbles: true, cancelable: true });
+  const claimed = new KeyboardEvent("keydown", { key: "Escape", bubbles: true, cancelable: true });
   // Model an editor closing its find widget during the same event dispatch.
-  overlay.addEventListener("keydown", () => overlay.remove()); overlay.dispatchEvent(event);
+  overlay.addEventListener("keydown", () => overlay.remove()); overlay.dispatchEvent(claimed);
   expect(mode.isActive()).toBe(true);
   window.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", isComposing: true })); expect(mode.isActive()).toBe(true);
+  const prevented = new KeyboardEvent("keydown", { key: "Escape", cancelable: true }); prevented.preventDefault(); window.dispatchEvent(prevented);
+  expect(mode.isActive()).toBe(true);
   window.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", cancelable: true })); expect(mode.isActive()).toBe(false);
-});
-it("honors prevented editor Escape and starts each new session outside focus mode", () => {
-  const { mode } = setup(); document.getElementById("focus-mode-btn")!.click();
-  const event = new KeyboardEvent("keydown", { key: "Escape", cancelable: true }); event.preventDefault(); window.dispatchEvent(event);
-  expect(mode.isActive()).toBe(true); mode.dispose(); cleanup = () => {};
-  const second = setup(); expect(second.mode.isActive()).toBe(false);
-});
-
-it("does not let a hidden editor Find widget block exiting focus from preview", () => {
-  const { mode } = setup(); document.getElementById("focus-mode-btn")!.click();
+  document.getElementById("focus-mode-btn")!.click();
   const container = document.getElementById("monaco-container")!;
   container.hidden = true; container.innerHTML = '<div class="find-widget visible"></div>';
   window.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", cancelable: true }));
   expect(mode.isActive()).toBe(false);
+  mode.dispose(); cleanup = () => {};
+  const second = setup(); expect(second.mode.isActive()).toBe(false);
 });

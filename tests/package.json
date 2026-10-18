@@ -6,10 +6,16 @@
     "node": "^20.19.0 || ^22.12.0 || >=24.0.0"
   },
   "scripts": {
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:poc:browser": "node browser/codemirror-poc.mjs",
+    "test:poc:selection": "node browser/codemirror-selection.mjs",
+    "test:poc:visual": "node browser/codemirror-visual.mjs",
+    "test:poc:plan": "node browser/codemirror-plan-editing.mjs",
+    "test:poc:touch": "node browser/codemirror-touch.mjs"
   },
   "devDependencies": {
-    "vitest": "4.1.11",
-    "jsdom": "25.0.1"
+    "jsdom": "25.0.1",
+    "playwright": "^1.62.1",
+    "vitest": "4.1.11"
   }
 }

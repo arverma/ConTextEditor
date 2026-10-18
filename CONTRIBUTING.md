@@ -24,7 +24,7 @@ the origin, so use a separate local port and disposable notes for data-flow test
 - `tests/` — isolated regression-test package.
 - `.github/workflows/deploy-pages.yml` — GitHub Pages deployment.
 - `docs/ARCHITECTURE.md` — runtime and data-safety design.
-- `tasks/` — existing implementation plans and verification evidence.
+- `docs/codemirror-poc.md` — CodeMirror evaluation checklist.
 
 ## Conventions
 
