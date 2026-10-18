@@ -41,6 +41,7 @@ per-origin: localhost notes do not appear on the deployed website.
 - **Switch / edit** — click a note; edits autosave (~0.6s)
 - **Edit / Preview** — title bar toggle
 - **Export** — TXT in Edit; PDF (print → Save as PDF) in Preview
+- **Download image** — use the download icon in a Mermaid diagram’s top-right corner or beside a Markdown table’s top-right edge. The expanded diagram also has a download icon. Images include the full content in the current theme.
 - **Delete** — trash icon on a note; Undo is available for 10 seconds
 - **Focus mode** — hide surrounding controls; use Exit focus or Escape to return. Available in the toolbar and command menu.
 - **Full width** — expand the centered writing column for wide code or diagrams

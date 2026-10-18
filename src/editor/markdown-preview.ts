@@ -1,3 +1,4 @@
+import { enhanceTables } from './preview-image';
 import { enhanceDiagrams } from "./diagram-viewer";
 import { marked } from "marked";
 import DOMPurify from "dompurify";
@@ -90,5 +91,5 @@ export async function setPreviewContent(el: HTMLElement, source: string): Promis
   el.innerHTML = html || `<p class="markdown-preview-empty">Nothing to preview yet.</p>`;
   if (gen !== previewGeneration) return;
   await renderMermaidBlocks(el);
-  if (gen === previewGeneration) enhanceDiagrams(el);
+  if (gen === previewGeneration) { enhanceDiagrams(el); enhanceTables(el); }
 }

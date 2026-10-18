@@ -22,3 +22,16 @@ it('keeps imported HTML sanitized before rendering preview',async()=>{
  const root=document.querySelector('article')!; await setPreviewContent(root,'<img src="x" onerror="alert(1)"><script>alert(1)</script>');
  expect(root.querySelector('script')).toBeNull(); expect(root.querySelector('[onerror]')).toBeNull();
 });
+
+it('adds image download actions to Markdown tables without changing their cells', async () => {
+ const root = document.querySelector('article')!;
+ await setPreviewContent(root, '| Name | Value |\n| --- | --- |\n| Alpha | 42 |');
+ expect(root.querySelectorAll('.table-frame')).toHaveLength(1);
+ expect(root.querySelector('[aria-label="Download table 1 as PNG"]')).not.toBeNull();
+ expect(root.querySelector('td')!.textContent).toBe('Alpha');
+ const frame = root.querySelector('.table-frame')!;
+ expect(frame.querySelector('.diagram-heading')).toBeNull();
+ expect(frame.firstElementChild!.tagName).toBe('TABLE');
+ expect(frame.lastElementChild!.className).toBe('table-actions');
+ expect(frame.querySelector('button')!.textContent).toBe('');
+});
