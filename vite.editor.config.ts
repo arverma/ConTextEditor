@@ -1,11 +1,8 @@
 import { defineConfig } from "vite";
 import { resolve } from "node:path";
 
-// Builds the editor page as a standalone static site (dist-editor/), deployed to
-// GitHub Pages at https://arverma.github.io/ConTextEditor/ — NOT bundled into
-// the extension. This is what makes the tab shareable with Gemini in Chrome's
-// "@" tab picker, which excludes chrome-extension:// pages by URL scheme.
-// Entry is index.html so the bare Pages root URL serves the editor natively.
+// Standalone static website, deployed to GitHub Pages at
+// https://arverma.github.io/ConTextEditor/. The root URL serves the editor.
 export default defineConfig({
   root: "src/editor",
   base: "/ConTextEditor/",

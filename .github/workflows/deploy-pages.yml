@@ -1,4 +1,4 @@
-name: Deploy editor to GitHub Pages
+name: Deploy website to GitHub Pages
 
 on:
   push:
@@ -24,7 +24,7 @@ jobs:
           node-version: "22"
           cache: npm
       - run: npm ci
-      - run: npm run build:editor
+      - run: npm run build
       - uses: actions/upload-pages-artifact@v4
         with:
           path: dist-editor

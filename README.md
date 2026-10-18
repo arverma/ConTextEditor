@@ -1,66 +1,39 @@
-# ConText Editor Tab
+# ConText Editor
 
-A Chrome extension that opens a Monaco editor in a normal browser tab so
-**Gemini in Chrome** can pick it up via `@` tab context. Click the toolbar icon,
-write, and point the AI at the tab.
+A local-first Markdown editor website with a comfortable writing surface,
+live preview, persistent note history, and complete backups. Open it in your
+browser and start writing; no installation or account is required.
 
-Notes stay in `localStorage` on the editor origin — never uploaded by this app.
+**Live editor:** [Open ConText Editor](https://arverma.github.io/ConTextEditor/)
 
-**Live editor:** [https://arverma.github.io/ConTextEditor/](https://arverma.github.io/ConTextEditor/)
-
-## Why this shape
-
-Gemini's `@` picker **excludes `chrome-extension://` pages by URL scheme**. So:
-
-- The **editor** is a static site on GitHub Pages (`https://…`).
-- The **extension** only opens or re-focuses that tab.
-
-Details: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+Notes stay in browser storage on the editor origin and are never uploaded by
+this app. [Privacy policy](https://arverma.github.io/ConTextEditor/privacy.html).
 
 ## Features
 
-- Monaco Markdown editor with **Edit | Preview** (sanitized HTML; Mermaid fences in Preview)
-- Multi-note history, autosaved locally
-- System / Light / Dark theme
-- Tab reuse (icon focuses the existing editor tab)
-- Word/char counts; Export TXT (Edit) or PDF via print (Preview)
-- Privacy FAB → policy page
+- Monaco Markdown editor with Edit/Preview, sanitized HTML, and Mermaid diagrams
+- Centered writing, Full width, and distraction-free Focus mode
+- Searchable note history, autosave, persistent Trash, and quick Undo
+- Copy Markdown, raw text download, and PDF export through browser printing
+- UTF-8 Markdown import and complete JSON backup/restore
+- System, Light, and Dark themes; keyboard commands and responsive layouts
 
-## Install
-
-1. Install from the Chrome Web Store (once published), or load unpacked `dist/` (see below).
-2. Pin the icon and click it → `https://arverma.github.io/ConTextEditor/`.
-3. In Gemini, type `@` and pick the **ConText Editor** tab.
-
-Privacy: [privacy.html](https://arverma.github.io/ConTextEditor/privacy.html).  
-Store checklist: [docs/STORE.md](docs/STORE.md).
+See [the architecture](docs/ARCHITECTURE.md) for implementation details.
 
 ## Development
 
-Requires Node.js 18+ and Chrome.
+Use Node.js 24 LTS (the tests also support Node 20.19+ or 22.12+).
 
 ```bash
-npm install
-npm run build            # dist/ (extension) + dist-editor/ (editor site)
+npm ci
+npm run dev       # http://localhost:5173/ConTextEditor/
+npm run build     # standalone website in dist-editor/
+npm run preview   # production build at http://localhost:4173/ConTextEditor/
 ```
 
-Load `dist/` at `chrome://extensions` → Developer mode → Load unpacked. By default
-the extension opens the live Pages URL. Pages deploy on push to `main`.
-
-**Editor iteration**
-
-```bash
-npm run dev:editor       # http://localhost:5173/ConTextEditor/
-npm run preview:editor   # http://localhost:4173/ConTextEditor/
-```
-
-Point a local extension build at the preview server:
-
-```bash
-VITE_EDITOR_ORIGIN=http://127.0.0.1:4173 VITE_EDITOR_BASE=/ConTextEditor npm run build:extension
-```
-
-`localStorage` is per-origin — notes on localhost do not appear on Pages.
+GitHub Pages deploys the website on pushes to `main`. The editor root, privacy
+page, and sitemap are included in the production build. `localStorage` is
+per-origin: localhost notes do not appear on the deployed website.
 
 ## Usage
 
@@ -68,26 +41,105 @@ VITE_EDITOR_ORIGIN=http://127.0.0.1:4173 VITE_EDITOR_BASE=/ConTextEditor npm run
 - **Switch / edit** — click a note; edits autosave (~0.6s)
 - **Edit / Preview** — title bar toggle
 - **Export** — TXT in Edit; PDF (print → Save as PDF) in Preview
-- **Delete** — trash icon on a note
+- **Delete** — trash icon on a note; Undo is available for 10 seconds
+- **Focus mode** — hide surrounding controls; use Exit focus or Escape to return. Available in the toolbar and command menu.
+- **Full width** — expand the centered writing column for wide code or diagrams
+- **Copy Markdown** — copy the complete raw note from Edit or Preview; manual copy opens if clipboard access is unavailable
 - **Theme** — System / Light / Dark (top-right)
+
+## Keyboard shortcuts
+
+Open **Commands & shortcuts** using the keyboard icon, **Cmd/Ctrl+K**, or
+**Cmd/Ctrl+Shift+/**. Search for an action, use Up/Down to navigate, Enter to
+run it, and Escape to close. Button tooltips show their shortcuts.
+
+- **Cmd/Ctrl+Shift+Enter** — new note
+- **Cmd/Ctrl+\** — toggle note history
+- **Cmd/Ctrl+Shift+F** — open history and search notes
+- **Cmd/Ctrl+E** — switch Edit / Preview
+- **Cmd+Option** (Mac) — press together and release to switch Edit / Preview;
+  adding another key cancels the toggle so other shortcuts keep working
+- **Cmd/Ctrl+Shift+E** — export raw text in Edit, PDF in Preview
+- **Cmd/Ctrl+S** — save immediately (autosave stays enabled)
+- **Cmd/Ctrl+Shift+Backspace** — delete current note (Undo available)
+- **Alt/Option+Shift+1 / 2 / 3** — System / Light / Dark theme
+- **Alt/Option+Shift+P** — privacy policy
+
+Standard editor shortcuts remain available, including undo/redo, cut/copy/paste,
+select all, **Cmd/Ctrl+F** to find, and **Cmd/Ctrl+R** to replace while editing.
+
+## History and recovery
+
+Search matches note titles and raw content locally, ignoring case. Arrow keys
+move focus through notes; Enter or Space opens one. Escape clears search before
+closing the mobile history drawer. Search does not change the note being edited.
+
+Deletion uses the same Undo action for mouse and keyboard. Each deletion can be
+undone for 10 seconds, newest first; hovering or focusing the notification pauses
+the timer. After the toast expires or the page reloads, the note remains in
+**Trash** until you explicitly delete it forever. Restore keeps the original source
+and timestamps; an occupied note ID can be restored as a new copy. Typing after
+deleting the last note creates a saved note.
+If saving fails, keep the tab open, export your draft, and use Retry save.
+
+## Import and backups
+
+Open **Import & backup** at the bottom of note history, or use the command menu.
+Markdown imports accept UTF-8 `.md` and `.markdown` files, up to 5 MiB per batch.
+Review the complete batch before adding it. Only an initial encoding BOM is
+removed; remaining source, line endings, and code fences are preserved.
+
+**Download backup** saves version 1 JSON containing all notes, Trash, original
+IDs/timestamps, active-note reference, and recognized appearance preferences.
+If local saving fails, the download still includes the latest in-memory draft
+when the existing collection can be read. Check the browser downloads; the app
+cannot confirm where the browser ultimately saves the file. Backups are plain
+JSON, not encrypted or uploaded to a cloud service.
+
+**Restore backup** accepts ConText JSON up to 5 MiB. Review the additive merge:
+identical IDs/content are skipped, conflicts become copies, and Trash stays
+separate from active notes. Existing work is never replaced. Appearance restore
+is optional. A changed collection invalidates a pending review; close and review
+again. All collection changes use one atomic local save. A failed save leaves
+the previous collection intact. Appearance settings are applied separately after
+note restoration and failures are reported without undoing restored notes.
+
+Notes and Trash belong to this browser origin. Clearing site data removes both;
+keep a downloaded backup for independent recovery. Reload older editor tabs
+before using these features. Simultaneous multi-tab edits remain last-write-wins.
+
+## Tests
+
+The test tools are isolated from the app's build dependencies. Use Node 24 LTS
+(or supported Node 20.19+/22.12+ releases):
+
+```bash
+npm ci --prefix tests
+npm test
+npx tsc --noEmit
+npm run build
+```
+
+Tests use isolated browser-like storage and cover note lifecycle, failed saves,
+Undo timing, history focus/search, mobile drawer transitions, export, and shortcuts.
+Browser checks should use a separate local origin with disposable notes, rather
+than deleting or replacing existing user notes. Simultaneous edits to the same
+note in multiple tabs still use last-write-wins storage; this is not collaborative
+editing. Unsaved local edits are preserved as a new note after external deletion.
 
 ## Scripts
 
-| Script | What it does |
-| --- | --- |
-| `npm run build` | Extension + editor |
-| `npm run build:extension` | Extension → `dist/` |
-| `npm run build:editor` | Editor site → `dist-editor/` |
-| `npm run dev:editor` | Vite HMR |
-| `npm run preview:editor` | Production-like preview |
-| `npm run package` | Zip `dist/` for Web Store |
-| `npm run icons` | Regenerate toolbar PNGs |
+- `npm run dev` — local website with live updates.
+- `npm run build` — production website in `dist-editor/`.
+- `npm run preview` — build and serve a production preview.
+- `npm test` — run the isolated test suite after installing `tests/` dependencies.
+- The existing `dev:editor`, `build:editor`, and `preview:editor` aliases remain available.
 
 ## Troubleshooting
 
-- **Tab won't load** — confirm Pages is up, or use `dev:editor` / `preview:editor`.
-- **Gemini `@` missing the tab** — URL must be `https://arverma.github.io/...`, not `chrome-extension://`.
-- **Stale toolbar icon** — reload the unpacked extension at `chrome://extensions`.
+- **Page will not load** — confirm GitHub Pages is available, or run the local development server.
+- **Notes seem missing** — check the browser profile and website origin. Browser storage is separate for each.
+- **Saving fails** — keep the page open, download a backup of your draft, and retry after freeing space.
 
 ## Contributing
 

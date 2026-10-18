@@ -1,60 +1,48 @@
 # Contributing
 
-Small project — keep it lean.
+Keep the website small, accessible, and local-first.
 
 ## Setup
 
-```bash
-npm install
-npm run build
-```
-
-Load `dist/` unpacked at `chrome://extensions`. Default icon target is live Pages.
+Use Node.js 24 LTS, then install the website and isolated test dependencies:
 
 ```bash
-npm run dev:editor          # http://localhost:5173/ConTextEditor/
-npm run preview:editor      # http://localhost:4173/ConTextEditor/
+npm ci
+npm ci --prefix tests
+npm run dev
 ```
 
-`background.ts` / `manifest.json` changes need `npm run build:extension` and a
-reload in `chrome://extensions`.
+Open `http://localhost:5173/ConTextEditor/`. Use `npm run preview` for a production
+build served at `http://localhost:4173/ConTextEditor/`. Browser storage belongs to
+the origin, so use a separate local port and disposable notes for data-flow tests.
 
-Local E2E against Vite preview:
+## Project layout
 
-```bash
-npm run preview:editor   # keep running
-VITE_EDITOR_ORIGIN=http://127.0.0.1:4173 VITE_EDITOR_BASE=/ConTextEditor npm run build:extension
-```
-
-## Layout
-
-```
-manifest.json                  MV3 extension
-vite.extension.config.ts       → dist/
-vite.editor.config.ts          → dist-editor/
-src/background/background.ts   Open/reuse editor tab
-src/editor/                    Editor app (docs/ARCHITECTURE.md)
-scripts/                       package zip, icon regen
-docs/STORE.md                  Web Store checklist
-```
+- `src/editor/` — website source, editor, preview, styles, and local storage.
+- `src/editor/public/` — sitemap and legacy `editor.html` redirect, copied as-is.
+- `vite.editor.config.ts` — website build into `dist-editor/`.
+- `tests/` — isolated regression-test package.
+- `.github/workflows/deploy-pages.yml` — GitHub Pages deployment.
+- `docs/ARCHITECTURE.md` — runtime and data-safety design.
+- `tasks/` — existing implementation plans and verification evidence.
 
 ## Conventions
 
-- Strict TypeScript (`npx tsc --noEmit`).
-- Manifest stays at `"tabs"` only unless there's a strong reason.
-- Notes stay in `localStorage` via `storage.ts` — no upload.
-- No CDNs / remote app code; bundle assets (incl. Monaco worker).
-- Comments explain *why*, not *what*.
+- Use strict TypeScript and preserve existing saved note data.
+- Keep note storage, imports, and backup parsing local; never upload notes.
+- Bundle app assets and Monaco workers; do not introduce remote app code.
+- Preserve exact Markdown source and sanitize rendered preview output.
+- Test failed saves and recovery paths when changing storage behavior.
+- Comments should explain why a choice exists.
 
-## Icons
+## Before a pull request
 
 ```bash
-npm run icons && npm run build:extension
+npm test
+npx tsc --noEmit
+npm run build
 ```
 
-Edit `scripts/make-icons.cjs`; keep colors aligned with `--accent` in `editor.css`.
-
-## Before a PR
-
-- `npx tsc --noEmit` and `npm run build` pass.
-- Spot-check the flow you touched (open tab, edit/save, switch notes, theme).
+Check the affected browser flow, keyboard access, narrow layouts, and both themes.
+Verify `dist-editor/` includes `index.html`, `privacy.html`, and `sitemap.xml`.
+Do not commit generated output or use existing user notes as destructive fixtures.

@@ -1,96 +1,92 @@
 # Architecture
 
-## Core constraint
+ConText Editor is a standalone static website hosted at
+`https://arverma.github.io/ConTextEditor/`. The application runs in the browser;
+there is no application server, account service, or note synchronization service.
 
-Gemini in Chrome's `@` tab-context picker **excludes `chrome-extension://` pages by
-URL scheme**. The editor must be a normal `https://` tab. Production hosts it on
-GitHub Pages at `https://arverma.github.io/ConTextEditor/`.
+## Build and deployment
 
-Two parts, no local server:
+`vite.editor.config.ts` uses `src/editor/` as the source root and `/ConTextEditor/`
+as the public base path. `npm run build` creates the deployable `dist-editor/`
+website. GitHub Pages deployment uploads that directory on pushes to `main`.
+The `build:editor`, `dev:editor`, and `preview:editor` script aliases still work.
 
-```mermaid
-flowchart TB
-  ext["Chrome extension<br/>(thin launcher)"]
-  bg["background.ts"]
-  editor["Editor tab<br/>(GitHub Pages)"]
-  monaco["Monaco"]
-  mirror["Hidden full-text mirror"]
-  storage["localStorage"]
-  gemini["Gemini @"]
+The build includes the editor root, `privacy.html`, and bundled assets.
+`public/sitemap.xml` lists the two public pages. `public/editor.html` preserves
+old bookmarks by redirecting to the root; it is excluded from the sitemap.
+Monaco workers and application dependencies are bundled locally.
 
-  ext -->|click icon| bg
-  bg -->|open / focus| editor
-  editor --- monaco
-  monaco -->|syncs| mirror
-  monaco -->|autosave| storage
-  mirror -->|read by| gemini
-```
+## Runtime
 
-## Extension — `manifest.json`, `src/background/background.ts`
+- `editor.ts` initializes Monaco, theme, view state, export, and feature controllers.
+- `note-session.ts` owns draft saving and note transitions, preserving pending
+  edits when persistence fails.
+- `storage.ts` stores active notes and Trash together in browser localStorage.
+- `history-panel.ts`, `sidebar.ts`, and `trash-panel.ts` manage note navigation,
+  responsive dialogs, search, and recovery.
+- `writing-layout.ts` and `focus-mode.ts` preserve editor state while changing
+  width or hiding surrounding controls.
+- `shortcuts.ts` provides keyboard commands and the searchable command menu.
+- `markdown-preview.ts` renders Markdown through marked and DOMPurify, loading
+  Mermaid when needed. Raw imported HTML remains source text until previewed.
+- `copy-markdown.ts` copies the complete live source, with a manual fallback.
+- `export.ts` downloads raw text or invokes browser printing for PDF.
+- `ownership.ts` validates imports/backups and prepares additive merges;
+  `ownership-panel.ts` handles file selection, review, and confirmation.
+- `editor.css` defines the writing interface; `ownership.css` styles library
+  actions and utility dialogs using the same theme tokens.
 
-- MV3, no popup, permission `"tabs"` only.
-- Icon click: find an existing editor tab on the Pages host (including legacy
-  `/editor.html`) and focus it; otherwise open a new one.
-- Override with `VITE_EDITOR_ORIGIN` / `VITE_EDITOR_BASE` for local E2E.
-- Built by `vite.extension.config.ts` → `dist/`.
+## Full-text mirror
 
-## Editor — `src/editor/`
+Monaco virtualizes its visible lines. The visually hidden `#full-text-mirror`
+contains the complete raw Markdown so browser tab-content tools can read the
+whole note. The app does not send that text to any external service. A user may
+choose to share browser content through other tools independently.
 
-Built by `vite.editor.config.ts` → `dist-editor/` (`base: /ConTextEditor/`).
-Deployed by `.github/workflows/deploy-pages.yml`.
+## Local data and recovery
 
-| File | Role |
-| --- | --- |
-| `index.html` | Shell: topbar, sidebar, Monaco, preview, mirror, Privacy FAB |
-| `public/editor.html` | Legacy redirect → `/` |
-| `privacy.html` | Store privacy policy |
-| `editor.ts` | Boot: theme, Edit/Preview, counts, export, autosave, mirror |
-| `export.ts` | TXT download / `window.print` PDF |
-| `monaco-setup.ts` | Worker, Markdown Monarch, find, Codicon CSS (no CDN) |
-| `markdown-preview.ts` | `marked` + DOMPurify; lazy Mermaid for ` ```mermaid ` |
-| `storage.ts` | `localStorage` note CRUD |
-| `history-panel.ts` | Sidebar list |
-| `editor.css` | Tokens, layout, print, Monaco find theming |
+Browser storage is scoped to the website origin and profile. Important keys are:
 
-## Flow
+- `context-editor.snippets` — records containing `id`, `content`, `updatedAt`,
+  and optional `trash` metadata (`id`, `deletedAt`, `wasActive`).
+- `context-editor.activeSnippetId` — selected active note.
+- `context-editor.viewMode` — Edit or Preview.
+- `context-editor.theme` — Light or Dark; absence follows the system theme.
+- `context-editor.fullWidth` and `context-editor.sidebarOpen` — layout preferences.
 
-1. Icon → open/focus Pages tab.
-2. Load active note into Monaco; edits debounce-save and sync raw Markdown into
-   `#full-text-mirror`.
-3. Preview renders sanitized HTML (Mermaid only in Preview). Gemini still gets
-   the raw source from the mirror.
-4. User `@`-picks the ConText Editor tab in Gemini.
+Titles derive from the first Markdown line. Active and Trash records share one
+array, so a deletion, restoration, purge, or reviewed batch import commits in one
+atomic localStorage write. Failed writes preserve the previous complete array.
+The short Undo notification references the same persistent Trash operation ID.
+Trash has no automatic expiration; permanent deletion requires confirmation.
 
-## Hidden mirror
+Storage is last-write-wins across simultaneous tabs. Import and restore reviews
+carry a collection token and refuse to commit if notes changed after review.
+This protects stale batch operations without promising collaborative editing.
+Keep an unsaved draft open if storage fails; retry or download a backup.
 
-Monaco virtualizes the DOM — off-screen lines may be missing from the tree. The
-mirror `<pre>` holds the **entire raw Markdown** with a visually-hidden clip
-(not `display:none`) so tab-content extractors can see the full note.
+## Import and backups
 
-## Storage
+Markdown import accepts local UTF-8 `.md`/`.markdown` batches up to 5 MiB, removing
+only an initial BOM and preserving remaining source. Files are validated and
+reviewed before any batch commit.
 
-Keys on the Pages origin:
+Version 1 JSON backups include active notes, Trash, IDs/timestamps, active-note
+reference, and recognized preferences. Export includes a pending draft even if
+local saving fails, provided the existing collection is readable. Download
+feedback reports a request; the browser controls the final file destination.
 
-- `context-editor.snippets` → `Array<{ id, content, updatedAt }>`
-- `context-editor.activeSnippetId`
-- `context-editor.viewMode` → `"edit"` \| `"preview"`
-- `context-editor.theme` → `"light"` \| `"dark"` (absent = system)
+Restore validates the whole backup before an additive merge. Identical records
+are skipped, ID conflicts become copies, and Trash stays separate. Appearance
+restore is opt-in and applied after notes commit, with separate failure feedback.
+Backups are unencrypted local files. Clearing site data removes notes and Trash,
+while downloaded files remain until deleted separately.
 
-Titles are derived from the first line of `content` (ATX `#` stripped). Old
-`title` / `createdAt` fields in stored JSON are ignored and dropped on rewrite.
+## Theme and validation
 
-## Theme
+System/Light/Dark themes use CSS tokens and matching Monaco themes. A small
+head script applies the saved preference before paint. Focus mode is session-only.
 
-System / Light / Dark. CSS defaults dark on `:root`; `[data-theme="light"]`
-overrides; `prefers-color-scheme` applies only when no explicit choice is set.
-A tiny `<head>` script sets `data-theme` before paint. Monaco themes
-`ce-dark` / `ce-light` match `--editor-bg`.
-
-## Local development
-
-```bash
-npm run dev:editor          # or preview:editor
-npm run build:extension     # load dist/ unpacked
-# optional E2E:
-VITE_EDITOR_ORIGIN=http://127.0.0.1:4173 VITE_EDITOR_BASE=/ConTextEditor npm run build:extension
-```
+Use `npm test`, `npx tsc --noEmit`, and `npm run build` for verification. Test tools
+live in the independent `tests/` package; browser checks use disposable local
+origins. See `tasks/` for plans and recorded runtime evidence.

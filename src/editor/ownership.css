@@ -1,0 +1,71 @@
+/* Library actions, Trash, import and backup dialogs. Uses the editor theme tokens. */
+
+.trash-dialog { width: min(640px, calc(100vw - 32px)); }
+.trash-description { margin: 0 0 16px; color: var(--text-muted); font-size: 13px; line-height: 1.6; }
+.trash-list { list-style: none; padding: 0; margin: 0; max-height: 55dvh; overflow-y: auto; }
+.trash-row { padding: 16px 0; border-top: 1px solid var(--border); }
+.trash-details { min-width: 0; overflow-wrap: anywhere; }
+.trash-details strong { font-size: 14px; }
+.trash-details p { color: var(--text-muted); font-size: 13px; white-space: pre-wrap; margin: 6px 0; }
+.trash-details time { color: var(--text-muted); font-size: 12px; }
+.trash-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.trash-actions button { min-height: 36px; padding: 6px 12px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface-2); color: var(--text); cursor: pointer; }
+.trash-actions button:hover { background: var(--surface-hover); }
+.trash-actions button[data-action="purge"] { color: var(--text-muted); background: transparent; }
+.trash-empty { padding: 24px 0; color: var(--text-muted); text-align: center; }
+.trash-status { color: var(--text-muted); font-size: 13px; }
+.trash-error { color: var(--text); padding: 12px; border: 1px solid var(--border); border-radius: 6px; }
+.ownership-dialog { width: min(560px, calc(100vw - 32px)); }
+.ownership-description { color: var(--text-muted); font-size: 13px; line-height: 1.6; }
+.ownership-options { display: grid; gap: 8px; margin: 16px 0; }
+.ownership-options button { padding: 12px; text-align: left; border: 1px solid var(--border); border-radius: 8px; color: var(--text); background: var(--surface); cursor: pointer; }
+.ownership-options button:hover { background: var(--surface-hover); }
+.ownership-options span { display: block; margin-top: 4px; color: var(--text-muted); font-size: 12px; }
+.ownership-review { border-top: 1px solid var(--border); padding-top: 16px; }
+.ownership-review h3 { margin: 0; font-size: 14px; }
+.review-summary, .review-files, .restore-settings, .ownership-feedback, .ownership-error { font-size: 13px; line-height: 1.6; }
+.review-files { padding-left: 20px; max-height: 20dvh; overflow: auto; overflow-wrap: anywhere; }
+.restore-settings { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+.restore-settings input { width: auto; }
+.ownership-confirm { background: var(--accent); color: white; border: 0; border-radius: 6px; padding: 10px 16px; cursor: pointer; }
+.ownership-error { border: 1px solid var(--border); padding: 12px; border-radius: 6px; }
+/* Component display rules must never override native hidden state. */
+[hidden] { display: none !important; }
+
+/* Keep library actions together and distinguish layout, note, and view controls. */
+.sidebar-tools { flex-shrink: 0; border-top: 1px solid var(--border); padding: 8px; display: grid; gap: 2px; background: var(--surface); }
+.sidebar-tools button { display: flex; align-items: center; justify-content: flex-start; gap: 10px; width: 100%; min-height: 36px; margin: 0; padding: 8px 10px; border: 0; border-radius: 6px; color: var(--text-muted); background: transparent; font: 12px var(--font-ui); text-align: left; cursor: pointer; }
+.sidebar-tools button:hover { background: var(--surface-hover); color: var(--text); }
+#trash-count { margin-left: auto; padding: 1px 6px; min-width: 22px; border-radius: 4px; background: var(--surface-2); color: var(--text-muted); text-align: center; font-variant-numeric: tabular-nums; }
+.toolbar-group { display: flex; align-items: center; gap: 4px; }
+.toolbar-group + .toolbar-group { border-left: 1px solid var(--border); padding-left: 8px; }
+.titlebar-right { gap: 8px; }
+.note-counts { margin-right: 8px; }
+.ownership-dialog .ownership-confirm:hover { background: var(--accent-hover); }
+.restore-settings input { margin: 0; padding: 0; accent-color: var(--accent); }
+@media (max-width: 480px) {
+  .titlebar-right { gap: 6px; }
+  .toolbar-group { gap: 2px; }
+  .toolbar-group + .toolbar-group { padding-left: 6px; }
+  .command-dialog { padding: 16px; }
+}
+@media (pointer: coarse) {
+  .sidebar-tools button, .trash-actions button, .ownership-options button, .command-header button { min-height: 44px; }
+  .command-header button { min-width: 44px; }
+}
+
+/* Stable toolbar hierarchy: title, writing/view controls, then note actions. */
+#note-titlebar { flex-wrap: nowrap; }
+#note-title { flex: 1 1 0; }
+.titlebar-right { flex-wrap: nowrap; }
+.toolbar-actions { border-left: 1px solid var(--border); padding-left: 12px; margin-left: 4px; }
+#export-btn { width: auto; gap: 6px; padding: 0 8px; white-space: nowrap; }
+#export-label { font-size: 12px; }
+@container writing-workspace (max-width: 520px) {
+  #note-titlebar { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px 12px; padding: 8px 12px; }
+  #note-title { grid-column: 1; grid-row: 1; }
+  .titlebar-right { display: contents; }
+  .toolbar-layout { grid-column: 2; grid-row: 1; justify-self: end; }
+  #view-toggle { grid-column: 1; grid-row: 2; justify-self: start; }
+  .toolbar-actions { grid-column: 2; grid-row: 2; justify-self: end; padding-left: 0; margin-left: 0; border-left: 0; }
+}

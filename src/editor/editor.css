@@ -177,6 +177,36 @@ body {
 }
 
 /* ---------- sidebar ---------- */
+.sidebar-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  flex-shrink: 0;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.sidebar-toggle:hover {
+  background: var(--surface-hover);
+  color: var(--text);
+}
+
+.sidebar-toggle:focus-visible,
+.snippet-delete-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+#sidebar[hidden] {
+  display: none;
+}
+
 #sidebar {
   width: 264px;
   flex-shrink: 0;
@@ -258,10 +288,11 @@ body {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  padding-right: 22px;
+  padding-right: 36px;
 }
 
 .snippet-item-preview {
+  padding-right: 36px;
   font-size: 12px;
   color: var(--text-muted);
   overflow: hidden;
@@ -283,12 +314,13 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 22px;
-  height: 22px;
+  width: 32px;
+  height: 32px;
+  padding: 0;
   background: transparent;
   border: none;
   border-radius: 6px;
-  color: var(--text-faint);
+  color: var(--text-muted);
   cursor: pointer;
   font-size: 15px;
   line-height: 1;
@@ -297,6 +329,7 @@ body {
 }
 
 .snippet-item:hover .snippet-delete-btn,
+.snippet-item:focus-within .snippet-delete-btn,
 .snippet-item.active .snippet-delete-btn {
   opacity: 1;
 }
@@ -304,6 +337,43 @@ body {
 .snippet-delete-btn:hover {
   background: var(--danger-soft);
   color: var(--danger);
+}
+
+.snippet-delete-btn svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+@media (pointer: coarse) {
+  .snippet-delete-btn {
+    width: 44px;
+    height: 44px;
+    opacity: 1;
+  }
+
+  .snippet-item-title,
+  .snippet-item-preview {
+    padding-right: 48px;
+  }
+}
+
+@media (max-width: 700px) {
+  #body {
+    position: relative;
+  }
+
+  #sidebar {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: min(264px, 85vw);
+    z-index: 20;
+    box-shadow: var(--shadow);
+  }
+
+  .note-counts {
+    display: none;
+  }
 }
 
 .sidebar-empty {
@@ -364,11 +434,12 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: 28px;
-  padding: 0 11px;
-  border: 1px solid var(--border);
-  border-radius: 9px;
-  background: var(--surface-2);
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
   color: var(--text-muted);
   font-size: 12px;
   font-weight: 550;
@@ -382,6 +453,11 @@ body {
   background: var(--surface-hover);
   color: var(--text);
   border-color: var(--text-faint);
+}
+
+.export-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 .view-toggle {
@@ -813,4 +889,202 @@ body {
     max-width: 100% !important;
     break-inside: avoid;
   }
+}
+
+/* Searchable keyboard command menu. */
+.command-dialog {
+  width: min(480px, calc(100vw - 32px));
+  max-height: min(600px, calc(100dvh - 48px));
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow);
+}
+.command-dialog::backdrop { background: rgb(0 0 0 / 35%); }
+.command-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.command-header h2 { margin: 0; font-size: 15px; }
+.command-header button { font-size: 24px; padding: 0; width: 32px; height: 32px; }
+.command-dialog input {
+  width: 100%;
+  margin: 12px 0;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface-2);
+  color: var(--text);
+  font: inherit;
+}
+.command-list { max-height: 50dvh; overflow-y: auto; }
+.command-dialog button {
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text);
+  font-family: inherit;
+  cursor: pointer;
+}
+.command-list button { display: flex; align-items: center; justify-content: space-between; gap: 16px; width: 100%; min-height: 40px; padding: 8px; text-align: left; font-size: 13px; }
+.command-dialog button:hover, .command-list button:focus-visible { background: var(--surface-hover); }
+.command-dialog :focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.command-list kbd { color: var(--text-muted); font: 11px var(--font-mono); white-space: nowrap; }
+.command-hint { margin: 12px 0 0; font-size: 11px; color: var(--text-muted); }
+
+/* History controls use native buttons, with independent selection/deletion. */
+.snippet-item { padding: 0; cursor: default; }
+.snippet-select {
+  display: block;
+  width: 100%;
+  padding: 10px 11px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.snippet-select > span { display: block; }
+.snippet-select:focus-visible, button:focus-visible, a:focus-visible, input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+.sidebar-heading { display: flex; align-items: center; justify-content: space-between; padding: 12px 12px 0; }
+.sidebar-heading h2 { font-size: 12px; color: var(--text-muted); margin: 0; font-weight: 600; }
+#sidebar-close { display: none; font-size: 24px; }
+.note-search-row { position: relative; margin: 0 12px 12px; }
+#note-search {
+  width: 100%; min-width: 0; height: 36px; padding: 0 32px 0 10px;
+  border: 1px solid var(--border); border-radius: 6px;
+  background: var(--surface-2); color: var(--text); font: 12px var(--font-ui);
+}
+#note-search::-webkit-search-cancel-button { display: none; }
+#clear-search {
+  position: absolute; right: 2px; top: 2px; width: 32px; height: 32px;
+  padding: 0; border: 0; border-radius: 4px;
+  background: transparent; color: var(--text-muted); font-size: 20px; cursor: pointer;
+}
+#clear-search[hidden], .undo-toast[hidden], .save-error[hidden] { display: none; }
+.save-error { display: flex; align-items: center; gap: 12px; padding: 8px 12px; background: var(--danger-soft); font-size: 12px; }
+.save-error button, .undo-toast button { color: var(--text); background: var(--surface-2); border: 1px solid var(--border); padding: 8px 12px; border-radius: 6px; font: inherit; white-space: nowrap; cursor: pointer; }
+.save-status[data-state="error"] { color: var(--danger); }
+.undo-toast {
+  position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 30;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  max-width: calc(100vw - 96px); padding: 8px 12px;
+  background: var(--surface); color: var(--text); border: 1px solid var(--border);
+  border-radius: 8px; box-shadow: var(--shadow); font-size: 13px;
+}
+.history-dialog {
+  position: fixed; inset: 0 auto 0 0; margin: 0; padding: 0;
+  width: min(280px, 85vw); max-width: none; height: 100dvh; max-height: none;
+  border: 0; border-right: 1px solid var(--border);
+  background: var(--surface); color: var(--text); box-shadow: var(--shadow);
+}
+.history-dialog::backdrop { background: rgb(0 0 0 / 35%); }
+.history-dialog #sidebar { position: static; width: 100%; height: 100%; box-shadow: none; border: 0; }
+#app { height: 100dvh; width: 100%; }
+#body, .brand, .topbar-right { min-width: 0; }
+@media (max-width: 700px) {
+  #sidebar-close { display: inline-flex; }
+  #note-titlebar { height: auto; min-height: 48px; flex-wrap: wrap; padding: 8px 12px; gap: 8px; }
+  #note-title { flex: 1 1 80px; }
+  .titlebar-right { gap: 8px; }
+}
+@media (max-width: 480px) {
+  #topbar { height: auto; min-height: 48px; flex-wrap: wrap; gap: 4px 8px; padding: 4px 8px; }
+  .brand { gap: 6px; }
+  .brand-mark { display: none; }
+  .brand-name { font-size: 12px; }
+  .topbar-right { gap: 4px; margin-left: auto; }
+  .save-status { font-size: 10px; }
+  .theme-opt { width: 24px; }
+  .undo-toast { left: 12px; transform: none; max-width: calc(100vw - 72px); }
+  .command-list button { gap: 8px; flex-wrap: wrap; }
+}
+@media (pointer: coarse) {
+  .sidebar-toggle, .theme-opt, .view-opt, .export-btn, #clear-search { min-width: 44px; min-height: 44px; }
+  #note-search { height: 48px; padding-right: 48px; }
+  .snippet-select { min-height: 64px; }
+  .command-list button, .command-header button, .undo-toast button, .save-error button { min-height: 44px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; scroll-behavior: auto !important; }
+}
+@media print {
+  .undo-toast, .history-dialog, .command-dialog, .save-error { display: none !important; }
+}
+
+/* The shared frame aligns prose with source text after Monaco's gutter. */
+#main:not([data-full-width="true"]) #monaco-container,
+#main:not([data-full-width="true"]) .markdown-preview {
+  width: 100%;
+  max-width: 806px;
+  margin-inline: auto;
+}
+#main[data-full-width="true"] #monaco-container,
+#main[data-full-width="true"] .markdown-preview { width: 100%; }
+#writing-width-btn[aria-pressed="true"] { color: var(--accent); background: var(--accent-soft); }
+.copy-check { display: none; }
+#copy-markdown-btn[data-copied="true"] .copy-icon { display: none; }
+#copy-markdown-btn[data-copied="true"] .copy-check { display: block; color: var(--accent); }
+#copy-markdown-btn:disabled { cursor: progress; }
+.copy-dialog p { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+.copy-dialog textarea {
+  display: block; width: 100%; height: min(45dvh, 320px); resize: vertical;
+  padding: 12px; border: 1px solid var(--border); border-radius: 6px;
+  background: var(--editor-bg); color: var(--text); font: 13px/1.6 var(--font-mono);
+}
+.markdown-preview table { display: block; max-width: 100%; overflow-x: auto; }
+@media print {
+  #main .markdown-preview { max-width: none !important; width: 100% !important; margin: 0 !important; }
+  .markdown-preview table { display: table; }
+}
+
+/* Quiet workspace gutters make the writing width legible without a paper card. */
+#main { container: writing-workspace / inline-size; }
+#main:not([data-full-width="true"]) { background: var(--bg); }
+#monaco-container { background: var(--editor-bg); }
+#monaco-container, .markdown-preview {
+  transition: box-shadow 160ms ease, background-color 160ms ease;
+}
+@container writing-workspace (min-width: 850px) {
+  #main:not([data-full-width="true"]) #monaco-container,
+  #main:not([data-full-width="true"]) .markdown-preview {
+    box-shadow: -1px 0 0 var(--border), 1px 0 0 var(--border), 0 0 24px rgb(0 0 0 / 6%);
+  }
+}
+@media print {
+  #main { container-type: normal; }
+  #main .markdown-preview { box-shadow: none !important; }
+}
+
+/* Focus mode is a session-only shell state; errors and Undo stay reachable. */
+#app[data-focus-mode="true"] #topbar,
+#app[data-focus-mode="true"] #note-titlebar,
+#app[data-focus-mode="true"] .privacy-fab { display: none; }
+#app[data-focus-mode="true"] #main { padding-top: 56px; }
+.focus-exit {
+  position: fixed; top: 12px; right: 16px; z-index: 25;
+  display: inline-flex; align-items: center; justify-content: center; gap: 12px;
+  min-height: 36px; padding: 0 12px;
+  border: 1px solid var(--border); border-radius: 6px;
+  background: var(--surface); color: var(--text-muted);
+  font: 12px var(--font-ui); cursor: pointer;
+}
+.focus-exit[hidden] { display: none; }
+.focus-exit:hover { background: var(--surface-hover); color: var(--text); }
+.focus-exit kbd { color: var(--text-faint); font: 11px var(--font-mono); }
+#note-titlebar { height: auto; min-height: 42px; padding-block: 6px; flex-wrap: wrap; }
+.titlebar-right { flex-wrap: wrap; max-width: 100%; }
+@container writing-workspace (max-width: 650px) {
+  .note-counts { display: none; }
+}
+@media (pointer: coarse) {
+  .focus-exit { min-height: 44px; }
+}
+@media print {
+  .focus-exit { display: none !important; }
+  #app[data-focus-mode="true"] #main { padding-top: 0 !important; }
 }
