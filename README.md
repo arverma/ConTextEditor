@@ -68,6 +68,15 @@ run it, and Escape to close. Button tooltips show their shortcuts.
 Standard editor shortcuts remain available, including undo/redo, cut/copy/paste,
 select all, **Cmd/Ctrl+F** to find, and **Cmd/Ctrl+R** to replace while editing.
 
+Mac editor navigation follows Monaco / VS Code conventions while the editor has focus:
+
+- **Cmd+← / →** — start/end of the current line.
+- **Cmd+↑ / ↓** — start/end of the document.
+- **Option+← / →** — previous/next word boundary.
+- **Option+↑ / ↓** — move the current line or selected lines up/down.
+- Add **Shift** to word navigation or Command-arrow navigation to extend selection.
+- **Option+Shift+↑ / ↓** — copy the current line or selected lines up/down.
+
 ## History and recovery
 
 Search matches note titles and raw content locally, ignoring case. Arrow keys

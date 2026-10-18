@@ -18,6 +18,8 @@ Monaco workers and application dependencies are bundled locally.
 
 ## Runtime
 
+- `monaco-setup.ts` explicitly loads native word navigation and line operations,
+  alongside Find/Replace and suggestions, because the slim editor API omits them.
 - `editor.ts` initializes Monaco, theme, view state, export, and feature controllers.
 - `note-session.ts` owns draft saving and note transitions, preserving pending
   edits when persistence fails.
