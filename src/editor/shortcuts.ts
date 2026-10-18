@@ -137,11 +137,11 @@ export function initShortcuts(actions: { toggleView: () => void; save: () => voi
       && (event.key.toLowerCase() === key || (key === "/" && event.code === "Slash") || (key.length === 1 && event.code === (/\d/.test(key) ? `Digit${key}` : `Key${key.toUpperCase()}`)));
   }
   window.addEventListener("keydown", event => {
-    if (event.isComposing || event.repeat || document.querySelector(".copy-dialog[open], .trash-dialog[open], .ownership-dialog[open]")) return;
+    if (event.isComposing || event.repeat || document.querySelector(".copy-dialog[open], .trash-dialog[open], .ownership-dialog[open], .diagram-dialog[open]")) return;
     if (matches(event, "Mod+K") || matches(event, "Mod+Shift+/")) {
       event.preventDefault(); event.stopImmediatePropagation(); open(); return;
     }
-    if (dialog.open) return;
+    if (dialog.open || document.querySelector(".mobile-actions-dialog[open]")) return;
     const command = commands.find(c => c.keys && matches(event, c.keys));
     if (!command) return;
     event.preventDefault();

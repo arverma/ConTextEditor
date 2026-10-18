@@ -1,3 +1,4 @@
+import { enhanceDiagrams } from "./diagram-viewer";
 import { marked } from "marked";
 import DOMPurify from "dompurify";
 import type { Tokens } from "marked";
@@ -47,6 +48,7 @@ async function renderMermaidBlocks(el: HTMLElement): Promise<void> {
   const nodes = [...el.querySelectorAll<HTMLElement>("pre.mermaid")];
   if (nodes.length === 0) return;
 
+  const sources = new Map(nodes.map(node => [node, node.textContent ?? ""]));
   const mermaid = await getMermaid();
   mermaid.initialize({
     startOnLoad: false,
@@ -59,7 +61,9 @@ async function renderMermaidBlocks(el: HTMLElement): Promise<void> {
   } catch {
     // Invalid diagrams shouldn't blank the whole preview — leave source or mark failures.
     for (const node of nodes) {
-      if (node.querySelector("svg")) continue;
+      const rendered = node.querySelector("svg");
+      if (rendered && !rendered.querySelector(".error-icon, .error-text")) continue;
+      node.textContent = sources.get(node) ?? "";
       node.classList.add("mermaid-error");
       if (!node.dataset.errorNote) {
         node.dataset.errorNote = "1";
@@ -86,4 +90,5 @@ export async function setPreviewContent(el: HTMLElement, source: string): Promis
   el.innerHTML = html || `<p class="markdown-preview-empty">Nothing to preview yet.</p>`;
   if (gen !== previewGeneration) return;
   await renderMermaidBlocks(el);
+  if (gen === previewGeneration) enhanceDiagrams(el);
 }

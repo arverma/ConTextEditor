@@ -16,7 +16,7 @@ vi.mock("monaco-editor/esm/vs/editor/editor.api", () => ({
       getValue: () => model.value,
       setValue: (value: string) => { model.value = value; model.listeners.forEach(fn => fn()); },
       onDidChangeModelContent: (fn: () => void) => model.listeners.push(fn),
-      createContextKey: () => ({ set: vi.fn() }), saveViewState: () => null, restoreViewState: vi.fn(), addAction: vi.fn(), layout: vi.fn(), focus: vi.fn(), hasTextFocus: () => true,
+      createContextKey: () => ({ set: vi.fn() }), saveViewState: () => null, restoreViewState: vi.fn(), updateOptions: vi.fn(), addAction: vi.fn(), layout: vi.fn(), focus: vi.fn(), hasTextFocus: () => true,
     }),
   },
 }));
@@ -135,4 +135,21 @@ it('labels export visibly for the current view and separates it from view contro
  expect(document.getElementById('export-label')!.textContent).toBe('Export PDF');
  expect(document.querySelector('.toolbar-actions #export-btn')).not.toBeNull();
  expect(document.querySelector('.toolbar-actions #view-toggle')).toBeNull();
+});
+it('uses readable mobile editor text and updates typography on resize without replacing the model', async () => {
+ let mobile=true; const changes: Array<()=>void>=[];
+ vi.stubGlobal('matchMedia', (query:string) => ({ get matches(){return query.includes('700px') && mobile;}, addEventListener: (_:string,fn:()=>void) => { if(query.includes('700px'))changes.push(fn); } }));
+ const monaco=await import('monaco-editor/esm/vs/editor/editor.api'); const create=vi.spyOn(monaco.editor,'create');
+ await import('../src/editor/editor');
+ expect(create).toHaveBeenCalledWith(expect.anything(),expect.objectContaining({fontSize:16,lineHeight:24}));
+ const instance=create.mock.results[0].value; edit('Keep this draft'); mobile=false; changes.forEach(change=>change());
+ expect(instance.updateOptions).toHaveBeenCalledWith({fontSize:14,lineHeight:22}); expect(model.value).toBe('Keep this draft'); expect(create).toHaveBeenCalledTimes(1);
+});
+it('refreshes diagrams for theme changes without altering raw source', async () => {
+ await import('../src/editor/editor'); edit('```mermaid\nflowchart LR\nA-->B\n```');
+ document.querySelector<HTMLButtonElement>('[data-view-value="preview"]')!.click();
+ const {setPreviewContent}=await import('../src/editor/markdown-preview'); vi.mocked(setPreviewContent).mockClear();
+ document.querySelector<HTMLButtonElement>('[data-theme-value="dark"]')!.click();
+ expect(setPreviewContent).toHaveBeenCalledWith(document.getElementById('markdown-preview'),model.value);
+ expect(model.value).toBe('```mermaid\nflowchart LR\nA-->B\n```');
 });

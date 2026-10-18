@@ -23,6 +23,7 @@ it("opens an inert-source manual fallback when clipboard permission is denied", 
   expect(field.value).toBe(text); expect(field.readOnly).toBe(true); expect(document.querySelector(".copy-dialog script")).toBeNull();
   expect(document.activeElement).toBe(field); expect(field.selectionEnd).toBe(text.length);
   document.querySelector<HTMLButtonElement>(".copy-dialog button")!.click(); expect(document.activeElement).toBe(button);
+  expect(document.getElementById("copy-status")!.textContent).toBe("");
 });
 it("supports empty notes and reports success only after the clipboard write resolves", async () => {
   let done!: () => void; const writeText = vi.fn(() => new Promise<void>(resolve => { done = resolve; }));

@@ -1,3 +1,4 @@
+import { COMPACT_LAYOUT_QUERY } from "./responsive";
 import { shortcutLabel } from "./shortcuts";
 
 export function initSidebar(options: { beforeOpen?: () => void } = {}) {
@@ -9,7 +10,7 @@ export function initSidebar(options: { beforeOpen?: () => void } = {}) {
   const announcement = document.getElementById("recovery-status");
   const announcementHome = announcement?.parentElement;
   const body = document.getElementById("body")!;
-  const mobile = window.matchMedia("(max-width: 700px)");
+  const mobile = window.matchMedia(COMPACT_LAYOUT_QUERY);
   const dialog = document.createElement("dialog");
   dialog.className = "history-dialog";
   dialog.setAttribute("aria-label", "Note history");

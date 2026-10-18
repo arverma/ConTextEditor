@@ -13,6 +13,7 @@ export function initCopyMarkdown(getSource: () => string, beforeFallback: () => 
   dialog.querySelector("button")!.addEventListener("click", () => dialog.close());
   dialog.addEventListener("close", () => {
     field.value = "";
+    status.textContent = "";
     (previousFocus?.isConnected ? previousFocus : button).focus();
   });
   async function copy(): Promise<void> {

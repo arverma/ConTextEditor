@@ -1,9 +1,11 @@
+import { COMPACT_LAYOUT_QUERY } from "./responsive";
+import { initMobileActions } from "./mobile-actions";
 import { initOwnershipPanel } from "./ownership-panel";
 import { initTrashPanel } from "./trash-panel";
 import { getTrashEntries } from "./storage";
 import "./monaco-setup";
 import { initFocusMode } from "./focus-mode";
-import { initWritingLayout } from "./writing-layout";
+import { initWritingLayout, updateWritingLayout } from "./writing-layout";
 import { initCopyMarkdown } from "./copy-markdown";
 import { initShortcuts, shortcutLabel } from "./shortcuts";
 // Import the minimal core editor API rather than the "monaco-editor" barrel,
@@ -78,18 +80,20 @@ function applyTheme(mode: ThemeMode): void {
     btn.classList.toggle("active", btn.dataset.themeValue === mode);
     btn.setAttribute("aria-pressed", String(btn.dataset.themeValue === mode));
   });
+  if (!previewEl.hidden) void setPreviewContent(previewEl, editor.getValue());
 }
 
 const initialMode = getThemeMode();
 
+const compactEditor = window.matchMedia(COMPACT_LAYOUT_QUERY);
 const editor = monaco.editor.create(container, {
   value: "",
   language: "markdown",
   theme: effectiveScheme(initialMode) === "dark" ? "ce-dark" : "ce-light",
   automaticLayout: true,
   minimap: { enabled: false },
-  fontSize: 14,
-  lineHeight: 22,
+  fontSize: compactEditor.matches ? 16 : 14,
+  lineHeight: compactEditor.matches ? 24 : 22,
   fontFamily: cssVar("--font-mono") || undefined,
   wordWrap: "on",
   padding: { top: 16, bottom: 16 },
@@ -104,6 +108,12 @@ const editor = monaco.editor.create(container, {
   },
 });
 
+compactEditor.addEventListener("change", () => {
+  updateWritingLayout(editor, () => editor.updateOptions({
+    fontSize: compactEditor.matches ? 16 : 14,
+    lineHeight: compactEditor.matches ? 24 : 22,
+  }));
+});
 registerEmojiCompletions();
 initWritingLayout(editor);
 
@@ -217,6 +227,7 @@ function syncMirror(): void {
   }
 }
 
+let mobileActions: ReturnType<typeof initMobileActions> | null = null;
 let focusMode: ReturnType<typeof initFocusMode> | null = null;
 const sidebar = initSidebar({ beforeOpen: () => focusMode?.exit() });
 const history = initHistoryPanel({
@@ -327,5 +338,7 @@ initShortcuts({
   save: () => { session.flush(); },
   deleteNote: () => { if (session.id) removeNote(session.id); },
   searchNotes: () => { sidebar.setOpen(true); history.focusSearch(); },
-  beforeOpen: () => sidebar.closeMobile(true),
+  beforeOpen: () => { mobileActions?.close(false); sidebar.closeMobile(true); },
 });
+
+mobileActions = initMobileActions();

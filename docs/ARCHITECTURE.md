@@ -26,6 +26,11 @@ Monaco workers and application dependencies are bundled locally.
 - `storage.ts` stores active notes and Trash together in browser localStorage.
 - `history-panel.ts`, `sidebar.ts`, and `trash-panel.ts` manage note navigation,
   responsive dialogs, search, and recovery.
+- `mobile-actions.ts` moves the original secondary controls into a native modal on
+  compact screens, preserving their state and listeners. `responsive.ts` shares
+  the phone/landscape query with sidebar and editor typography behavior.
+- `diagram-viewer.ts` adds bounded diagram scrolling and an expanded zoomable
+  view. It temporarily moves the original SVG, preserving IDs and reading position.
 - `writing-layout.ts` and `focus-mode.ts` preserve editor state while changing
   width or hiding surrounding controls.
 - `shortcuts.ts` provides keyboard commands and the searchable command menu.
@@ -36,7 +41,8 @@ Monaco workers and application dependencies are bundled locally.
 - `ownership.ts` validates imports/backups and prepares additive merges;
   `ownership-panel.ts` handles file selection, review, and confirmation.
 - `editor.css` defines the writing interface; `ownership.css` styles library
-  actions and utility dialogs using the same theme tokens.
+  actions and utility dialogs using the same theme tokens. `mobile.css` defines
+  compact layouts, safe-area spacing, touch targets, and diagram-viewer styles.
 
 ## Full-text mirror
 

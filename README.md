@@ -47,6 +47,15 @@ per-origin: localhost notes do not appear on the deployed website.
 - **Copy Markdown** — copy the complete raw note from Edit or Preview; manual copy opens if clipboard access is unavailable
 - **Theme** — System / Light / Dark (top-right)
 
+On phones, the header keeps note history, save status, and **More note actions**
+visible. Edit/Preview stays beside the note title. Open More for Copy, Export,
+Focus mode, Full width, Commands, Privacy, and appearance choices. Desktop controls
+return to their usual positions when the window grows.
+
+On phones, Mermaid diagrams can be scrolled without shrinking their labels. Choose **Expand**
+for a larger view, use its zoom controls, and close it to return to the same
+reading position. Invalid diagrams show their source and an error message.
+
 ## Keyboard shortcuts
 
 Open **Commands & shortcuts** using the keyboard icon, **Cmd/Ctrl+K**, or
