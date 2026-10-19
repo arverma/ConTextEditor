@@ -1,5 +1,6 @@
 import { Editor, type Editor as TiptapEditor } from '@tiptap/core';
 import { history } from '@tiptap/pm/history';
+import { TextSelection } from '@tiptap/pm/state';
 import { parseMarkdownDocument, previewExtensions, repaintPreviewDiagrams, serializeMarkdownDocument } from './markdown-document';
 
 export type PreviewCommand = 'bold' | 'italic' | 'underline' | 'strike' | 'link' | 'bullet' | 'ordered' | 'quote' | 'code' | 'codeBlock';
@@ -98,8 +99,9 @@ export function previewEditor(root: HTMLElement, read: () => string, write: (raw
     linkHref() { return String(editor.getAttributes('link').href ?? ''); },
     repaint() { repaintPreviewDiagrams(editor.view.dom); },
     selectionRect(): { left: number; right: number; top: number; bottom: number } | null {
-      const { from, to, empty } = editor.state.selection;
-      if (empty) return null;
+      const selection = editor.state.selection;
+      if (!(selection instanceof TextSelection) || selection.empty) return null;
+      const { from, to } = selection;
       const start = editor.view.coordsAtPos(from);
       const end = editor.view.coordsAtPos(Math.max(from, to - 1));
       return {

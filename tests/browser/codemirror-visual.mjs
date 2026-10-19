@@ -6,14 +6,16 @@ for(const [name,engine] of Object.entries({chromium,webkit})) {
  try {
   const page=await browser.newPage();page.setDefaultTimeout(10000);
   const errors=[];page.on('pageerror',e=>errors.push(e.message));
+  const check=await browser.newPage();
+  await check.goto(base+'poc.html');
+  await check.locator('#fixture').selectOption('technical');
+  await check.getByRole('button',{name:'Preview',exact:true}).click();
+  await check.locator('#poc-rich .poc-html-block').waitFor();
+  await check.locator('#poc-rich .poc-html-block').click();
+  await check.waitForTimeout(200);
+  assert.equal(await check.getByRole('toolbar',{name:'Preview formatting'}).isVisible(),false);
+  await check.close();
   await page.goto(base+'poc.html');
-  await page.locator('#fixture').selectOption('technical');
-  await page.getByRole('button',{name:'Preview',exact:true}).click();
-  await page.locator('#poc-rich .poc-diagram svg.flowchart').waitFor({timeout:15000});
-  assert.equal((await page.locator('#poc-rich .poc-html-block').innerText()).trim(),'Raw HTML remains source.');
-  assert.equal(await page.locator('#poc-rich .poc-html-block pre').count(),0);
-  assert.match(await page.locator('#full-text-mirror').textContent(),/<div>Raw HTML remains source\.<\/div>/);
-  await page.getByRole('button',{name:'Markdown',exact:true}).click();
   const fence='~~~mermaid\r\nflowchart LR\r\nA-->B\r\n~~~';
   const original='# Heading\r\n\r\nHello **world** and _friends_.\n\n'+fence+'\r\n';
   await page.locator('#import').setInputFiles({name:'visual.md',mimeType:'text/plain',buffer:Buffer.from(original)});

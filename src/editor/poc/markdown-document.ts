@@ -38,7 +38,7 @@ const rawBlock = Node.create({
   name: 'rawBlock',
   group: 'block',
   atom: true,
-  selectable: true,
+  selectable: false,
   addAttributes() {
     return {
       kind: { default: 'html' },
@@ -61,16 +61,17 @@ const rawBlock = Node.create({
           const dom = document.createElement('div');
           dom.className = 'poc-html-block';
           dom.dataset.rawBlock = 'html';
-          dom.setAttribute('contenteditable', 'false');
+          dom.contentEditable = 'false';
           dom.innerHTML = clean;
-          return { dom };
+          return { dom, stopEvent: () => true, ignoreMutation: () => true };
         }
       }
       const pre = document.createElement('pre');
       pre.className = 'poc-raw-block';
       pre.dataset.rawBlock = kind;
+      pre.contentEditable = 'false';
       pre.textContent = raw;
-      return { dom: pre };
+      return { dom: pre, stopEvent: () => true, ignoreMutation: () => true };
     };
   },
 });
@@ -111,7 +112,7 @@ const diagram = Node.create({
   name: 'diagram',
   group: 'block',
   atom: true,
-  selectable: true,
+  selectable: false,
   addAttributes() {
     return {
       raw: { default: '' },
