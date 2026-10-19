@@ -39,7 +39,11 @@ export function selectionToolbar(toolbar: HTMLElement, anchor: () => SelectionAn
     }
     toolbar.hidden = false;
     const size = toolbar.getBoundingClientRect();
-    const x = Math.max(left + 8, Math.min(left + width - size.width - 8, (rect.left + rect.right - size.width) / 2));
+    const editorBox = selected.editor.getBoundingClientRect();
+    const minX = Math.max(left + 8, editorBox.left + 4);
+    const maxX = Math.min(left + width - size.width - 8, editorBox.right - size.width - 4);
+    const preferred = (rect.left + rect.right - size.width) / 2;
+    const x = maxX < minX ? Math.max(left + 8, Math.min(left + width - size.width - 8, preferred)) : Math.max(minX, Math.min(maxX, preferred));
     const minimumY = Math.max(top + 8, selected.bounds.top + 4);
     const maximumY = Math.min(top + height - size.height - 8, selected.bounds.bottom - size.height - 4);
     const above = rect.top - size.height - 8;

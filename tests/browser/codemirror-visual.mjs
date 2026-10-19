@@ -43,7 +43,7 @@ for(const [name,engine] of Object.entries({chromium,webkit})) {
   await page.getByRole('button',{name:'Undo',exact:true}).click();
   const afterSecondUndo=await raw();
   if(!afterSecondUndo.includes('Hello **world**')||afterSecondUndo.includes('Hello!')) throw Error(JSON.stringify(afterSecondUndo));
-  for(const [label,pattern] of [['Italic',/\*Hello\*|_Hello_/],['Inline code',/`Hello`/],['Underline',/\+\+Hello\+\+/],['Strikethrough',/~~Hello~~/]]) {
+  for(const [label,pattern] of [['Italic',/\*Hello\*|_Hello_/],['Inline code',/`Hello`/],['Strikethrough',/~~Hello~~/]]) {
    await select('Hello',0,5);await page.getByRole('button',{name:label,exact:true}).click();
    assert.match(await raw(),pattern,label);
    await page.getByRole('button',{name:'Undo',exact:true}).click();

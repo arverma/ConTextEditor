@@ -99,7 +99,7 @@ toolbar.addEventListener('click', event => {
 });
 const previewToolbar = document.querySelector<HTMLElement>('.poc-preview-tools')!;
 const linkField = previewToolbar.querySelector<HTMLInputElement>('#poc-link-url')!;
-const previewCommandName: Record<string, string> = { bold: 'bold', italic: 'italic', underline: 'underline', strike: 'strike', link: 'link', bullet: 'bulletList', ordered: 'orderedList', quote: 'blockquote', code: 'code', codeBlock: 'codeBlock' };
+const previewCommandName: Record<string, string> = { bold: 'bold', italic: 'italic', strike: 'strike', link: 'link', bullet: 'bulletList', ordered: 'orderedList', quote: 'blockquote', code: 'code' };
 floatingPreview = selectionToolbar(previewToolbar, () => {
   const focused = previewToolbar.contains(document.activeElement);
   if (!previewMode) return null;
@@ -108,7 +108,9 @@ floatingPreview = selectionToolbar(previewToolbar, () => {
   for (const button of previewToolbar.querySelectorAll<HTMLButtonElement>('[data-command]')) {
     button.setAttribute('aria-pressed', String(richEditor.active(previewCommandName[button.dataset.command ?? ''] ?? '')));
   }
-  if (document.activeElement !== linkField) linkField.value = richEditor.linkHref();
+  const href = richEditor.linkHref();
+  if (document.activeElement !== linkField) linkField.value = href;
+  linkField.hidden = !href && document.activeElement !== linkField;
   return { rect, bounds: rich.getBoundingClientRect(), key: `preview:${rect.left}:${rect.top}:${rect.right}:${rect.bottom}`, editor: richEditor.editor.view.dom };
 });
 richEditor.editor.on('selectionUpdate', () => floatingPreview?.schedule());
@@ -116,6 +118,7 @@ richEditor.editor.on('update', () => floatingPreview?.schedule());
 let previewTouch = false;
 function applyPreview(target: EventTarget | null): void {
   const command = target instanceof Element ? target.closest<HTMLButtonElement>('[data-command]')?.dataset.command as PreviewCommand | undefined : undefined;
+  if (command === 'link') { linkField.hidden = false; linkField.focus(); floatingPreview?.schedule(); return; }
   if (command) richEditor.command(command, linkField.value);
 }
 previewToolbar.addEventListener('pointerdown', event => {
