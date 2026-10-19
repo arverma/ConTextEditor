@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { parseMarkdownDocument, serializeMarkdownDocument, type PreviewNode } from '../src/editor/poc/markdown-document';
+import { parseMarkdownDocument, serializeMarkdownDocument, type PreviewNode } from '../src/editor/markdown-document';
 
 function texts(node: PreviewNode): PreviewNode[] {
   const found: PreviewNode[] = node.type === 'text' ? [node] : [];

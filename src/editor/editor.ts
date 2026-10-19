@@ -1,31 +1,28 @@
-import { formatSelection, initFormatting } from "./formatting";
+import { initFormatting } from "./formatting";
 import { COMPACT_LAYOUT_QUERY } from "./responsive";
 import { initMobileActions } from "./mobile-actions";
 import { initOwnershipPanel } from "./ownership-panel";
 import { initTrashPanel } from "./trash-panel";
 import { getTrashEntries } from "./storage";
-import "./monaco-setup";
 import { initFocusMode } from "./focus-mode";
 import { initWritingLayout, updateWritingLayout } from "./writing-layout";
 import { initCopyMarkdown } from "./copy-markdown";
 import { initShortcuts, shortcutLabel } from "./shortcuts";
-// Import the minimal core editor API rather than the "monaco-editor" barrel,
-// which eagerly registers every bundled language and inflates the build.
-import * as monaco from "monaco-editor/esm/vs/editor/editor.api";
 import { deriveTitle, onSnippetsChanged } from "./storage";
 import { NoteSession } from "./note-session";
 import { initRecovery } from "./recovery";
 import { initSidebar } from "./sidebar";
 import { initHistoryPanel } from "./history-panel";
-import { setPreviewContent } from "./markdown-preview";
 import { exportPdf, exportTxt } from "./export";
-import { registerEmojiCompletions } from "./emoji-completions";
+import { createSourceEditor } from "./source-editor";
+import { previewEditor, type PreviewCommand } from "./preview-editor";
+import { selectionToolbar } from "./selection-toolbar";
 
 const VIEW_MODE_KEY = "context-editor.viewMode";
 
 type ViewMode = "edit" | "preview";
 
-const container = document.getElementById("monaco-container")!;
+const container = document.getElementById("source-editor")!;
 const previewEl = document.getElementById("markdown-preview")!;
 const viewToggleEl = document.getElementById("view-toggle")!;
 const exportBtn = document.getElementById("export-btn") as HTMLButtonElement;
@@ -35,25 +32,7 @@ const noteTitleEl = document.getElementById("note-title")!;
 const noteCountsEl = document.getElementById("note-counts")!;
 const saveStatusEl = document.getElementById("save-status")!;
 const themeToggleEl = document.getElementById("theme-toggle")!;
-const cssVar = (name: string) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 
-// Custom Monaco themes whose backgrounds match the CSS --editor-bg values so the
-// editor surface blends into the app shell. Hardcoded (not read from the live CSS
-// var) so each theme is correct regardless of which scheme is active at load.
-monaco.editor.defineTheme("ce-dark", {
-  base: "vs-dark",
-  inherit: true,
-  rules: [],
-  colors: { "editor.background": "#131318" },
-});
-monaco.editor.defineTheme("ce-light", {
-  base: "vs",
-  inherit: true,
-  rules: [],
-  colors: { "editor.background": "#ffffff" },
-});
-
-// ---- theme selection (System / Light / Dark), persisted in localStorage ----
 type ThemeMode = "system" | "light" | "dark";
 const THEME_KEY = "context-editor.theme";
 const prefersDark = window.matchMedia("(prefers-color-scheme: dark)");
@@ -61,11 +40,6 @@ const prefersDark = window.matchMedia("(prefers-color-scheme: dark)");
 function getThemeMode(): ThemeMode {
   const stored = localStorage.getItem(THEME_KEY);
   return stored === "light" || stored === "dark" ? stored : "system";
-}
-
-function effectiveScheme(mode: ThemeMode): "light" | "dark" {
-  if (mode === "system") return prefersDark.matches ? "dark" : "light";
-  return mode;
 }
 
 function applyTheme(mode: ThemeMode): void {
@@ -76,78 +50,43 @@ function applyTheme(mode: ThemeMode): void {
     document.documentElement.dataset.theme = mode;
     localStorage.setItem(THEME_KEY, mode);
   }
-  monaco.editor.setTheme(effectiveScheme(mode) === "dark" ? "ce-dark" : "ce-light");
   themeToggleEl.querySelectorAll<HTMLElement>(".theme-opt").forEach((btn) => {
     btn.classList.toggle("active", btn.dataset.themeValue === mode);
     btn.setAttribute("aria-pressed", String(btn.dataset.themeValue === mode));
   });
-  if (!previewEl.hidden) void setPreviewContent(previewEl, editor.getValue());
+  if (viewMode === "preview") rich.repaint();
 }
 
 const initialMode = getThemeMode();
-
 const compactEditor = window.matchMedia(COMPACT_LAYOUT_QUERY);
-const editor = monaco.editor.create(container, {
-  value: "",
-  language: "markdown",
-  theme: effectiveScheme(initialMode) === "dark" ? "ce-dark" : "ce-light",
-  automaticLayout: true,
-  minimap: { enabled: false },
-  fontSize: compactEditor.matches ? 16 : 14,
-  lineHeight: compactEditor.matches ? 24 : 22,
-  fontFamily: cssVar("--font-mono") || undefined,
-  wordWrap: "on",
-  padding: { top: 16, bottom: 16 },
-  scrollBeyondLastLine: false,
-  renderLineHighlight: "none",
-  smoothScrolling: true,
-  find: {
-    seedSearchStringFromSelection: "always",
+let loadingModel = false;
+let viewMode: ViewMode = "edit";
+let previewWriting = false;
+
+const editor = createSourceEditor(container, {
+  compact: compactEditor.matches,
+  onChange() {
+    syncMirror();
+    if (!loadingModel && editor.getValue() !== session.content) session.edit(editor.getValue());
   },
-  suggest: {
-    showIcons: false,
-  },
+});
+const rich = previewEditor(previewEl, () => editor.getValue(), (raw) => {
+  previewWriting = true;
+  try { editor.replace(raw); } finally { previewWriting = false; }
 });
 
 compactEditor.addEventListener("change", () => {
-  updateWritingLayout(editor, () => editor.updateOptions({
-    fontSize: compactEditor.matches ? 16 : 14,
-    lineHeight: compactEditor.matches ? 24 : 22,
-  }));
+  updateWritingLayout(editor, () => editor.setCompact(compactEditor.matches));
 });
-registerEmojiCompletions();
 initWritingLayout(editor);
 
-// Cmd/Ctrl+F comes from findController. Map Cmd/Ctrl+R to Replace and stop the
-// browser from reloading the tab while the editor is focused.
-editor.addAction({
-  id: "context-editor.startFindReplace",
-  label: "Replace",
-  keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyR],
-  precondition: "editorFocus",
-  run: (ed) => {
-    void ed.getAction("editor.action.startFindReplaceAction")?.run();
-  },
-});
+window.addEventListener("keydown", (event) => {
+  if (!(event.metaKey || event.ctrlKey) || event.key.toLowerCase() !== "r" || event.altKey || event.shiftKey) return;
+  if (!editor.hasFocus() && !container.contains(document.activeElement)) return;
+  event.preventDefault();
+  editor.openReplace();
+}, true);
 
-// Capture Cmd/Ctrl+R at the window when Monaco has focus (reload is otherwise
-// handled by the browser before the editor action in some cases).
-window.addEventListener(
-  "keydown",
-  (e) => {
-    if (!(e.metaKey || e.ctrlKey) || e.key.toLowerCase() !== "r" || e.altKey || e.shiftKey) {
-      return;
-    }
-    if (!editor.hasTextFocus() && !container.contains(document.activeElement)) {
-      return;
-    }
-    e.preventDefault();
-    void editor.getAction("editor.action.startFindReplaceAction")?.run();
-  },
-  true
-);
-
-// Re-apply Monaco's theme on OS change only while in System mode.
 prefersDark.addEventListener("change", () => {
   if (getThemeMode() === "system") applyTheme("system");
 });
@@ -157,11 +96,6 @@ themeToggleEl.addEventListener("click", (event) => {
   if (!btn) return;
   applyTheme((btn.dataset.themeValue as ThemeMode) ?? "system");
 });
-
-applyTheme(initialMode);
-
-let loadingModel = false;
-let viewMode: ViewMode = "edit";
 
 function getStoredViewMode(): ViewMode {
   return localStorage.getItem(VIEW_MODE_KEY) === "preview" ? "preview" : "edit";
@@ -175,7 +109,13 @@ function updateExportButton(): void {
   exportBtn.title = `${label} (${shortcutLabel("Mod+Shift+E")})`;
 }
 
+function flushPreview(): void {
+  rich.flush();
+}
+
 function applyViewMode(mode: ViewMode, { persist = true } = {}): void {
+  const leavingPreview = viewMode === "preview" && mode !== "preview";
+  if (leavingPreview) rich.enable(false);
   viewMode = mode;
   if (persist) localStorage.setItem(VIEW_MODE_KEY, mode);
 
@@ -183,6 +123,7 @@ function applyViewMode(mode: ViewMode, { persist = true } = {}): void {
   container.hidden = isPreview;
   document.getElementById("formatting-toolbar")!.hidden = isPreview;
   previewEl.hidden = !isPreview;
+  if (!isPreview) previewToolbar.hidden = true;
 
   viewToggleEl.querySelectorAll<HTMLElement>(".view-opt").forEach((btn) => {
     btn.classList.toggle("active", btn.dataset.viewValue === mode);
@@ -190,12 +131,9 @@ function applyViewMode(mode: ViewMode, { persist = true } = {}): void {
   });
   updateExportButton();
 
-  if (isPreview) {
-    void setPreviewContent(previewEl, editor.getValue());
-  } else {
-    editor.layout();
-    editor.focus();
-  }
+  if (isPreview) rich.enable(true);
+  else editor.focus();
+  floatingPreview.schedule();
 }
 
 function toggleViewMode(): void {
@@ -220,20 +158,65 @@ function updateNoteCounts(value: string): void {
 
 function syncMirror(): void {
   const value = editor.getValue();
-  // Always raw Markdown — Gemini reads this, not the rendered preview.
   mirror.textContent = value;
   noteTitleEl.textContent = deriveTitle(value);
   updateNoteCounts(value);
-  if (viewMode === "preview") {
-    void setPreviewContent(previewEl, value);
-  }
 }
+
+const previewToolbar = document.querySelector<HTMLElement>(".preview-tools")!;
+const linkField = previewToolbar.querySelector<HTMLInputElement>("#preview-link-url")!;
+const previewCommandName: Record<string, string> = {
+  bold: "bold", italic: "italic", strike: "strike", link: "link",
+  bullet: "bulletList", ordered: "orderedList", quote: "blockquote", code: "code",
+};
+const floatingPreview = selectionToolbar(previewToolbar, () => {
+  if (viewMode !== "preview") return null;
+  const rect = rich.selectionRect();
+  const focused = previewToolbar.contains(document.activeElement);
+  if (!rect || (!rich.editor.isFocused && !focused)) return null;
+  for (const button of previewToolbar.querySelectorAll<HTMLButtonElement>("[data-command]")) {
+    button.setAttribute("aria-pressed", String(rich.active(previewCommandName[button.dataset.command ?? ""] ?? "")));
+  }
+  const href = rich.linkHref();
+  if (document.activeElement !== linkField) linkField.value = href;
+  linkField.hidden = !href && document.activeElement !== linkField;
+  return {
+    rect,
+    bounds: previewEl.getBoundingClientRect(),
+    key: `preview:${rect.left}:${rect.top}:${rect.right}:${rect.bottom}`,
+    editor: rich.editor.view.dom,
+  };
+});
+rich.editor.on("selectionUpdate", () => floatingPreview.schedule());
+rich.editor.on("update", () => floatingPreview.schedule());
+let previewTouch = false;
+function applyPreview(target: EventTarget | null): void {
+  const command = target instanceof Element ? target.closest<HTMLButtonElement>("[data-command]")?.dataset.command as PreviewCommand | undefined : undefined;
+  if (command === "link") { linkField.hidden = false; linkField.focus(); floatingPreview.schedule(); return; }
+  if (command) rich.command(command, linkField.value);
+}
+previewToolbar.addEventListener("pointerdown", (event) => {
+  if (!(event.target instanceof Element) || !event.target.closest("button")) return;
+  event.preventDefault();
+  previewTouch = event.pointerType === "touch" || event.pointerType === "pen";
+  if (previewTouch) applyPreview(event.target);
+});
+previewToolbar.addEventListener("click", (event) => {
+  if (previewTouch && event.detail !== 0) return;
+  applyPreview(event.target);
+});
+linkField.addEventListener("keydown", (event) => {
+  if (event.key !== "Enter") return;
+  event.preventDefault();
+  rich.command("link", linkField.value);
+});
 
 let mobileActions: ReturnType<typeof initMobileActions> | null = null;
 let focusMode: ReturnType<typeof initFocusMode> | null = null;
 const sidebar = initSidebar({ beforeOpen: () => focusMode?.exit() });
 const history = initHistoryPanel({
   onSelect(id) {
+    flushPreview();
     if (session.select(id)) {
       sidebar.closeMobile();
       if (sidebar.isMobile()) focusContent();
@@ -241,24 +224,25 @@ const history = initHistoryPanel({
   },
   onDelete: id => removeNote(id),
 });
-const recovery = initRecovery(deleted => session.restore(deleted));
+const recovery = initRecovery((deleted) => { flushPreview(); return session.restore(deleted); });
 const session = new NoteSession(renderSession);
 const errorEl = document.getElementById("save-error")!;
 const trash = initTrashPanel({
   beforeOpen: () => { focusMode?.exit(); sidebar.closeMobile(true); },
-  restore: (entry, asCopy) => session.restore(entry, asCopy),
+  restore: (entry, asCopy) => { flushPreview(); return session.restore(entry, asCopy); },
   purge: id => session.purge(id),
   error: () => session.message,
 });
 
 function focusContent(): void {
   if (viewMode === "edit") editor.focus();
-  else previewEl.focus();
+  else rich.focus();
 }
 function renderSession(): void {
-  if (editor.getValue() !== session.content) {
+  if (!previewWriting && editor.getValue() !== session.content) {
     loadingModel = true;
     try { editor.setValue(session.content); } finally { loadingModel = false; }
+    if (viewMode === "preview") rich.load(session.content);
   }
   syncMirror();
   setSaveStatus(session.status);
@@ -268,13 +252,11 @@ function renderSession(): void {
   try { history.refresh(session.id); trash.refresh(); recovery.prune(new Set(getTrashEntries().map(entry => entry.id))); } catch { /* A corrupt store must not replace the visible draft. */ }
 }
 function removeNote(id: string): void {
+  flushPreview();
   const deleted = session.remove(id);
   if (deleted) recovery.add(deleted);
 }
-editor.onDidChangeModelContent(() => {
-  if (!loadingModel) session.edit(editor.getValue());
-});
-document.getElementById("retry-save")!.addEventListener("click", () => session.flush());
+document.getElementById("retry-save")!.addEventListener("click", () => { flushPreview(); session.flush(); });
 onSnippetsChanged(() => session.reconcile());
 
 viewToggleEl.addEventListener("click", (event) => {
@@ -285,16 +267,18 @@ viewToggleEl.addEventListener("click", (event) => {
 });
 
 exportBtn.addEventListener("click", () => {
+  flushPreview();
   const content = editor.getValue();
   const title = deriveTitle(content);
   if (viewMode === "edit") {
     exportTxt(content, title);
     return;
   }
-  void setPreviewContent(previewEl, content).then(() => exportPdf(title));
+  exportPdf(title);
 });
 
 newSnippetBtn.addEventListener("click", () => {
+  flushPreview();
   if (!session.create()) return;
   history.clearSearch();
   sidebar.closeMobile();
@@ -302,12 +286,13 @@ newSnippetBtn.addEventListener("click", () => {
 });
 
 window.addEventListener("beforeunload", event => {
+  flushPreview();
   if (!session.flush()) { event.preventDefault(); event.returnValue = ""; }
 });
 
 initOwnershipPanel(session, {
   beforeOpen: () => { focusMode?.exit(); sidebar.closeMobile(true); },
-  imported: id => { history.clearSearch(); session.select(id); },
+  imported: id => { flushPreview(); history.clearSearch(); session.select(id); },
   applySettings: settings => {
     for (const [key, value] of Object.entries(settings)) localStorage.setItem(key, value);
     const theme = settings[THEME_KEY]; if (theme) applyTheme(theme as ThemeMode);
@@ -318,26 +303,17 @@ initOwnershipPanel(session, {
     if (sidebarOpen !== undefined) sidebar.setPreference(sidebarOpen === "true");
   },
 });
+applyTheme(initialMode);
 session.start();
 applyViewMode(getStoredViewMode(), { persist: false });
-const focusContext = editor.createContextKey<boolean>("contextEditorFocusMode", false);
-focusMode = initFocusMode(editor, sidebar, focusContent, active => focusContext.set(active));
-// Monaco consumes Escape internally, so register the exit in its keybinding
-// service too. Selection and transient editor tools retain their first Escape.
-editor.addAction({
-  id: "context-editor.exitFocusMode",
-  label: "Exit focus mode",
-  keybindings: [monaco.KeyCode.Escape],
-  precondition: "contextEditorFocusMode && editorTextFocus && !findWidgetVisible && !suggestWidgetVisible && !inSnippetMode && !editorHasSelection && !editorHasMultipleSelections",
-  run: () => focusMode?.exit(),
-});
-initCopyMarkdown(() => editor.getValue(), () => {
+focusMode = initFocusMode(editor, sidebar, focusContent);
+initCopyMarkdown(() => { flushPreview(); return editor.getValue(); }, () => {
   sidebar.closeMobile(true);
   document.querySelector<HTMLDialogElement>(".command-dialog:not(.copy-dialog)[open]")?.close();
 });
 initShortcuts({
   toggleView: toggleViewMode,
-  save: () => { session.flush(); },
+  save: () => { flushPreview(); session.flush(); },
   deleteNote: () => { if (session.id) removeNote(session.id); },
   searchNotes: () => { sidebar.setOpen(true); history.focusSearch(); },
   beforeOpen: () => { mobileActions?.close(false); sidebar.closeMobile(true); },
@@ -347,11 +323,10 @@ mobileActions = initMobileActions();
 
 initFormatting(editor);
 for (const [kind, label, key] of [
-  ['bold', 'Bold', monaco.KeyCode.KeyB],
-  ['italic', 'Italic', monaco.KeyCode.KeyI],
+  ["bold", "Bold", "B"],
+  ["italic", "Italic", "I"],
 ] as const) {
   const button = document.querySelector<HTMLButtonElement>(`[data-format="${kind}"]`)!;
-  button.title = `${label} (${shortcutLabel(`Mod+${kind === 'bold' ? 'B' : 'I'}`)})`;
-  button.setAttribute('aria-keyshortcuts', `${/Mac|iPhone|iPad/.test(navigator.platform) ? 'Meta' : 'Control'}+${kind === 'bold' ? 'B' : 'I'}`);
-  editor.addAction({ id: `context-editor.format.${kind}`, label, keybindings: [monaco.KeyMod.CtrlCmd | key], precondition: 'editorTextFocus && !editorReadonly', run: () => { formatSelection(editor, kind); } });
+  button.title = `${label} (${shortcutLabel(`Mod+${key}`)})`;
+  button.setAttribute("aria-keyshortcuts", `${/Mac|iPhone|iPad/.test(navigator.platform) ? "Meta" : "Control"}+${key}`);
 }

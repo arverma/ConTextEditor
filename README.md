@@ -11,7 +11,7 @@ this app. [Privacy policy](https://editor.arverma.dev/privacy.html).
 
 ## Features
 
-- Monaco Markdown editor with Edit/Preview, sanitized HTML, and Mermaid diagrams
+- Markdown editing with Edit/Preview, sanitized HTML, and Mermaid diagrams
 - Centered writing, Full width, and distraction-free Focus mode
 - Searchable note history, autosave, persistent Trash, and quick Undo
 - Copy Markdown, raw text download, and PDF export through browser printing
@@ -31,11 +31,6 @@ npm run build     # standalone website in dist-editor/
 npm run preview   # production build at http://localhost:4173/
 ```
 
-A separate CodeMirror evaluation page is available during development at
-`/ConTextEditor/poc.html`. Markdown mode edits raw text; Preview is a rich document that writes Markdown back after an edit. It uses disposable content and never reads or writes
-saved notes. It is excluded from the production build; Monaco remains the main
-editor. See [the evaluation checklist](docs/codemirror-poc.md).
-
 GitHub Pages deploys the website on pushes to `main`. The editor root, privacy
 page, and sitemap are included in the production build. `localStorage` is
 per-origin: localhost notes do not appear on the deployed website.
@@ -44,7 +39,7 @@ per-origin: localhost notes do not appear on the deployed website.
 
 - **New note** — sidebar “+ New note”
 - **Switch / edit** — click a note; edits autosave (~0.6s)
-- **Edit / Preview** — title bar toggle
+- **Edit / Preview** — title bar toggle. Edit changes the raw Markdown. Preview is the same note as a document: bold, italic, strikethrough, link, lists, quote, and inline code appear when text is selected. Opening Preview does not change the file. The first edit there can normalize ordinary Markdown; front matter, fenced code, and HTML blocks stay as written until that block changes.
 - **Format text** — select text in Edit and use Bold, Italic, or Inline code in the formatting toolbar. Bold and Italic also support Ctrl/Cmd+B and Ctrl/Cmd+I. With no selection, a placeholder is inserted for you to replace. Line break adds an explicit Markdown line break after the selection or cursor; formatting supports Undo.
 - **Export** — TXT in Edit; PDF (print → Save as PDF) in Preview
 - **Download image** — use the download icon in a Mermaid diagram’s top-right corner or beside a centered Markdown table’s top-right edge. The expanded diagram also has a download icon. Images include the full content in the current theme.
@@ -84,7 +79,7 @@ run it, and Escape to close. Button tooltips show their shortcuts.
 Standard editor shortcuts remain available, including undo/redo, cut/copy/paste,
 select all, **Cmd/Ctrl+F** to find, and **Cmd/Ctrl+R** to replace while editing.
 
-Mac editor navigation follows Monaco / VS Code conventions while the editor has focus:
+Mac editor navigation follows the usual writing keys while the source editor has focus:
 
 - **Cmd+← / →** — start/end of the current line.
 - **Cmd+↑ / ↓** — start/end of the document.

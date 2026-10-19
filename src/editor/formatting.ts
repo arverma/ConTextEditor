@@ -1,8 +1,10 @@
-import type { editor as MonacoEditor } from 'monaco-editor';
-
 export type FormattingKind = 'bold' | 'italic' | 'code' | 'break';
 
-/** A single replacement plus the selection to restore after Monaco applies it. */
+export interface Formattable {
+  format(kind: FormattingKind): void;
+}
+
+/** A single replacement plus the selection to restore after the editor applies it. */
 export function getFormattingEdit(content: string, start: number, end: number, kind: FormattingKind) {
   if (kind === 'break') {
     const text = `  ${content.includes('\r\n') ? '\r\n' : '\n'}`;
@@ -45,24 +47,12 @@ export function getFormattingEdit(content: string, start: number, end: number, k
   return { start, end, text, selectionStart, selectionEnd: selectionStart + selected.length };
 }
 
-export function formatSelection(editor: MonacoEditor.IStandaloneCodeEditor, kind: FormattingKind): void {
-  const model = editor.getModel(); const selection = editor.getSelection();
-  if (!model || !selection) return;
-  const edit = getFormattingEdit(model.getValue(), model.getOffsetAt(selection.getStartPosition()), model.getOffsetAt(selection.getEndPosition()), kind);
-  const from = model.getPositionAt(edit.start); const to = model.getPositionAt(edit.end);
-  editor.pushUndoStop();
-  editor.executeEdits('context-editor.format', [{ range: { startLineNumber: from.lineNumber, startColumn: from.column, endLineNumber: to.lineNumber, endColumn: to.column }, text: edit.text }]);
-  const selectionStart = model.getPositionAt(edit.selectionStart); const selectionEnd = model.getPositionAt(edit.selectionEnd);
-  editor.setSelection({ startLineNumber: selectionStart.lineNumber, startColumn: selectionStart.column, endLineNumber: selectionEnd.lineNumber, endColumn: selectionEnd.column });
-  editor.pushUndoStop(); editor.focus();
-}
-
-export function initFormatting(editor: MonacoEditor.IStandaloneCodeEditor): void {
+export function initFormatting(editor: Formattable): void {
   const toolbar = document.getElementById('formatting-toolbar')!;
   // Retain the editor selection and mobile keyboard when a pointer uses the toolbar.
   toolbar.addEventListener('pointerdown', event => { if ((event.target as Element).closest('button')) event.preventDefault(); });
   toolbar.addEventListener('click', event => {
     const kind = (event.target as Element).closest<HTMLButtonElement>('button')?.dataset.format;
-    if (kind === 'bold' || kind === 'italic' || kind === 'code' || kind === 'break') formatSelection(editor, kind);
+    if (kind === 'bold' || kind === 'italic' || kind === 'code' || kind === 'break') editor.format(kind);
   });
 }

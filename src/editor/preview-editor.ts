@@ -3,7 +3,7 @@ import { history } from '@tiptap/pm/history';
 import { TextSelection } from '@tiptap/pm/state';
 import { parseMarkdownDocument, previewExtensions, repaintPreviewDiagrams, serializeMarkdownDocument } from './markdown-document';
 
-export type PreviewCommand = 'bold' | 'italic' | 'underline' | 'strike' | 'link' | 'bullet' | 'ordered' | 'quote' | 'code' | 'codeBlock';
+export type PreviewCommand = 'bold' | 'italic' | 'strike' | 'link' | 'bullet' | 'ordered' | 'quote' | 'code';
 
 /** Rich Preview. Writes Markdown back only after an edit, one history step per burst. */
 export function previewEditor(root: HTMLElement, read: () => string, write: (raw: string) => void) {
@@ -18,7 +18,7 @@ export function previewEditor(root: HTMLElement, read: () => string, write: (raw
     extensions: previewExtensions(),
     content: parseMarkdownDocument(loadedRaw),
     editorProps: {
-      attributes: { 'aria-label': 'Markdown preview', class: 'markdown-preview poc-rich-editor', role: 'textbox', 'aria-multiline': 'true' },
+      attributes: { 'aria-label': 'Markdown preview', class: 'rich-editor', role: 'textbox', 'aria-multiline': 'true' },
       handlePaste(_view, event) {
         event.preventDefault();
         const text = event.clipboardData?.getData('text/plain') ?? '';
@@ -69,13 +69,11 @@ export function previewEditor(root: HTMLElement, read: () => string, write: (raw
     const chain = editor.chain().focus();
     if (command === 'bold') chain.toggleBold().run();
     else if (command === 'italic') chain.toggleItalic().run();
-    else if (command === 'underline') chain.toggleUnderline().run();
     else if (command === 'strike') chain.toggleStrike().run();
     else if (command === 'bullet') chain.toggleBulletList().run();
     else if (command === 'ordered') chain.toggleOrderedList().run();
     else if (command === 'quote') chain.toggleBlockquote().run();
     else if (command === 'code') chain.toggleCode().run();
-    else if (command === 'codeBlock') chain.toggleCodeBlock().run();
     else if (href.trim()) chain.extendMarkRange('link').setLink({ href: href.trim() }).run();
     else chain.unsetLink().run();
     flush();
@@ -95,6 +93,7 @@ export function previewEditor(root: HTMLElement, read: () => string, write: (raw
     undo() { editor.chain().focus().undo().run(); flush(); },
     redo() { editor.chain().focus().redo().run(); flush(); },
     command: run,
+    focus() { editor.commands.focus(); },
     active(name: string) { return editor.isActive(name); },
     linkHref() { return String(editor.getAttributes('link').href ?? ''); },
     repaint() { repaintPreviewDiagrams(editor.view.dom); },

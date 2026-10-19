@@ -37,7 +37,7 @@ export const rawSource = StateField.define<string>({
 export function createSourceState(raw: string, extensions: Extension[] = []): EditorState {
   return EditorState.create({ doc: normalizedText(raw), extensions: [
     rawSource.init(() => raw), history(),
-    // Prototype stores raw snapshots in history so undo also restores original mixed endings.
+    // Undo restores the original line-ending spelling, not only the normalized document.
     invertedEffects.of(transaction => transaction.docChanged || transaction.effects.some(effect => effect.is(restoreSource))
       ? [restoreSource.of(transaction.startState.field(rawSource))] : []),
     ...extensions,
@@ -51,7 +51,6 @@ export function replaceSource(state: EditorState, raw: string): TransactionSpec 
 const blockParser = parser.configure(GFM);
 export function sourceBlocks(raw: string): Array<{ type: string; from: number; to: number; text: string }> {
   const normalized = normalizedText(raw);
-  // The BOM and document metadata belong to the file, not to a dragged paragraph.
   const bom = normalized.startsWith('\uFEFF') ? 1 : 0;
   const metadata = normalized.slice(bom).match(/^---[ \t]*\n[\s\S]*?\n(?:---|\.\.\.)[ \t]*(?=\n|$)/)?.[0];
   const blocks: Array<{ type: string; from: number; to: number; text: string }> = [];
@@ -68,20 +67,4 @@ export function sourceBlocks(raw: string): Array<{ type: string; from: number; t
     blocks.push({ type: node.name, from, to, text: raw.slice(from, to) });
   }
   return blocks;
-}
-
-/** Move source slices; keep all inter-block separators and the document's final newline. */
-export function moveSourceBlock(raw: string, from: number, to: number): string {
-  const blocks = sourceBlocks(raw);
-  if (![from, to].every(index => Number.isInteger(index) && index >= 0 && index < blocks.length)) throw new Error('Invalid block');
-  if (from === to) return raw;
-  if (blocks[0].type === 'Frontmatter' && (from === 0 || to === 0)) throw new Error('Frontmatter must stay first');
-  const ordered = blocks.map(block => block.text);
-  const types = blocks.map(block => block.type);
-  types.splice(to, 0, types.splice(from, 1)[0]);
-  ordered.splice(to, 0, ordered.splice(from, 1)[0]);
-  const result = raw.slice(0, blocks[0].from) + ordered.map((text, index) => text + raw.slice(blocks[index].to, blocks[index + 1]?.from ?? raw.length)).join('');
-  const reparsed = sourceBlocks(result);
-  if (reparsed.length !== ordered.length || reparsed.some((block, index) => block.text !== ordered[index] || block.type !== types[index])) throw new Error('Move would change Markdown block boundaries');
-  return result;
 }

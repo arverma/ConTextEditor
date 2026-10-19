@@ -1,19 +1,19 @@
-import type { editor } from "monaco-editor/esm/vs/editor/editor.api";
-
-export type EditorView = Pick<editor.IStandaloneCodeEditor, "saveViewState" | "restoreViewState" | "layout">;
-
-/** Keep the current editing/reading position while shell geometry changes. */
-export function updateWritingLayout(editor: EditorView, change: () => void): void {
-  const state = editor.saveViewState();
-  const preview = document.getElementById("markdown-preview")!;
-  const scrollTop = preview.scrollTop;
-  change();
-  editor.layout();
-  if (state) editor.restoreViewState(state);
-  preview.scrollTop = scrollTop;
+export interface LayoutEditor {
+  scrollTop(): number;
+  setScrollTop(top: number): void;
 }
 
-export function initWritingLayout(editor: EditorView): void {
+/** Keep the current editing and reading position while shell geometry changes. */
+export function updateWritingLayout(editor: LayoutEditor, change: () => void): void {
+  const top = editor.scrollTop();
+  const preview = document.getElementById("markdown-preview")!;
+  const previewTop = preview.scrollTop;
+  change();
+  editor.setScrollTop(top);
+  preview.scrollTop = previewTop;
+}
+
+export function initWritingLayout(editor: LayoutEditor): void {
   const main = document.getElementById("main")!;
   const button = document.getElementById("writing-width-btn")!;
   let fullWidth = false;

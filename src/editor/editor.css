@@ -498,12 +498,12 @@ body {
   box-shadow: var(--shadow);
 }
 
-#monaco-container {
+#source-editor {
   flex: 1;
   min-height: 0;
 }
 
-#monaco-container[hidden] {
+#source-editor[hidden] {
   display: none !important;
 }
 
@@ -671,12 +671,68 @@ body {
   color: var(--text-muted);
 }
 
-/* Monaco fine-tuning to blend with the shell */
-.monaco-editor,
-.monaco-editor .margin,
-.monaco-editor-background {
-  background-color: var(--editor-bg) !important;
+/* Source editor fills the writing column and keeps selection visible in both themes. */
+#source-editor { --source-selection: rgba(99, 85, 224, .28); display: flex; flex-direction: column; background: var(--editor-bg); }
+[data-theme="dark"] #source-editor { --source-selection: rgba(155, 140, 255, .38); }
+#source-editor .cm-editor { height: 100%; }
+#source-editor .cm-content { padding: 16px 0; cursor: text; }
+.cm-panel.cm-search {
+  background: var(--surface);
+  color: var(--text);
+  border-bottom: 1px solid var(--border);
+  font: 13px var(--font-ui);
+  gap: 6px;
 }
+.cm-panel.cm-search .cm-textfield, .cm-panel.cm-search .cm-button {
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--surface-2);
+  color: var(--text);
+  font: 13px var(--font-ui);
+}
+.cm-panel.cm-search .cm-button { background: transparent; cursor: pointer; }
+.cm-tooltip-autocomplete {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  font: 13px var(--font-ui);
+}
+.cm-tooltip-autocomplete ul li[aria-selected] { background: var(--accent-soft); color: var(--text); }
+.rich-editor { outline: none; min-height: 100%; }
+.rich-editor ul[data-type="taskList"] { list-style: none; padding-left: .2em; }
+.rich-editor li[data-type="taskItem"] { display: flex; align-items: flex-start; gap: 8px; }
+.rich-editor li[data-type="taskItem"] > label { margin-top: .35em; }
+.rich-editor li[data-type="taskItem"] > div { flex: 1; min-width: 0; }
+.raw-block { white-space: pre-wrap; color: var(--text-muted); font-family: var(--font-mono); font-size: .9em; }
+.html-block { margin: 0 0 1em; }
+.code-fence, .code-fence code { white-space: pre; font-family: var(--font-mono); }
+.diagram-block { margin: 0 0 1em; }
+.preview-tools {
+  position: fixed; z-index: 30; display: flex; align-items: center; gap: 0; flex-wrap: nowrap;
+  padding: 3px; border-radius: 12px; background: var(--surface); color: var(--text);
+  box-shadow: 0 0 0 .5px rgb(0 0 0 / 14%), 0 10px 28px rgb(0 0 0 / 14%);
+  max-width: calc(100vw - 16px);
+}
+.preview-tools[hidden] { display: none; }
+.preview-format-group { display: flex; align-items: center; gap: 1px; }
+.preview-format-group + .preview-format-group { margin-left: 3px; padding-left: 3px; border-left: 1px solid var(--border); }
+.preview-tools button {
+  width: 30px; height: 30px; min-width: 30px; min-height: 30px; padding: 0;
+  border: 0; border-radius: 8px; background: transparent; color: var(--text);
+  font: 600 13px/1 var(--font-ui); cursor: pointer;
+}
+.preview-mark-italic { font-family: Georgia, "Iowan Old Style", Palatino, serif; font-style: italic; font-weight: 500; font-size: 15px; }
+.preview-tools button:hover, .preview-tools button:focus-visible, .preview-tools button[aria-pressed="true"] {
+  background: color-mix(in srgb, var(--text) 8%, transparent); color: var(--text);
+}
+#preview-link-url { width: 148px; height: 30px; margin-left: 2px; padding: 0 8px; border: 0; border-radius: 8px; background: var(--editor-bg); color: var(--text); font: 13px var(--font-ui); }
+#preview-link-url[hidden] { display: none; }
+#preview-link-url:focus { outline: 2px solid var(--accent); outline-offset: -2px; }
+[data-theme="dark"] .preview-tools { box-shadow: 0 0 0 .5px rgb(255 255 255 / 16%), 0 10px 28px rgb(0 0 0 / 45%); }
+@media (pointer: coarse) { .preview-tools button { width: 44px; height: 44px; min-width: 44px; min-height: 44px; } }
 
 /* ---------- visually-hidden full-text mirror ---------- */
 /* Present in the DOM (and the accessibility tree) so page-content readers can
@@ -692,122 +748,6 @@ body {
   clip: rect(0 0 0 0);
   clip-path: inset(50%);
   white-space: pre-wrap;
-}
-
-/* ---------- Monaco find / replace widget (match app shell) ---------- */
-.monaco-editor .find-widget {
-  background: var(--surface) !important;
-  border: 1px solid var(--border) !important;
-  border-radius: 10px !important;
-  box-shadow: var(--shadow) !important;
-  color: var(--text) !important;
-}
-
-.monaco-editor .find-widget .monaco-inputbox {
-  background: var(--surface-2) !important;
-  border: 1px solid var(--border) !important;
-  border-radius: 7px !important;
-  color: var(--text) !important;
-}
-
-.monaco-editor .find-widget .monaco-inputbox .input {
-  color: var(--text) !important;
-}
-
-.monaco-editor .find-widget .monaco-inputbox .input::placeholder {
-  color: var(--text-faint) !important;
-}
-
-.monaco-editor .find-widget .button,
-.monaco-editor .find-widget .codicon {
-  color: var(--text-muted) !important;
-}
-
-.monaco-editor .find-widget .button:hover,
-.monaco-editor .find-widget .button:hover .codicon {
-  color: var(--text) !important;
-  background: var(--surface-hover) !important;
-}
-
-.monaco-editor .find-widget .button.checked,
-.monaco-editor .find-widget .button.checked .codicon {
-  color: var(--accent) !important;
-  background: var(--accent-soft) !important;
-}
-
-.monaco-editor .find-widget .matchesCount {
-  color: var(--text-faint) !important;
-}
-
-/* ---------- Monaco suggest widget (emoji picker — match app shell) ---------- */
-:root {
-  --vscode-editorSuggestWidget-background: var(--surface);
-  --vscode-editorSuggestWidget-border: var(--border);
-  --vscode-editorSuggestWidget-foreground: var(--text);
-  --vscode-editorSuggestWidget-selectedBackground: var(--accent-soft);
-  --vscode-editorSuggestWidget-selectedForeground: var(--text);
-  --vscode-editorSuggestWidget-selectedIconForeground: var(--text);
-  --vscode-editorSuggestWidget-highlightForeground: var(--accent);
-  --vscode-editorSuggestWidget-focusHighlightForeground: var(--accent);
-  --vscode-editorSuggestWidgetStatus-foreground: var(--text-muted);
-}
-
-.monaco-editor .suggest-widget {
-  border-radius: 10px !important;
-  box-shadow: var(--shadow) !important;
-  overflow: hidden;
-  width: min(260px, 90vw) !important;
-  font-family: var(--font-ui) !important;
-  font-size: 13px !important;
-  padding: 6px 0 !important;
-}
-
-.monaco-editor .suggest-widget .monaco-list {
-  background: transparent !important;
-}
-
-.monaco-editor .suggest-widget .monaco-list .monaco-list-row {
-  border-radius: 7px !important;
-}
-
-.monaco-editor .suggest-widget .monaco-list .monaco-list-row.focused {
-  background: var(--accent-soft) !important;
-  color: var(--text) !important;
-}
-
-.monaco-editor .suggest-widget .monaco-list .monaco-list-row:hover:not(.focused) {
-  background: var(--surface-hover) !important;
-}
-
-/* Hide kind glyphs even if showIcons is somehow on. */
-.monaco-editor .suggest-widget .monaco-list .monaco-list-row .monaco-icon-label::before,
-.monaco-editor .suggest-widget .monaco-list .monaco-list-row .icon,
-.monaco-editor .suggest-widget .monaco-list .monaco-list-row .suggest-icon {
-  display: none !important;
-  width: 0 !important;
-  margin: 0 !important;
-  padding: 0 !important;
-}
-
-.monaco-editor .suggest-widget .monaco-list .monaco-list-row > .contents {
-  padding: 0 14px !important;
-  box-sizing: border-box !important;
-}
-
-.monaco-editor .suggest-widget .monaco-list .monaco-list-row > .contents > .main > .left > .monaco-icon-label {
-  padding-left: 0 !important;
-}
-
-.monaco-editor .suggest-widget .monaco-list .monaco-list-row .monaco-icon-name-container {
-  letter-spacing: 0.01em;
-}
-
-.monaco-editor .suggest-details {
-  border-radius: 10px !important;
-  box-shadow: var(--shadow) !important;
-  background: var(--surface) !important;
-  border-color: var(--border) !important;
-  color: var(--text) !important;
 }
 
 /* ---------- privacy FAB ---------- */
@@ -858,9 +798,10 @@ body {
   #topbar,
   #sidebar,
   #note-titlebar,
-  #monaco-container,
+  #source-editor,
   .privacy-fab,
-  .monaco-editor .find-widget {
+  .preview-tools,
+  .cm-panel {
     display: none !important;
   }
 
@@ -1016,14 +957,14 @@ body {
   .undo-toast, .history-dialog, .command-dialog, .save-error { display: none !important; }
 }
 
-/* The shared frame aligns prose with source text after Monaco's gutter. */
-#main:not([data-full-width="true"]) #monaco-container,
+/* The shared frame keeps Edit and Preview in the same writing column. */
+#main:not([data-full-width="true"]) #source-editor,
 #main:not([data-full-width="true"]) .markdown-preview {
   width: 100%;
   max-width: 806px;
   margin-inline: auto;
 }
-#main[data-full-width="true"] #monaco-container,
+#main[data-full-width="true"] #source-editor,
 #main[data-full-width="true"] .markdown-preview { width: 100%; }
 #writing-width-btn[aria-pressed="true"] { color: var(--accent); background: var(--accent-soft); }
 .copy-check { display: none; }
@@ -1045,12 +986,12 @@ body {
 /* Quiet workspace gutters make the writing width legible without a paper card. */
 #main { container: writing-workspace / inline-size; }
 #main:not([data-full-width="true"]) { background: var(--bg); }
-#monaco-container { background: var(--editor-bg); }
-#monaco-container, .markdown-preview {
+#source-editor { background: var(--editor-bg); }
+#source-editor, .markdown-preview {
   transition: box-shadow 160ms ease, background-color 160ms ease;
 }
 @container writing-workspace (min-width: 850px) {
-  #main:not([data-full-width="true"]) #monaco-container,
+  #main:not([data-full-width="true"]) #source-editor,
   #main:not([data-full-width="true"]) .markdown-preview {
     box-shadow: -1px 0 0 var(--border), 1px 0 0 var(--border), 0 0 24px rgb(0 0 0 / 6%);
   }

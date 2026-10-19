@@ -1,6 +1,6 @@
 import { Editor } from '@tiptap/core';
 import { describe, expect, it } from 'vitest';
-import { parseMarkdownDocument, previewExtensions, serializeMarkdownDocument, type PreviewNode } from '../src/editor/poc/markdown-document';
+import { parseMarkdownDocument, previewExtensions, serializeMarkdownDocument, type PreviewNode } from '../src/editor/markdown-document';
 
 function firstText(doc: { content?: PreviewNode[] }): PreviewNode {
   const paragraph = doc.content?.find(node => node.type === 'paragraph');
@@ -71,12 +71,24 @@ describe('preview markdown document', () => {
     const root = document.createElement('div');
     document.body.append(root);
     const editor = new Editor({ element: root, extensions: previewExtensions(), content: doc });
-    const block = root.querySelector('.poc-html-block');
+    const block = root.querySelector('.html-block');
     expect(block?.textContent).toBe('Raw HTML remains source.');
     expect(block?.querySelector('div')?.textContent).toBe('Raw HTML remains source.');
     const diagram = root.querySelector<HTMLElement>('[data-diagram-host]');
     expect(diagram?.querySelector('pre.mermaid')?.textContent).toContain('flowchart LR');
     expect(diagram?.querySelector('pre.mermaid')?.textContent).toContain('\n');
+    editor.destroy();
+    root.remove();
+  });
+
+  it('strips active content from HTML blocks', () => {
+    const html = '<img src="x" onerror="alert(1)"><script>alert(1)</script><p>Kept</p>';
+    const root = document.createElement('div');
+    document.body.append(root);
+    const editor = new Editor({ element: root, extensions: previewExtensions(), content: parseMarkdownDocument(html) });
+    expect(root.querySelector('script')).toBeNull();
+    expect(root.querySelector('[onerror]')).toBeNull();
+    expect(root.textContent).toContain('Kept');
     editor.destroy();
     root.remove();
   });

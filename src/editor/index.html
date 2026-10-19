@@ -134,7 +134,13 @@
             <button type="button" data-format="code" aria-label="Inline code" title="Inline code"><span aria-hidden="true">&lt;/&gt;</span></button>
             <button type="button" data-format="break" aria-label="Insert line break" title="Insert line break"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 5v7H4m5-5-5 5 5 5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
           </div>
-          <div id="monaco-container"></div>
+          <div class="preview-tools" role="toolbar" aria-label="Preview formatting" hidden>
+            <div class="preview-format-group"><button type="button" data-command="bold" aria-label="Bold" title="Bold"><b>B</b></button><button type="button" data-command="italic" aria-label="Italic" title="Italic"><span class="preview-mark-italic">I</span></button><button type="button" data-command="strike" aria-label="Strikethrough" title="Strikethrough"><s>S</s></button></div>
+            <div class="preview-format-group"><button type="button" data-command="link" aria-label="Link" title="Link"><svg width="15" height="15" viewBox="0 0 16 16" aria-hidden="true"><path d="M6.4 9.6a2.6 2.6 0 0 0 3.7.2l1.5-1.5a2.6 2.6 0 0 0-3.7-3.7L6.8 5.7M9.6 6.4a2.6 2.6 0 0 0-3.7-.2L4.4 7.7a2.6 2.6 0 0 0 3.7 3.7l1.1-1.1" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></button><input id="preview-link-url" type="url" inputmode="url" aria-label="Link URL" placeholder="https://" hidden></div>
+            <div class="preview-format-group"><button type="button" data-command="bullet" aria-label="Bullet list" title="Bullet list">•</button><button type="button" data-command="ordered" aria-label="Numbered list" title="Numbered list">1.</button><button type="button" data-command="quote" aria-label="Quote" title="Quote">“</button></div>
+            <div class="preview-format-group"><button type="button" data-command="code" aria-label="Inline code" title="Inline code">&lt;/&gt;</button></div>
+          </div>
+          <div id="source-editor"></div>
           <article id="markdown-preview" class="markdown-preview" tabindex="-1" aria-label="Note preview" hidden></article>
         </main>
       </div>
@@ -144,10 +150,9 @@
       <div id="undo-toast" class="undo-toast" hidden><span id="undo-message"></span><button id="undo-btn" type="button">Undo</button></div>
       <div id="recovery-status" class="visually-hidden" role="status"></div>
 
-      <!-- Full-document plain-text mirror. Kept in the DOM at all times (so tab
-           content readers see the whole document even though Monaco only renders
-           visible lines), but visually hidden — the user never sees it.
-           Always holds raw Markdown source (never rendered HTML). -->
+      <!-- Full-document plain-text mirror. Kept in the DOM so page-content readers
+           see the whole note even though the source editor only paints visible
+           lines. Always holds raw Markdown, never rendered HTML. -->
       <pre id="full-text-mirror" class="visually-hidden"></pre>
 
       <a

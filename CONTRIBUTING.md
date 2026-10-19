@@ -23,14 +23,13 @@ the origin, so use a separate local port and disposable notes for data-flow test
 - `vite.editor.config.ts` — website build into `dist-editor/`.
 - `tests/` — isolated regression-test package.
 - `.github/workflows/deploy-pages.yml` — GitHub Pages deployment.
-- `docs/ARCHITECTURE.md` — runtime and data-safety design.
-- `docs/codemirror-poc.md` — CodeMirror evaluation checklist.
+- `docs/ARCHITECTURE.md` — how notes, Edit, and Preview fit together.
 
 ## Conventions
 
 - Use strict TypeScript and preserve existing saved note data.
 - Keep note storage, imports, and backup parsing local; never upload notes.
-- Bundle app assets and Monaco workers; do not introduce remote app code.
+- Bundle app assets with the site; do not introduce remote app code.
 - Preserve exact Markdown source and sanitize rendered preview output.
 - Test failed saves and recovery paths when changing storage behavior.
 - Comments should explain why a choice exists.

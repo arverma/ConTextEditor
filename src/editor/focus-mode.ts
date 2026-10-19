@@ -1,7 +1,7 @@
-import { type EditorView, updateWritingLayout } from "./writing-layout";
+import { type LayoutEditor, updateWritingLayout } from "./writing-layout";
 
 export function initFocusMode(
-  editor: EditorView,
+  editor: LayoutEditor,
   sidebar: { setSuppressed: (suppressed: boolean) => void },
   focusContent: () => void,
   stateChanged: (active: boolean) => void = () => {},
@@ -32,7 +32,7 @@ export function initFocusMode(
     if (event.key !== "Escape") return;
     // Capture before the editor removes an overlay; bubbling Escape must not
     // also leave focus mode on the same keypress that closed Find or Suggest.
-    if (document.querySelector("dialog[open], #monaco-container:not([hidden]) .find-widget.visible, #monaco-container:not([hidden]) .suggest-widget.visible")) {
+    if (document.querySelector("dialog[open], #source-editor:not([hidden]) .cm-search, .cm-tooltip-autocomplete")) {
       blockedEscapes.add(event);
     }
   }

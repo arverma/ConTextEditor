@@ -1,17 +1,3 @@
-import { enhanceTables } from './preview-image';
-import { enhanceDiagrams } from "./diagram-viewer";
-import { marked } from "marked";
-import DOMPurify from "dompurify";
-import type { Tokens } from "marked";
-
-function escapeHtml(text: string): string {
-  return text
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
-}
-
 function effectivePreviewTheme(): "dark" | "default" {
   const explicit = document.documentElement.dataset.theme;
   if (explicit === "dark") return "dark";
@@ -19,24 +5,7 @@ function effectivePreviewTheme(): "dark" | "default" {
   return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "default";
 }
 
-marked.use({
-  gfm: true,
-  breaks: false,
-  renderer: {
-    code({ text, lang, escaped }: Tokens.Code) {
-      const language = (lang ?? "").trim().split(/\s+/)[0]?.toLowerCase();
-      if (language === "mermaid") {
-        const body = escaped ? text : escapeHtml(text);
-        return `<pre class="mermaid">${body}</pre>\n`;
-      }
-      // Fall through to marked's default fenced-code renderer.
-      return false;
-    },
-  },
-});
-
 let mermaidReady: Promise<typeof import("mermaid").default> | null = null;
-let previewGeneration = 0;
 
 async function getMermaid(): Promise<typeof import("mermaid").default> {
   if (!mermaidReady) {
@@ -75,21 +44,4 @@ export async function renderMermaidBlocks(el: HTMLElement): Promise<void> {
       }
     }
   }
-}
-
-function renderMarkdown(source: string): string {
-  const raw = marked.parse(source || "", { async: false }) as string;
-  return DOMPurify.sanitize(raw, {
-    USE_PROFILES: { html: true },
-    ADD_ATTR: ["class"],
-  });
-}
-
-export async function setPreviewContent(el: HTMLElement, source: string): Promise<void> {
-  const gen = ++previewGeneration;
-  const html = renderMarkdown(source);
-  el.innerHTML = html || `<p class="markdown-preview-empty">Nothing to preview yet.</p>`;
-  if (gen !== previewGeneration) return;
-  await renderMermaidBlocks(el);
-  if (gen === previewGeneration) { enhanceDiagrams(el); enhanceTables(el); }
 }

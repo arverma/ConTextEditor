@@ -5,13 +5,40 @@ import { TaskItem, TaskList } from '@tiptap/extension-list';
 import { Markdown, MarkdownManager } from '@tiptap/markdown';
 import StarterKit from '@tiptap/starter-kit';
 import DOMPurify from 'dompurify';
-import { enhanceDiagrams } from '../diagram-viewer';
-import { renderMermaidBlocks } from '../markdown-preview';
+import { enhanceDiagrams } from './diagram-viewer';
+import { renderMermaidBlocks } from './markdown-preview';
+import { addImageDownload } from './preview-image';
 import { sourceBlocks } from './source-state';
 
 export type PreviewNode = JSONContent;
 
 const opaqueTypes = new Set(['Frontmatter', 'FencedCode', 'HTMLBlock', 'CommentBlock', 'ProcessingInstructionBlock']);
+
+/** Download control sits beside the table without taking the table out of the editor. */
+const previewTable = Table.extend({
+  addNodeView() {
+    return () => {
+      const frame = document.createElement('figure');
+      frame.className = 'table-frame';
+      const table = document.createElement('table');
+      const actions = document.createElement('figcaption');
+      actions.className = 'table-actions';
+      actions.contentEditable = 'false';
+      frame.append(table, actions);
+      queueMicrotask(() => {
+        if (!frame.isConnected || actions.childElementCount) return;
+        const index = [...frame.ownerDocument.querySelectorAll('.table-frame')].indexOf(frame);
+        addImageDownload(actions, table, `table-${index + 1}`, `table ${index + 1}`);
+      });
+      return {
+        dom: frame,
+        contentDOM: table,
+        ignoreMutation: (mutation) => mutation.type === "selection" || !(mutation.target instanceof globalThis.Node && table.contains(mutation.target)),
+        stopEvent: (event) => event.target instanceof globalThis.Node && actions.contains(event.target),
+      };
+    };
+  },
+}).configure({ resizable: false });
 
 /** Extensions shared by the Preview editor and the Markdown serializer. */
 export function previewExtensions() {
@@ -21,7 +48,7 @@ export function previewExtensions() {
       link: { openOnClick: false },
     }),
     Image.configure({ inline: true }),
-    Table.configure({ resizable: false }),
+    previewTable,
     TableRow,
     TableHeader,
     TableCell,
@@ -49,7 +76,7 @@ const rawBlock = Node.create({
     return [{ tag: 'pre[data-raw-block]' }];
   },
   renderHTML({ node }) {
-    return ['pre', { 'data-raw-block': node.attrs.kind, contenteditable: 'false', class: 'poc-raw-block' }, String(node.attrs.raw ?? '')];
+    return ['pre', { 'data-raw-block': node.attrs.kind, contenteditable: 'false', class: 'raw-block' }, String(node.attrs.raw ?? '')];
   },
   addNodeView() {
     return ({ node }) => {
@@ -59,7 +86,7 @@ const rawBlock = Node.create({
         const clean = DOMPurify.sanitize(raw, { USE_PROFILES: { html: true }, ADD_ATTR: ['class'] });
         if (clean.trim()) {
           const dom = document.createElement('div');
-          dom.className = 'poc-html-block';
+          dom.className = 'html-block';
           dom.dataset.rawBlock = 'html';
           dom.contentEditable = 'false';
           dom.innerHTML = clean;
@@ -67,7 +94,7 @@ const rawBlock = Node.create({
         }
       }
       const pre = document.createElement('pre');
-      pre.className = 'poc-raw-block';
+      pre.className = 'raw-block';
       pre.dataset.rawBlock = kind;
       pre.contentEditable = 'false';
       pre.textContent = raw;
@@ -94,12 +121,12 @@ const codeFence = Node.create({
     return [{ tag: 'pre[data-code-fence]' }];
   },
   renderHTML({ node }) {
-    return ['pre', { 'data-code-fence': node.attrs.language, class: 'poc-fence' }, ['code', {}, 0]];
+    return ['pre', { 'data-code-fence': node.attrs.language, class: 'code-fence' }, ['code', {}, 0]];
   },
   addNodeView() {
     return ({ node }) => {
       const pre = document.createElement('pre');
-      pre.className = 'poc-fence';
+      pre.className = 'code-fence';
       pre.dataset.codeFence = String(node.attrs.language ?? '');
       const code = document.createElement('code');
       pre.append(code);
@@ -123,12 +150,12 @@ const diagram = Node.create({
     return [{ tag: 'div[data-diagram-host]' }];
   },
   renderHTML({ node }) {
-    return ['div', { 'data-diagram-host': node.attrs.language, class: 'poc-diagram' }];
+    return ['div', { 'data-diagram-host': node.attrs.language, class: 'diagram-block' }];
   },
   addNodeView() {
     return ({ node }) => {
       const host = document.createElement('div');
-      host.className = 'poc-diagram';
+      host.className = 'diagram-block';
       host.dataset.diagramHost = String(node.attrs.language ?? 'mermaid');
       mountDiagram(host, fenceParts(String(node.attrs.raw ?? '')).body);
       return { dom: host, ignoreMutation: () => true, stopEvent: () => true };

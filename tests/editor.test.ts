@@ -2,23 +2,26 @@ import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { readFileSync } from "node:fs";
 const shell = readFileSync("../src/editor/index.html", "utf8");
 import { createSnippet, getSnippets, deleteSnippet } from "../src/editor/storage";
-
-const model = vi.hoisted(() => ({ value: "", listeners: [] as Array<() => void> }));
-vi.mock("../src/editor/monaco-setup", () => ({}));
-vi.mock("../src/editor/emoji-completions", () => ({ registerEmojiCompletions: vi.fn() }));
-vi.mock("../src/editor/markdown-preview", () => ({ setPreviewContent: vi.fn(async () => {}) }));
 vi.mock("../src/editor/export", () => ({ exportTxt: vi.fn(), exportPdf: vi.fn() }));
-vi.mock("monaco-editor/esm/vs/editor/editor.api", () => ({
-  KeyMod: { CtrlCmd: 1 }, KeyCode: { KeyR: 1, Escape: 9 },
-  editor: {
-    defineTheme: vi.fn(), setTheme: vi.fn(),
-    create: () => ({
+
+const model = vi.hoisted(() => ({ value: "", listeners: [] as Array<() => void>, compact: false, setCompact: vi.fn() }));
+const preview = vi.hoisted(() => ({ enable: vi.fn(), flush: vi.fn(), load: vi.fn(), repaint: vi.fn(), focus: vi.fn(), command: vi.fn(), active: vi.fn(() => false), linkHref: vi.fn(() => ""), selectionRect: vi.fn(() => null) }));
+vi.mock("../src/editor/source-editor", () => ({
+  createSourceEditor: (_parent: HTMLElement, options: { onChange: () => void; compact: boolean }) => {
+    model.listeners.push(options.onChange);
+    model.compact = options.compact;
+    return {
       getValue: () => model.value,
-      setValue: (value: string) => { model.value = value; model.listeners.forEach(fn => fn()); },
-      onDidChangeModelContent: (fn: () => void) => model.listeners.push(fn),
-      createContextKey: () => ({ set: vi.fn() }), saveViewState: () => null, restoreViewState: vi.fn(), updateOptions: vi.fn(), addAction: vi.fn(), layout: vi.fn(), focus: vi.fn(), hasTextFocus: () => true,
-    }),
+      setValue: (value: string) => { model.value = value; },
+      replace: (value: string) => { model.value = value; model.listeners.forEach(fn => fn()); },
+      focus: vi.fn(), hasFocus: () => true, scrollTop: () => 0, setScrollTop: vi.fn(),
+      setCompact: (compact: boolean) => { model.compact = compact; model.setCompact(compact); },
+      format: vi.fn(), openReplace: vi.fn(), destroy: vi.fn(),
+    };
   },
+}));
+vi.mock("../src/editor/preview-editor", () => ({
+  previewEditor: () => ({ ...preview, editor: { on: vi.fn(), isFocused: false, view: { dom: document.createElement("div") } } }),
 }));
 let listeners: Array<[string, EventListenerOrEventListenerObject, boolean | AddEventListenerOptions | undefined]>;
 beforeEach(() => {
@@ -139,17 +142,16 @@ it('labels export visibly for the current view and separates it from view contro
 it('uses readable mobile editor text and updates typography on resize without replacing the model', async () => {
  let mobile=true; const changes: Array<()=>void>=[];
  vi.stubGlobal('matchMedia', (query:string) => ({ get matches(){return query.includes('700px') && mobile;}, addEventListener: (_:string,fn:()=>void) => { if(query.includes('700px'))changes.push(fn); } }));
- const monaco=await import('monaco-editor/esm/vs/editor/editor.api'); const create=vi.spyOn(monaco.editor,'create');
  await import('../src/editor/editor');
- expect(create).toHaveBeenCalledWith(expect.anything(),expect.objectContaining({fontSize:16,lineHeight:24}));
- const instance=create.mock.results[0].value; edit('Keep this draft'); mobile=false; changes.forEach(change=>change());
- expect(instance.updateOptions).toHaveBeenCalledWith({fontSize:14,lineHeight:22}); expect(model.value).toBe('Keep this draft'); expect(create).toHaveBeenCalledTimes(1);
+ expect(model.compact).toBe(true);
+ edit('Keep this draft'); mobile=false; changes.forEach(change=>change());
+ expect(model.setCompact).toHaveBeenCalledWith(false); expect(model.value).toBe('Keep this draft');
 });
 it('refreshes diagrams for theme changes without altering raw source', async () => {
  await import('../src/editor/editor'); edit('```mermaid\nflowchart LR\nA-->B\n```');
  document.querySelector<HTMLButtonElement>('[data-view-value="preview"]')!.click();
- const {setPreviewContent}=await import('../src/editor/markdown-preview'); vi.mocked(setPreviewContent).mockClear();
+ preview.repaint.mockClear();
  document.querySelector<HTMLButtonElement>('[data-theme-value="dark"]')!.click();
- expect(setPreviewContent).toHaveBeenCalledWith(document.getElementById('markdown-preview'),model.value);
+ expect(preview.repaint).toHaveBeenCalled();
  expect(model.value).toBe('```mermaid\nflowchart LR\nA-->B\n```');
 });
