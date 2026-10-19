@@ -107,8 +107,13 @@ export function createSourceEditor(parent: HTMLElement, options: { onChange: () 
     metrics.of(metricsTheme(options.compact)),
     EditorView.theme({
       "&": { color: "var(--text)", backgroundColor: "var(--editor-bg)", height: "100%" },
+      "&.cm-focused": { outline: "none" },
       ".cm-scroller": { fontFamily: "var(--font-mono)", overflow: "auto" },
-      ".cm-gutters": { backgroundColor: "var(--surface-2)", color: "var(--text-muted)", borderColor: "var(--border)" },
+      ".cm-gutters": {
+        backgroundColor: "var(--editor-bg)",
+        color: "color-mix(in srgb, var(--text) 50%, transparent)",
+        border: "none",
+      },
       ".cm-activeLine": { backgroundColor: "color-mix(in srgb, var(--accent) 5%, transparent)" },
       ".cm-activeLineGutter": { backgroundColor: "transparent" },
       ".cm-cursor": { borderLeftColor: "var(--text)" },
