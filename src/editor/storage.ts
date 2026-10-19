@@ -14,11 +14,38 @@ interface StorageShape {
 const SNIPPETS_KEY = "context-editor.snippets";
 const ACTIVE_ID_KEY = "context-editor.activeSnippetId";
 
-/** First-line title for UI / export; strips a leading ATX heading marker. */
+/** One Markdown line as the text a reader sees, for titles and list previews. */
+export function plainTextLine(line: string): string {
+  const escaped: string[] = [];
+  return line.trim()
+    .replace(/\\([\\`*_{}[\]()#+\-.!~>|<])/g, (_, char: string) => `\uE000${escaped.push(char) - 1}\uE001`)
+    .replace(/^(?:>\s*)+/, "")
+    .replace(/^#{1,6}\s+/, "")
+    .replace(/^(?:[-*+]|\d+[.)])\s+(?:\[[ xX]\]\s+)?/, "")
+    .replace(/!\[([^\]]*)\]\([^)]*\)/g, "$1")
+    .replace(/\[([^\]]+)\]\([^)]*\)/g, "$1")
+    .replace(/<[^>]+>/g, "")
+    .replace(/`+([^`]+)`+/g, "$1")
+    .replace(/(\*\*|__|~~)(.+?)\1/g, "$2")
+    .replace(/(^|[^\w*])\*(?!\s)([^*]+?)\*(?!\w)/g, "$1$2")
+    .replace(/(^|[^\w_])_(?!\s)([^_]+?)_(?!\w)/g, "$1$2")
+    .replace(/\uE000(\d+)\uE001/g, (_, index: string) => escaped[Number(index)])
+    .trim();
+}
+
+/** First-line title for UI / export, without Markdown syntax. */
 export function deriveTitle(content: string): string {
-  const firstLine = content.split("\n", 1)[0]?.trim() ?? "";
-  const cleaned = firstLine.replace(/^#{1,6}\s+/, "");
+  const cleaned = plainTextLine(content.split("\n", 1)[0] ?? "");
   return cleaned ? cleaned.slice(0, 60) : "Untitled";
+}
+
+/** First non-empty line after the title, without Markdown syntax. */
+export function derivePreview(content: string): string {
+  for (const line of content.split("\n").slice(1)) {
+    const text = plainTextLine(line);
+    if (text) return text.slice(0, 80);
+  }
+  return "";
 }
 
 // Notes belong to this website origin and stay in the current browser.

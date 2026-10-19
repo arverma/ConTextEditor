@@ -1,9 +1,5 @@
 export type FormattingKind = 'bold' | 'italic' | 'code' | 'break';
 
-export interface Formattable {
-  format(kind: FormattingKind): void;
-}
-
 /** A single replacement plus the selection to restore after the editor applies it. */
 export function getFormattingEdit(content: string, start: number, end: number, kind: FormattingKind) {
   if (kind === 'break') {
@@ -45,14 +41,4 @@ export function getFormattingEdit(content: string, start: number, end: number, k
   const text = marker + padding + selected + padding + marker;
   const selectionStart = start + marker.length + padding.length;
   return { start, end, text, selectionStart, selectionEnd: selectionStart + selected.length };
-}
-
-export function initFormatting(editor: Formattable): void {
-  const toolbar = document.getElementById('formatting-toolbar')!;
-  // Retain the editor selection and mobile keyboard when a pointer uses the toolbar.
-  toolbar.addEventListener('pointerdown', event => { if ((event.target as Element).closest('button')) event.preventDefault(); });
-  toolbar.addEventListener('click', event => {
-    const kind = (event.target as Element).closest<HTMLButtonElement>('button')?.dataset.format;
-    if (kind === 'bold' || kind === 'italic' || kind === 'code' || kind === 'break') editor.format(kind);
-  });
 }

@@ -1,4 +1,3 @@
-import { initFormatting } from "./formatting";
 import { COMPACT_LAYOUT_QUERY } from "./responsive";
 import { initMobileActions } from "./mobile-actions";
 import { initOwnershipPanel } from "./ownership-panel";
@@ -121,7 +120,6 @@ function applyViewMode(mode: ViewMode, { persist = true } = {}): void {
 
   const isPreview = mode === "preview";
   container.hidden = isPreview;
-  document.getElementById("formatting-toolbar")!.hidden = isPreview;
   previewEl.hidden = !isPreview;
   if (!isPreview) previewToolbar.hidden = true;
 
@@ -320,13 +318,3 @@ initShortcuts({
 });
 
 mobileActions = initMobileActions();
-
-initFormatting(editor);
-for (const [kind, label, key] of [
-  ["bold", "Bold", "B"],
-  ["italic", "Italic", "I"],
-] as const) {
-  const button = document.querySelector<HTMLButtonElement>(`[data-format="${kind}"]`)!;
-  button.title = `${label} (${shortcutLabel(`Mod+${key}`)})`;
-  button.setAttribute("aria-keyshortcuts", `${/Mac|iPhone|iPad/.test(navigator.platform) ? "Meta" : "Control"}+${key}`);
-}

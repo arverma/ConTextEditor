@@ -1,4 +1,4 @@
-import { type Snippet, deriveTitle, getSnippets } from "./storage";
+import { type Snippet, derivePreview, deriveTitle, getSnippets } from "./storage";
 import { shortcutLabel } from "./shortcuts";
 
 interface HistoryPanelCallbacks {
@@ -58,7 +58,7 @@ export function initHistoryPanel(callbacks: HistoryPanelCallbacks) {
       select.setAttribute("aria-current", String(selected));
       select.setAttribute("aria-label", `Open note: ${title}`);
       row.querySelector(".snippet-item-title")!.textContent = title;
-      row.querySelector(".snippet-item-preview")!.textContent = note.content.split("\n").slice(1).find(line => line.trim())?.trim().slice(0, 80) || "No additional text";
+      row.querySelector(".snippet-item-preview")!.textContent = derivePreview(note.content) || "No additional text";
       row.querySelector(".snippet-item-meta")!.textContent = relativeTime(note.updatedAt);
       const del = row.querySelector<HTMLButtonElement>(".snippet-delete-btn")!;
       del.setAttribute("aria-label", `Delete note: ${title}`);

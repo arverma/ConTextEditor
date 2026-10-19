@@ -40,7 +40,7 @@ per-origin: localhost notes do not appear on the deployed website.
 - **New note** — sidebar “+ New note”
 - **Switch / edit** — click a note; edits autosave (~0.6s)
 - **Edit / Preview** — title bar toggle. Edit changes the raw Markdown. Preview is the same note as a document: bold, italic, strikethrough, link, lists, quote, and inline code appear when text is selected. Opening Preview does not change the file. The first edit there can normalize ordinary Markdown; front matter, fenced code, and HTML blocks stay as written until that block changes.
-- **Format text** — select text in Edit and use Bold, Italic, or Inline code in the formatting toolbar. Bold and Italic also support Ctrl/Cmd+B and Ctrl/Cmd+I. With no selection, a placeholder is inserted for you to replace. Line break adds an explicit Markdown line break after the selection or cursor; formatting supports Undo.
+- **Format text** — in Edit, Ctrl/Cmd+B and Ctrl/Cmd+I toggle bold and italic. In Preview, select text for bold, italic, strikethrough, link, lists, quote, and inline code.
 - **Export** — TXT in Edit; PDF (print → Save as PDF) in Preview
 - **Download image** — use the download icon in a Mermaid diagram’s top-right corner or beside a centered Markdown table’s top-right edge. The expanded diagram also has a download icon. Images include the full content in the current theme.
 - **Delete** — trash icon on a note; Undo is available for 10 seconds
