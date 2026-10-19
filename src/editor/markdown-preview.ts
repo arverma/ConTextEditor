@@ -45,7 +45,7 @@ async function getMermaid(): Promise<typeof import("mermaid").default> {
   return mermaidReady;
 }
 
-async function renderMermaidBlocks(el: HTMLElement): Promise<void> {
+export async function renderMermaidBlocks(el: HTMLElement): Promise<void> {
   const nodes = [...el.querySelectorAll<HTMLElement>("pre.mermaid")];
   if (nodes.length === 0) return;
 

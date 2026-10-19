@@ -32,7 +32,7 @@ npm run preview   # production build at http://localhost:4173/
 ```
 
 A separate CodeMirror evaluation page is available during development at
-`/ConTextEditor/poc.html`. Source mode edits raw Markdown; Visual mode offers basic paragraph/heading text editing and formatting. It uses disposable content and never reads or writes
+`/ConTextEditor/poc.html`. Markdown mode edits raw text; Preview is a rich document that writes Markdown back after an edit. It uses disposable content and never reads or writes
 saved notes. It is excluded from the production build; Monaco remains the main
 editor. See [the evaluation checklist](docs/codemirror-poc.md).
 

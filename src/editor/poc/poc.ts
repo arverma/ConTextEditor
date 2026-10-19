@@ -6,7 +6,7 @@ import { createSourceState, rawSource, normalizedText, sourceOffset, sourceBlock
 import { getFormattingEdit, type FormattingKind } from '../formatting';
 import { setPreviewContent } from '../markdown-preview';
 import { exportTxt, exportPdf } from '../export';
-import { visualEditor } from './visual-controller';
+import { previewEditor, type PreviewCommand } from './preview-editor';
 import { selectionToolbar } from './selection-toolbar';
 
 const technical = '# Technical Markdown\n\nA paragraph with **bold**, _italic_, `inline code`, a [reference][doc] and trailing spaces.  \nNext line.\n\n- List item\n  - Nested item\n- Another item\n\n| Name | Value |\n| :--- | ---: |\n| Alpha | 42 |\n\n~~~mermaid\nflowchart LR\nA[Original source] --> B[Safe edits]\nB --> C[Preview]\n~~~\n\n[doc]: https://example.com "Reference title"\n\n<div>Raw HTML remains source.</div>\n';
@@ -19,24 +19,26 @@ let baseline = fixtures.mixed;
 let timer: ReturnType<typeof setTimeout>;
 let drag: { index: number; source: string } | null = null;
 let previewRevision = 0;
-let visualMode = false;
-let visualWriting = false;
+let previewMode = false;
+let previewWriting = false;
 let floatingTools: { schedule(): void } | undefined;
+let floatingPreview: { schedule(): void } | undefined;
 const view = new EditorView({ parent: document.getElementById('poc-editor')!, state: makeState(baseline) });
-const visual = visualEditor(preview, () => view.state.field(rawSource), raw => {
-  visualWriting = true;
-  try { view.dispatch(replaceSource(view.state, raw)); } finally { visualWriting = false; }
-}, message => { status.textContent = message; });
-for (const button of document.querySelectorAll<HTMLButtonElement>('[data-mode]')) button.addEventListener('click', async () => {
-  visualMode = button.dataset.mode === 'visual';
-  document.querySelector('.poc-page')!.classList.toggle('is-visual', visualMode);
-  document.querySelectorAll('[data-mode]').forEach(el => el.setAttribute('aria-pressed', String((el as HTMLElement).dataset.mode === (visualMode ? 'visual' : 'source'))));
-  clearTimeout(timer); toolbar.hidden = true; await renderPreview(); visual.enable(visualMode); floatingTools?.schedule();
+const rich = document.getElementById('poc-rich')!;
+const richEditor = previewEditor(rich, () => view.state.field(rawSource), raw => {
+  previewWriting = true;
+  try { view.dispatch(replaceSource(view.state, raw)); } finally { previewWriting = false; }
 });
-preview.addEventListener('keydown', event => {
-  if (!visualMode || !(event.ctrlKey || event.metaKey)) return;
-  if (event.key.toLowerCase() === 'b' || event.key.toLowerCase() === 'i') { event.preventDefault(); visual.format(event.key.toLowerCase() === 'b' ? 'bold' : 'italic'); }
-  if (event.key.toLowerCase() === 'z') { event.preventDefault(); event.shiftKey ? redo(view) : undo(view); }
+for (const button of document.querySelectorAll<HTMLButtonElement>('[data-mode]')) button.addEventListener('click', async () => {
+  const next = button.dataset.mode === 'preview';
+  if (previewMode && !next) richEditor.enable(false);
+  previewMode = next;
+  document.querySelector('.poc-page')!.classList.toggle('is-preview', previewMode);
+  document.querySelectorAll('[data-mode]').forEach(el => el.setAttribute('aria-pressed', String((el as HTMLElement).dataset.mode === (previewMode ? 'preview' : 'markdown'))));
+  clearTimeout(timer); toolbar.hidden = true; previewToolbar.hidden = true;
+  if (previewMode) richEditor.enable(true);
+  else await renderPreview();
+  floatingTools?.schedule(); floatingPreview?.schedule();
 });
 
 function makeState(raw: string) {
@@ -62,7 +64,6 @@ function commit(raw: string, cursor?: number): void {
   view.dispatch(spec); view.focus();
 }
 function format(kind: FormattingKind): void {
-  if (visualMode) { visual.format(kind); return; }
   const raw = view.state.field(rawSource); const selection = view.state.selection.main;
   const edit = getFormattingEdit(raw, sourceOffset(raw, selection.from), sourceOffset(raw, selection.to), kind);
   const next = raw.slice(0, edit.start) + edit.text + raw.slice(edit.end);
@@ -73,19 +74,9 @@ function format(kind: FormattingKind): void {
 }
 const toolbar = document.querySelector<HTMLElement>('.poc-edit-tools')!;
 floatingTools = selectionToolbar(toolbar, () => {
-  const toolbarFocused = toolbar.contains(document.activeElement);
-  if (visualMode) {
-    const range = visual.selectedRange();
-    if (!range || (!preview.contains(document.activeElement) && !toolbarFocused)) return null;
-    const rect = range.getBoundingClientRect();
-    const selection = window.getSelection()!;
-    const container = range.startContainer instanceof HTMLElement ? range.startContainer : range.startContainer.parentElement!;
-    const editor = container.closest<HTMLElement>('[contenteditable="true"]');
-    if (!editor) return null;
-    return { rect, bounds: preview.getBoundingClientRect(), key: `visual:${selection.anchorOffset}:${selection.focusOffset}:${range.toString()}:${view.state.doc.length}`, editor };
-  }
+  if (previewMode) return null;
   const selected = view.state.selection.main;
-  if (selected.empty || (!view.hasFocus && !toolbarFocused)) return null;
+  if (selected.empty || (!view.hasFocus && !toolbar.contains(document.activeElement))) return null;
   const start = view.coordsAtPos(selected.from); const end = view.coordsAtPos(selected.to);
   if (!start || !end) return null;
   return { bounds: view.scrollDOM.getBoundingClientRect(), rect: { left: Math.min(start.left,end.left), right: Math.max(start.right,end.right), top: start.top, bottom: end.bottom }, key: `source:${selected.from}:${selected.to}:${view.state.doc.length}`, editor: view.contentDOM };
@@ -106,12 +97,48 @@ toolbar.addEventListener('click', event => {
   if (formattedOnTouch && event.detail !== 0) return;
   toolbarFormat(event.target);
 });
-document.getElementById('undo')!.addEventListener('click',()=>undo(view));
-document.getElementById('redo')!.addEventListener('click',()=>redo(view));
+const previewToolbar = document.querySelector<HTMLElement>('.poc-preview-tools')!;
+const linkField = previewToolbar.querySelector<HTMLInputElement>('#poc-link-url')!;
+const previewCommandName: Record<string, string> = { bold: 'bold', italic: 'italic', underline: 'underline', strike: 'strike', link: 'link', bullet: 'bulletList', ordered: 'orderedList', quote: 'blockquote', code: 'code', codeBlock: 'codeBlock' };
+floatingPreview = selectionToolbar(previewToolbar, () => {
+  const focused = previewToolbar.contains(document.activeElement);
+  if (!previewMode) return null;
+  const rect = richEditor.selectionRect();
+  if (!rect || (!richEditor.editor.isFocused && !focused)) return null;
+  for (const button of previewToolbar.querySelectorAll<HTMLButtonElement>('[data-command]')) {
+    button.setAttribute('aria-pressed', String(richEditor.active(previewCommandName[button.dataset.command ?? ''] ?? '')));
+  }
+  if (document.activeElement !== linkField) linkField.value = richEditor.linkHref();
+  return { rect, bounds: rich.getBoundingClientRect(), key: `preview:${rect.left}:${rect.top}:${rect.right}:${rect.bottom}`, editor: richEditor.editor.view.dom };
+});
+richEditor.editor.on('selectionUpdate', () => floatingPreview?.schedule());
+richEditor.editor.on('update', () => floatingPreview?.schedule());
+let previewTouch = false;
+function applyPreview(target: EventTarget | null): void {
+  const command = target instanceof Element ? target.closest<HTMLButtonElement>('[data-command]')?.dataset.command as PreviewCommand | undefined : undefined;
+  if (command) richEditor.command(command, linkField.value);
+}
+previewToolbar.addEventListener('pointerdown', event => {
+  if (!(event.target instanceof Element) || !event.target.closest('button')) return;
+  event.preventDefault();
+  previewTouch = event.pointerType === 'touch' || event.pointerType === 'pen';
+  if (previewTouch) applyPreview(event.target);
+});
+previewToolbar.addEventListener('click', event => {
+  if (previewTouch && event.detail !== 0) return;
+  applyPreview(event.target);
+});
+linkField.addEventListener('keydown', event => {
+  if (event.key !== 'Enter') return;
+  event.preventDefault();
+  richEditor.command('link', linkField.value);
+});
+document.getElementById('undo')!.addEventListener('click', () => { if (previewMode) richEditor.undo(); else undo(view); });
+document.getElementById('redo')!.addEventListener('click', () => { if (previewMode) richEditor.redo(); else redo(view); });
 
 async function renderPreview(): Promise<void> {
   const revision = ++previewRevision;
-  try { await setPreviewContent(preview, view.state.field(rawSource)); if (revision === previewRevision) visual.bind(); }
+  try { await setPreviewContent(preview, view.state.field(rawSource)); }
   catch { if (revision === previewRevision) status.textContent = 'Preview could not render. Raw source is intact.'; }
 }
 function refresh(): void {
@@ -132,7 +159,7 @@ function refresh(): void {
     }
     blocksEl.append(item);
   });
-  clearTimeout(timer); if (!visualWriting) timer=setTimeout(()=>void renderPreview(),150);
+  clearTimeout(timer); if (!previewWriting && !previewMode) timer=setTimeout(()=>void renderPreview(),150);
 }
 function move(from:number,to:number,expected:string): void {
   if (view.state.field(rawSource)!==expected) { status.textContent='Source changed during drag. Start the move again.'; return; }
@@ -161,7 +188,7 @@ blocksEl.addEventListener('pointermove',event=>{if(!touch||touch.pointer!==event
 blocksEl.addEventListener('pointerup',()=>{if(touch?.moved&&touch.target!==null)move(touch.index,touch.target,touch.source);touch=null;clearDrop();});
 blocksEl.addEventListener('pointercancel',()=>{touch=null;clearDrop();});
 
-function load(raw:string): void { baseline=raw;view.setState(makeState(raw));status.textContent='Loaded disposable source. Existing notes are untouched.';refresh(); }
+function load(raw:string): void { baseline=raw;view.setState(makeState(raw));if(previewMode)richEditor.load(raw);status.textContent='Loaded disposable source. Existing notes are untouched.';refresh(); }
 document.getElementById('reset')!.addEventListener('click',()=>load(fixtures[fixture.value]));
 fixture.addEventListener('change',()=>load(fixtures[fixture.value]));
 (document.getElementById('import') as HTMLInputElement).addEventListener('change',async event=>{
@@ -171,6 +198,6 @@ fixture.addEventListener('change',()=>load(fixtures[fixture.value]));
   catch {status.textContent='Could not open file. Use valid UTF-8 Markdown under 5 MiB. Current source is intact.';}finally{input.value='';}
 });
 document.getElementById('raw-export')!.addEventListener('click',()=>exportTxt(view.state.field(rawSource),'codemirror-poc'));
-document.getElementById('pdf-export')!.addEventListener('click',async()=>{clearTimeout(timer);await renderPreview();exportPdf('CodeMirror evaluation');});
-document.getElementById('poc-theme')!.addEventListener('click',event=>{const dark=document.documentElement.dataset.theme!=='dark';document.documentElement.dataset.theme=dark?'dark':'light';(event.currentTarget as HTMLElement).setAttribute('aria-pressed',String(dark));void renderPreview();});
+document.getElementById('pdf-export')!.addEventListener('click',async()=>{if(previewMode)richEditor.flush();clearTimeout(timer);await renderPreview();exportPdf('CodeMirror evaluation');});
+document.getElementById('poc-theme')!.addEventListener('click',event=>{const dark=document.documentElement.dataset.theme!=='dark';document.documentElement.dataset.theme=dark?'dark':'light';(event.currentTarget as HTMLElement).setAttribute('aria-pressed',String(dark));void renderPreview();if(previewMode)richEditor.repaint();});
 refresh();

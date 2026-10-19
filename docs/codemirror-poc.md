@@ -4,7 +4,8 @@ User-authorized evaluation; Monaco remains the main editor. Existing work and pl
 
 ## Acceptance checklist
 
-- [x] A separate development-only page, with disposable content and no access to note storage.
+A separate development-only page, with disposable content and no access to note storage.
+
 - [x] Raw Markdown is authoritative; preserve untouched syntax, whitespace, CRLF/LF/mixed line endings, and final newline.
 - [x] Formatting selections: bold, italic, inline code; Enter inserts a line break in Visual; undo/redo restores exact source.
 - [x] Drag handles reorder whole Markdown blocks (including lists, tables, and Mermaid fences) without reserializing them.
@@ -57,7 +58,6 @@ Use Node 24 and install dependencies in the app and tests packages. Install Play
 
 Official API references used: [CodeMirror state](https://codemirror.net/docs/ref/#state), [history effects](https://codemirror.net/docs/ref/#commands.invertedEffects), and [Markdown language](https://github.com/codemirror/lang-markdown). Installed package type definitions were checked where the documentation site rejected access.
 
-
 ## Editable Visual mode milestone
 
 The standalone page offers Source and Visual modes sharing the same raw Markdown and CodeMirror undo history. Source retains the split editor/preview and block organizer. Visual hides the source pane and makes supported text blocks editable. The selection toolbar offers bold, italic and inline code; Enter adds a line break in Visual. Undo, redo, Cmd/Ctrl+B and Cmd/Ctrl+I work in both modes.
@@ -68,7 +68,6 @@ This is deliberately a limited proof of concept: tables, diagrams, raw HTML, ima
 
 Validation for this milestone: 120 unit tests pass, TypeScript and production build pass; the existing Chromium/WebKit suite still passes for exports, formatting, history, block moves, safety, responsive widths and storage isolation. The new `npm --prefix tests run test:poc:visual` checks browser typing, bold/italic/code, deletion, line breaks, safe paste, source/visual switching and guarded selections. The drag regression scrolls the organizer into view before dragging so layout changes cannot select a neighboring handle during auto-scroll. Main Monaco and user notes remain outside the prototype.
 
-
 ## Selection and contextual formatting follow-up
 
 Fixed a visible source-selection defect: the opaque active-line background covered CodeMirror's selection layer. The active line now uses a translucent background, and both themes use a stronger selection highlight. Verified desktop dragging in the open in-app browser as well as isolated Chromium and WebKit.
@@ -77,6 +76,12 @@ Bold, italic and inline code now appear in a floating toolbar beside a nonempty 
 
 `npm --prefix tests run test:poc:selection` checks real desktop mouse dragging, visible source selection, source/visual formatting, retained Visual selection, keyboard access/dismissal, mobile placement, and touch activation in Chromium and WebKit. Physical trackpads and native mobile selection handles still need manual testing. Existing Visual structural limitations remain; this improves selection and formatting rather than completing general rich-text editing.
 
-## Plan-style rendered editing follow-up
+## Cursor-style Preview
 
-Visual mode now supports direct text editing in paragraphs, headings, ordinary list items, nested list items, and checklists. Enter inserts a line break within the same item; the selection toolbar contains only bold, italic and inline code. Checklist controls and nested lists remain intact while editing item text. Source offsets are mapped back to the original Markdown, including list continuation indentation and mixed line endings, so an edit does not rewrite unrelated source. Edits that would change a Markdown block boundary or formatting unexpectedly are refused. `npm --prefix tests run test:poc:plan` exercises these interactions in Chromium and WebKit. This remains an isolated prototype, separate from the Monaco editor and saved notes.
+Preview is a rich document, not a set of source-mapped text boxes. The Markdown tab is still CodeMirror, with the side preview and block organizer. Preview parses that string with [Tiptap](https://tiptap.dev/docs/editor/markdown) and writes a new Markdown string back after an edit.
+
+Opening Preview and switching back without typing leaves the file unchanged. The first edit may normalize ordinary Markdown: emphasis markers, list markers, table spacing, and line endings. A leading front matter block, fenced code (including Mermaid), and HTML blocks are copied back verbatim until that block itself changes. In Preview, a Mermaid fence renders as a diagram and an HTML block renders as sanitized HTML. Front matter and HTML comments stay as source text. Underline serializes as `++text++`, which is Tiptap's markdown spelling for the underline mark. Enter splits a paragraph or list item; Shift+Enter inserts a hard break. Pasted HTML is ignored; pasted plain text is parsed as Markdown.
+
+Undo inside Preview is the rich editor's history. The Markdown tab receives one history step per editing burst, not per keystroke. Switching back to Preview re-parses the current string and starts a fresh Preview history. Monaco and saved notes stay outside this page.
+
+The earlier Visual milestone, which mapped keystrokes onto source offsets and refused structural edits, has been removed.
