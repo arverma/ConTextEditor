@@ -4,7 +4,9 @@ import { shortcutLabel } from "./shortcuts";
 export function initSidebar(options: { beforeOpen?: () => void } = {}) {
   const sidebar = document.getElementById("sidebar")!;
   const toggle = document.getElementById("sidebar-toggle")!;
-  const close = document.getElementById("sidebar-close")!;
+  const close = document.getElementById("sidebar-close");
+  const heading = sidebar.querySelector<HTMLElement>(".sidebar-heading")!;
+  const titlebar = document.getElementById("note-titlebar")!;
   const toast = document.getElementById("undo-toast");
   const toastHome = toast?.parentElement;
   const announcement = document.getElementById("recovery-status");
@@ -23,6 +25,7 @@ export function initSidebar(options: { beforeOpen?: () => void } = {}) {
   function update(open: boolean): void {
     open = open && !suppressed;
     sidebar.hidden = !open;
+    (open ? heading : titlebar).append(toggle);
     toggle.setAttribute("aria-expanded", String(open));
     const label = open ? "Hide note history" : "Show note history";
     toggle.setAttribute("aria-label", label);
@@ -63,7 +66,7 @@ export function initSidebar(options: { beforeOpen?: () => void } = {}) {
     }
   }
   toggle.addEventListener("click", () => setOpen(sidebar.hidden));
-  close.addEventListener("click", () => setOpen(false));
+  close?.addEventListener("click", () => setOpen(false));
   dialog.addEventListener("cancel", event => { event.preventDefault(); setOpen(false); });
   dialog.addEventListener("click", event => {
     if (event.target !== dialog) return;

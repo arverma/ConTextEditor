@@ -20,13 +20,12 @@
 @media (max-width: 700px), (max-width: 1000px) and (max-height: 500px) {
   #topbar { height: 48px; min-height: 48px; padding: 0 12px; gap: 8px; flex-wrap: nowrap; }
   .brand { gap: 6px; min-width: 0; }
-  .brand-mark { display: none; }
   .brand-name { font-size: 14px; white-space: nowrap; }
   .topbar-right { gap: 4px; margin-left: auto; flex-shrink: 0; }
   .save-status { font-size: 12px; color: var(--text-muted); white-space: nowrap; }
   #mobile-actions-toggle { display: inline-flex; }
-  #topbar .sidebar-toggle { width: 44px; height: 44px; min-width: 44px; }
   #note-titlebar { display: flex; align-items: center; height: 48px; min-height: 48px; flex-wrap: nowrap; gap: 12px; padding: 0 16px; }
+  #note-titlebar > #sidebar-toggle { width: 44px; height: 44px; min-width: 44px; }
   #note-title { flex: 1 1 0; font-size: 14px; }
   .titlebar-right { display: contents; }
   .toolbar-layout, .toolbar-actions, .note-counts { display: none; }

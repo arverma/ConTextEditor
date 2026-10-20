@@ -27,6 +27,7 @@ export function initMobileActions(): { close: (restoreFocus?: boolean) => void }
   const newNote = document.getElementById('new-snippet-btn')!;
   const newNoteHome = document.createComment('home:new-snippet-btn');
   newNote.before(newNoteHome);
+  const sidebarHeading = document.querySelector<HTMLElement>('.sidebar-heading')!;
   let restore = true;
   function close(restoreFocus = true): void {
     restore = restoreFocus;
@@ -36,7 +37,7 @@ export function initMobileActions(): { close: (restoreFocus?: boolean) => void }
     const focused = document.activeElement as HTMLElement | null;
     const hadFocus = dialog.contains(focused);
     close(false);
-    if (mobile.matches) document.getElementById('sidebar-close')!.before(newNote);
+    if (mobile.matches) sidebarHeading.append(newNote);
     else newNoteHome.after(newNote);
     if (focused === newNote) newNote.focus();
     for (const {element,marker} of homes) {

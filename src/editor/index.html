@@ -67,12 +67,6 @@
     <div id="app">
       <header id="topbar">
         <div class="brand">
-          <button id="sidebar-toggle" class="sidebar-toggle" type="button" aria-label="Hide note history" title="Hide note history" aria-controls="sidebar" aria-expanded="true">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <rect x="3" y="4" width="18" height="16" rx="2" stroke="currentColor" stroke-width="1.8"/>
-              <path d="M9 4v16" stroke="currentColor" stroke-width="1.8"/>
-            </svg>
-          </button>
           <span class="brand-mark" aria-hidden="true">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M8 6l-4 6 4 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -114,7 +108,7 @@
 
       <div id="body">
         <aside id="sidebar" aria-label="Note history">
-          <div class="sidebar-heading"><h2>Notes</h2><button id="sidebar-close" class="sidebar-toggle" type="button" aria-label="Close note history">×</button></div>
+          <div class="sidebar-heading"><h2>Notes</h2></div>
           <button id="new-snippet-btn" class="btn-new" type="button" aria-label="New note">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
               <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -135,6 +129,12 @@
 
         <main id="main">
           <div id="note-titlebar">
+            <button id="sidebar-toggle" class="sidebar-toggle" type="button" aria-label="Hide note history" title="Hide note history" aria-controls="sidebar" aria-expanded="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <rect x="3" y="4" width="18" height="16" rx="2" stroke="currentColor" stroke-width="1.8"/>
+                <path d="M9 4v16" stroke="currentColor" stroke-width="1.8"/>
+              </svg>
+            </button>
             <span id="note-title">Untitled</span>
             <div class="titlebar-right">
               <span id="note-counts" class="note-counts" aria-live="polite">0 words · 0 chars</span>

@@ -414,6 +414,10 @@ body {
   min-width: 0;
 }
 
+#note-titlebar > #sidebar-toggle {
+  order: -1;
+}
+
 .titlebar-right {
   display: flex;
   align-items: center;
@@ -1117,7 +1121,6 @@ body {
 @media (max-width: 480px) {
   #topbar { height: auto; min-height: 48px; flex-wrap: wrap; gap: 4px 8px; padding: 4px 8px; }
   .brand { gap: 6px; }
-  .brand-mark { display: none; }
   .brand-name { font-size: 12px; }
   .topbar-right { gap: 4px; margin-left: auto; }
   .save-status { font-size: 10px; }

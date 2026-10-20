@@ -4,7 +4,7 @@ let mobile = false;
 let change: () => void;
 beforeEach(() => {
   localStorage.clear(); mobile = false;
-  document.body.innerHTML = '<button id="sidebar-toggle"></button><div id="body"><aside id="sidebar"><button id="sidebar-close"></button><input id="note-search"></aside><main><button id="other">Other</button></main></div>';
+  document.body.innerHTML = '<div id="note-titlebar"><button id="sidebar-toggle"></button></div><div id="body"><aside id="sidebar"><div class="sidebar-heading"><h2>Notes</h2></div><button id="sidebar-close"></button><input id="note-search"></aside><main><button id="other">Other</button></main></div>';
   vi.stubGlobal("matchMedia", () => ({ get matches() { return mobile; }, addEventListener: (_: string, fn: () => void) => { change = fn; } }));
   HTMLDialogElement.prototype.showModal = function () { this.setAttribute("open", ""); };
   HTMLDialogElement.prototype.close = function () { this.removeAttribute("open"); };
@@ -19,6 +19,16 @@ it("keeps desktop preference independent from mobile open/close and cleans up on
   expect(localStorage.getItem("context-editor.sidebarOpen")).toBe("false");
   mobile = false; change(); expect(document.querySelector<HTMLElement>("#sidebar")?.hidden).toBe(true);
   expect(document.querySelector("#sidebar")?.parentElement?.id).toBe("body");
+});
+it("moves the history toggle into the open panel heading", () => {
+  localStorage.setItem("context-editor.sidebarOpen", "false");
+  const sidebar = initSidebar();
+  const toggle = document.getElementById("sidebar-toggle")!;
+  expect(toggle.parentElement?.id).toBe("note-titlebar");
+  sidebar.setOpen(true);
+  expect(toggle.parentElement?.className).toBe("sidebar-heading");
+  sidebar.setOpen(false);
+  expect(toggle.parentElement?.id).toBe("note-titlebar");
 });
 it("closes a modal drawer on cancel and restores focus to opener", () => {
   mobile = true; const sidebar = initSidebar(); const toggle = document.getElementById("sidebar-toggle")!;
