@@ -1,5 +1,5 @@
 import { beforeEach, afterEach, describe, expect, it, vi } from "vitest";
-import { NoteSession } from "../src/editor/note-session";
+import { NoteSession, STARTER_NOTE_CONTENT } from "../src/editor/note-session";
 import { getSnippets, createSnippet, deleteSnippet } from "../src/editor/storage";
 
 beforeEach(() => { localStorage.clear(); vi.useFakeTimers(); });
@@ -7,6 +7,19 @@ afterEach(() => vi.useRealTimers());
 function session() { const session = new NoteSession(vi.fn()); session.start(); return session; }
 
 describe("note lifecycle", () => {
+  it("starts the first note with editor feature examples", () => {
+    const s = session();
+    expect(s.content).toBe(STARTER_NOTE_CONTENT);
+    expect(s.content).toContain("**Bold**");
+    expect(s.content).toContain("*italic*");
+    expect(s.content).toContain("`inline code`");
+    expect(s.content).toContain("- ");
+  });
+  it("starts every newly created note with the same feature examples", () => {
+    const s = session();
+    expect(s.create()).toBe(true);
+    expect(s.content).toBe(STARTER_NOTE_CONTENT);
+  });
   it("saves pending edits before selecting another note without touching its timestamp", () => {
     const s = session(); const a = s.id!; s.edit("A latest");
     const b = createSnippet("B"); const timestamp = b.updatedAt;

@@ -4,6 +4,17 @@ import { type Snippet, createSnippet, getActiveSnippet, getSnippets, updateSnipp
 export type DeletedNote = TrashEntry;
 export type SaveStatus = "saved" | "saving" | "error";
 
+export const STARTER_NOTE_CONTENT = `# Welcome to ConText Editor
+
+Try the **Bold**, *italic*, ~~strikethrough~~, and \`inline code\` formatting tools.
+
+- Select text in Rich mode to format it.
+- Switch to Markdown mode to edit the source directly.
+
+> Your notes stay local on this device.
+
+[Learn more about Markdown](https://www.markdownguide.org/basic-syntax/)`;
+
 /** Owns note transitions so UI loads never masquerade as user edits. */
 export class NoteSession {
   id: string | null = null;
@@ -32,7 +43,7 @@ export class NoteSession {
     setActiveSnippetId(this.id);
     this.changed();
   }
-  start(): void { this.attempt(() => this.load(getActiveSnippet() ?? createSnippet())); }
+  start(): void { this.attempt(() => this.load(getActiveSnippet() ?? createSnippet(STARTER_NOTE_CONTENT))); }
   edit(content: string): void {
     this.content = content;
     this.dirty = true;
@@ -67,7 +78,7 @@ export class NoteSession {
   }
   create(): boolean {
     if (!this.flush()) return false;
-    return this.attempt(() => this.load(createSnippet()));
+    return this.attempt(() => this.load(createSnippet(STARTER_NOTE_CONTENT)));
   }
   remove(id: string): DeletedNote | null {
     if (!this.flush()) return null;

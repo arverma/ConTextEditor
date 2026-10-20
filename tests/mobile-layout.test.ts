@@ -84,3 +84,7 @@ it('uses Markdown and Rich as the view labels', () => {
   expect(editorMarkup).not.toMatch(/data-view-value="edit"><span>Edit<\/span>/);
   expect(editorMarkup).not.toMatch(/data-view-value="preview"><span>Preview<\/span>/);
 });
+
+it('removes mobile safe-area top padding in focus mode', () => {
+  expect(mobileStyles).toContain('#app[data-focus-mode="true"] { padding-top: 0 !important;');
+});
