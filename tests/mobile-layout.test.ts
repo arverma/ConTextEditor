@@ -77,6 +77,13 @@ it('provides a mobile-only focus mode action in the preview toolbar', () => {
   expect(mobileStyles).toContain('.preview-tools .mobile-focus-group { display: flex; }');
 });
 
+it('centers formatting controls and uses theme surfaces for their states', () => {
+  expect(editorStyles).toContain('display: inline-flex; align-items: center; justify-content: center;');
+  expect(editorStyles).toContain('appearance: none; -webkit-appearance: none;');
+  expect(editorStyles).toContain('background: var(--surface-hover); color: var(--text);');
+  expect(editorStyles).toContain('.preview-tools button[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent); }');
+});
+
 it('uses Markdown and Rich as the view labels', () => {
   expect(editorMarkup).toContain('<span>Markdown</span>');
   expect(editorMarkup).toContain('<span>Rich</span>');

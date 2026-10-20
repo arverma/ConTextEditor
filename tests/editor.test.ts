@@ -149,6 +149,16 @@ it('labels export visibly for the current view and separates it from view contro
  expect(document.querySelector('.toolbar-actions #export-btn')).not.toBeNull();
  expect(document.querySelector('.toolbar-actions #view-toggle')).toBeNull();
 });
+it("toggles the Rich link input closed when the Link button is clicked again", async () => {
+  await import("../src/editor/editor");
+  document.querySelector<HTMLButtonElement>('[data-view-value="preview"]')!.click();
+  const link = document.querySelector<HTMLButtonElement>('[data-command="link"]')!;
+  const field = document.getElementById("preview-link-url") as HTMLInputElement;
+  link.click();
+  expect(field.hidden).toBe(false);
+  link.click();
+  expect(field.hidden).toBe(true);
+});
 it('uses readable mobile editor text and updates typography on resize without replacing the model', async () => {
  let mobile=true; const changes: Array<()=>void>=[];
  vi.stubGlobal('matchMedia', (query:string) => ({ get matches(){return query.includes('700px') && mobile;}, addEventListener: (_:string,fn:()=>void) => { if(query.includes('700px'))changes.push(fn); } }));

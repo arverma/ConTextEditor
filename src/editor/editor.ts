@@ -222,7 +222,17 @@ rich.editor.on("update", () => floatingPreview.schedule());
 let previewTouch = false;
 function applyPreview(target: EventTarget | null): void {
   const command = target instanceof Element ? target.closest<HTMLButtonElement>("[data-command]")?.dataset.command as PreviewCommand | undefined : undefined;
-  if (command === "link") { linkField.hidden = false; linkField.focus(); floatingPreview.schedule(); return; }
+  if (command === "link") {
+    if (!linkField.hidden) {
+      linkField.hidden = true;
+      rich.focus();
+    } else {
+      linkField.hidden = false;
+      linkField.focus();
+    }
+    floatingPreview.schedule();
+    return;
+  }
   if (command) rich.command(command, linkField.value);
 }
 previewToolbar.addEventListener("pointerdown", (event) => {
