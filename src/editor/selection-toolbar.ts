@@ -10,6 +10,7 @@ export interface SelectionToolbarOptions {
   mobileKeyboard?: {
     isOpen: () => boolean;
     anchor: () => SelectionAnchor | null;
+    bottomInset?: () => number;
   };
 }
 
@@ -50,7 +51,8 @@ export function selectionToolbar(toolbar: HTMLElement, anchor: () => SelectionAn
     const size = toolbar.getBoundingClientRect();
     if (mobileKeyboard) {
       toolbar.style.left = `${Math.max(left + 8, left + (width - size.width) / 2)}px`;
-      toolbar.style.top = `${Math.max(top + 8, top + height - size.height - 8)}px`;
+      const bottomInset = options.mobileKeyboard?.bottomInset?.() ?? 0;
+      toolbar.style.top = `${Math.max(top + 8, top + height - size.height - bottomInset - 8)}px`;
       return;
     }
     const editorBox = selected.editor.getBoundingClientRect();

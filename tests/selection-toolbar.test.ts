@@ -56,3 +56,27 @@ it('shows only the keyboard toolbar on mobile and pins it above the visual viewp
   expect(toolbar.hidden).toBe(false);
   expect(toolbar.style.top).toBe('452px');
 });
+
+it('reserves the iPhone keyboard accessory area below the toolbar', async () => {
+  const toolbar = document.createElement('div');
+  const editor = document.createElement('div');
+  editor.tabIndex = 0;
+  document.body.append(toolbar, editor);
+  editor.focus();
+  vi.spyOn(toolbar, 'getBoundingClientRect').mockReturnValue({ width: 100, height: 40 } as DOMRect);
+  vi.stubGlobal('innerHeight', 800);
+  vi.stubGlobal('visualViewport', visualViewport(500));
+  const view = selectionToolbar(toolbar, () => anchor(editor), {
+    isMobile: () => true,
+    mobileKeyboard: {
+      isOpen: () => true,
+      anchor: () => anchor(editor),
+      bottomInset: () => 104,
+    },
+  });
+
+  view.schedule();
+  await nextFrame();
+
+  expect(toolbar.style.top).toBe('348px');
+});

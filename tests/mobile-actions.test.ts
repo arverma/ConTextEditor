@@ -51,7 +51,7 @@ it('keeps New note as the same working control when moving it into the compact h
  expect(button.getAttribute('aria-label')).toBe('New note');
  button.click(); expect(create).toHaveBeenCalledTimes(1);
  mobile=false; resize();
- expect(button.closest('.sidebar-heading')).toBeNull();
+ expect(button.closest('.sidebar-heading')).not.toBeNull();
  expect(button.nextElementSibling).toBe(next);
  expect(document.querySelectorAll('#new-snippet-btn')).toHaveLength(1);
  mobile=true; resize(); button.click(); expect(create).toHaveBeenCalledTimes(2);

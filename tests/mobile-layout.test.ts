@@ -19,6 +19,14 @@ it('aligns the mobile sidebar icon and note title to the brand column', () => {
   expect(mobileStyles).toContain('transform: translateX(-8px);');
 });
 
+it('places the compact New note control in the sidebar heading row', () => {
+  expect(editorMarkup).not.toContain('<h2>Notes</h2>');
+  expect(editorMarkup).toMatch(/<div class="sidebar-heading">[\s\S]*id="new-snippet-btn"/);
+  expect(editorStyles).toContain('.sidebar-heading');
+  expect(editorStyles).toContain('width: 32px;');
+  expect(editorStyles).toContain('height: 32px;');
+});
+
 it('keeps note actions on the filename row', () => {
   expect(mobileStyles).toContain('grid-template-rows: 44px;');
   expect(mobileStyles).toContain('.titlebar-right { display: flex;');

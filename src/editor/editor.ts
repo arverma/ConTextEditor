@@ -206,6 +206,12 @@ const floatingPreview = selectionToolbar(previewToolbar, () => {
         editor: rich.editor.view.dom,
       };
     },
+    bottomInset: () => {
+      const userAgent = navigator.userAgent;
+      const isIPhoneOrIPad = /iPhone|iPad|iPod/.test(userAgent) ||
+        (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+      return isIPhoneOrIPad ? 104 : 0;
+    },
   },
 });
 rich.editor.on("selectionUpdate", () => floatingPreview.schedule());
