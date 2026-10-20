@@ -191,39 +191,84 @@
             <div class="diff-checker-heading">
               <div>
                 <h2 id="diff-checker-title">Diff checker</h2>
-                <p>Paste or edit two values to compare them. Supported formats are formatted automatically.</p>
+                <p>Supported formats are formatted automatically.</p>
               </div>
               <div class="diff-checker-options">
                 <label for="diff-language">Format</label>
                 <select id="diff-language">
+                  <option value="auto">Auto Format</option>
                   <option value="json">JSON</option>
                   <option value="yaml">YAML</option>
-                  <option value="sql">SQL</option>
+                  <option value="sql:postgresql">PostgreSQL</option>
+                  <option value="sql:mysql">MySQL</option>
+                  <option value="sql:transactsql">SQL Server / T-SQL</option>
+                  <option value="sql:sqlite">SQLite</option>
+                  <option value="sql:mariadb">MariaDB</option>
+                  <option value="sql:bigquery">BigQuery</option>
+                  <option value="sql:snowflake">Snowflake</option>
+                  <option value="sql:trino">Trino / Presto</option>
+                  <option value="sql">Standard SQL</option>
+                  <option value="sql:redshift">Amazon Redshift</option>
+                  <option value="sql:spark">Spark SQL</option>
+                  <option value="sql:hive">Apache Hive</option>
+                  <option value="sql:clickhouse">ClickHouse</option>
+                  <option value="sql:tidb">TiDB</option>
+                  <option value="sql:singlestoredb">SingleStoreDB</option>
+                  <option value="sql:plsql">Oracle PL/SQL</option>
+                  <option value="sql:db2">IBM DB2</option>
+                  <option value="sql:db2i">IBM DB2i</option>
+                  <option value="sql:n1ql">Couchbase N1QL</option>
                   <option value="text">Plain text</option>
                 </select>
-                <label for="diff-sql-dialect">SQL dialect</label>
-                <select id="diff-sql-dialect">
+                <select id="diff-sql-dialect" hidden aria-hidden="true">
+                  <option value="trino">Trino / Presto</option>
+                  <option value="sql">Standard SQL</option>
                   <option value="postgresql">PostgreSQL</option>
                   <option value="mysql">MySQL</option>
+                  <option value="mariadb">MariaDB</option>
+                  <option value="bigquery">BigQuery</option>
+                  <option value="snowflake">Snowflake</option>
+                  <option value="spark">Spark SQL</option>
+                  <option value="hive">Apache Hive</option>
+                  <option value="transactsql">SQL Server / T-SQL</option>
+                  <option value="plsql">Oracle PL/SQL</option>
+                  <option value="redshift">Amazon Redshift</option>
+                  <option value="db2">IBM DB2</option>
+                  <option value="db2i">IBM DB2i</option>
+                  <option value="sqlite">SQLite</option>
+                  <option value="clickhouse">ClickHouse</option>
+                  <option value="tidb">TiDB</option>
+                  <option value="singlestoredb">SingleStoreDB</option>
+                  <option value="n1ql">Couchbase N1QL</option>
                 </select>
-                <button id="diff-checker-close" class="export-btn" type="button">Close</button>
+                <button id="diff-checker-format" class="diff-format-btn" type="button" aria-label="Format both diff panes" title="Format both diff panes">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="m5 19 4.5-14h3L17 19M7.5 14h7M19 5v5M16.5 7.5H21" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  <span>Format</span>
+                </button>
               </div>
             </div>
             <div class="diff-editors">
               <label class="diff-editor-pane">
                 <span>Original</span>
-                <textarea id="diff-original" spellcheck="false" aria-label="Original text"></textarea>
+                <div class="diff-code-shell">
+                  <div id="diff-left-display" class="diff-pane-display" aria-hidden="true"></div>
+                  <textarea id="diff-original" spellcheck="false" aria-label="Original text"></textarea>
+                </div>
               </label>
               <label class="diff-editor-pane">
                 <span>Modified</span>
-                <textarea id="diff-modified" spellcheck="false" aria-label="Modified text"></textarea>
+                <div class="diff-code-shell">
+                  <div id="diff-right-display" class="diff-pane-display" aria-hidden="true"></div>
+                  <textarea id="diff-modified" spellcheck="false" aria-label="Modified text"></textarea>
+                </div>
               </label>
             </div>
             <div class="diff-result-heading">
               <span>Changes</span>
               <span id="diff-summary" role="status">No changes</span>
             </div>
-            <div id="diff-result" class="diff-result" aria-label="Diff result"></div>
           </section>
         </main>
       </div>

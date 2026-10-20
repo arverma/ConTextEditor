@@ -1,11 +1,10 @@
-# Mobile Rich Default and View Terminology
+# Intelligent Diff Checker Formatting
 
-- [x] Update view labels, accessibility text, shortcut copy, and tests to use Markdown/Rich.
-- [x] Make the formatting toolbar visibility follow the active Rich view.
-- [x] Select Rich by default on mobile when no view preference exists.
-- [x] Add regression coverage and complete focused/full/build/browser verification.
-
-## Checkpoint
-- [x] Tests pass.
-- [x] Build succeeds.
-- [x] Mobile and desktop behavior verified.
+- [ ] Define formatter registry and state contract.
+- [ ] Implement deterministic Auto Format detection.
+- [ ] Checkpoint: pure formatting foundation passes focused tests.
+- [ ] Add format controls and direct SQL options.
+- [ ] Wire paste-only Auto Format and manual Format.
+- [ ] Checkpoint: desktop interaction and production build pass.
+- [ ] Add performance and compatibility regression coverage.
+- [ ] Checkpoint: focused/full tests, build, and browser verification complete.

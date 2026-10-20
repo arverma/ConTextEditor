@@ -367,4 +367,9 @@ initShortcuts({
 });
 
 mobileActions = initMobileActions();
-initDiffChecker({ isDesktop: () => !compactEditor.matches });
+initDiffChecker({
+  isDesktop: () => !compactEditor.matches,
+  onOpenChange: open => {
+    if (open) sidebar.setOpen(false, false);
+  },
+});

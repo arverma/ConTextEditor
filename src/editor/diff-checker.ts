@@ -2,10 +2,108 @@ import { diffLines } from "diff";
 import { format as formatSql, type SqlLanguage } from "sql-formatter";
 import { parse as parseYaml, stringify as stringifyYaml } from "yaml";
 
-export type DiffLanguage = "json" | "yaml" | "sql" | "text";
-export type SqlDialect = "postgresql" | "mysql";
+export type SqlDialect =
+  | "trino"
+  | "sql"
+  | "postgresql"
+  | "mysql"
+  | "mariadb"
+  | "bigquery"
+  | "snowflake"
+  | "spark"
+  | "hive"
+  | "transactsql"
+  | "plsql"
+  | "redshift"
+  | "db2"
+  | "db2i"
+  | "sqlite"
+  | "clickhouse"
+  | "tidb"
+  | "singlestoredb"
+  | "n1ql";
+export type DiffLanguage = "auto" | "json" | "yaml" | "sql" | "text" | `sql:${SqlDialect}`;
 export type DiffHunkType = "equal" | "remove" | "add";
 export const DIFF_STATE_KEY = "context-editor.diffChecker";
+
+export const SQL_DIALECTS: ReadonlyArray<{ label: string; value: SqlDialect }> = [
+  { label: "Trino / Presto", value: "trino" },
+  { label: "Standard SQL", value: "sql" },
+  { label: "PostgreSQL", value: "postgresql" },
+  { label: "MySQL", value: "mysql" },
+  { label: "MariaDB", value: "mariadb" },
+  { label: "BigQuery", value: "bigquery" },
+  { label: "Snowflake", value: "snowflake" },
+  { label: "Spark SQL", value: "spark" },
+  { label: "Apache Hive", value: "hive" },
+  { label: "SQL Server / T-SQL", value: "transactsql" },
+  { label: "Oracle PL/SQL", value: "plsql" },
+  { label: "Amazon Redshift", value: "redshift" },
+  { label: "IBM DB2", value: "db2" },
+  { label: "IBM DB2i", value: "db2i" },
+  { label: "SQLite", value: "sqlite" },
+  { label: "ClickHouse", value: "clickhouse" },
+  { label: "TiDB", value: "tidb" },
+  { label: "SingleStoreDB", value: "singlestoredb" },
+  { label: "Couchbase N1QL", value: "n1ql" },
+];
+
+export const FORMAT_OPTIONS: ReadonlyArray<{ label: string; value: DiffLanguage }> = [
+  { label: "Auto Format", value: "auto" },
+  { label: "JSON", value: "json" },
+  { label: "YAML", value: "yaml" },
+  { label: "PostgreSQL", value: "sql:postgresql" },
+  { label: "MySQL", value: "sql:mysql" },
+  { label: "SQL Server / T-SQL", value: "sql:transactsql" },
+  { label: "SQLite", value: "sql:sqlite" },
+  { label: "MariaDB", value: "sql:mariadb" },
+  { label: "BigQuery", value: "sql:bigquery" },
+  { label: "Snowflake", value: "sql:snowflake" },
+  { label: "Trino / Presto", value: "sql:trino" },
+  { label: "Standard SQL", value: "sql" },
+  { label: "Amazon Redshift", value: "sql:redshift" },
+  { label: "Spark SQL", value: "sql:spark" },
+  { label: "Apache Hive", value: "sql:hive" },
+  { label: "ClickHouse", value: "sql:clickhouse" },
+  { label: "TiDB", value: "sql:tidb" },
+  { label: "SingleStoreDB", value: "sql:singlestoredb" },
+  { label: "Oracle PL/SQL", value: "sql:plsql" },
+  { label: "IBM DB2", value: "sql:db2" },
+  { label: "IBM DB2i", value: "sql:db2i" },
+  { label: "Couchbase N1QL", value: "sql:n1ql" },
+  { label: "Plain text", value: "text" },
+];
+
+export function isSqlDiffLanguage(language: DiffLanguage): boolean {
+  return language === "sql" || language.startsWith("sql:");
+}
+
+export function detectDiffLanguage(raw: string): DiffLanguage {
+  const value = raw.trim();
+  if (!value) return "text";
+
+  try {
+    const parsed: unknown = JSON.parse(value);
+    if (parsed !== null && typeof parsed === "object") return "json";
+  } catch {
+    // Continue with YAML and SQL detection.
+  }
+
+  if (/^(?:---\s*$|[-\w"'][^:\n]*:\s*.+$|[-*]\s+\S)/m.test(value)) {
+    try {
+      const parsed: unknown = parseYaml(value);
+      if (parsed !== null && typeof parsed === "object") return "yaml";
+    } catch {
+      // Continue with SQL detection.
+    }
+  }
+
+  if (/^(?:with\b|select\b|insert\s+into\b|update\b|delete\s+from\b|create\s+(?:table|view|index)\b|alter\s+table\b|drop\s+(?:table|view|index)\b|merge\s+into\b|begin\b|commit\b|rollback\b)/i.test(value)) {
+    return "sql:postgresql";
+  }
+
+  return "text";
+}
 
 export interface DiffState {
   original: string;
@@ -28,6 +126,13 @@ export interface DiffRow {
   kind: "equal" | "changed" | "removed" | "added";
 }
 
+export type DiffPane = "left" | "right";
+export interface DiffPaneRow {
+  line: string;
+  number: number | null;
+  kind: DiffRow["kind"];
+}
+
 export function parseDiffState(raw: string | null): DiffState | null {
   if (!raw) return null;
   try {
@@ -37,8 +142,8 @@ export function parseDiffState(raw: string | null): DiffState | null {
     if (
       typeof state.original !== "string" ||
       typeof state.modified !== "string" ||
-      !["json", "yaml", "sql", "text"].includes(state.language ?? "") ||
-      !["postgresql", "mysql"].includes(state.dialect ?? "") ||
+      !FORMAT_OPTIONS.some(({ value }) => value === state.language) ||
+      !SQL_DIALECTS.some(({ value }) => value === state.dialect) ||
       typeof state.open !== "boolean"
     ) return null;
     return state as DiffState;
@@ -54,13 +159,14 @@ function splitLines(value: string): string[] {
 }
 
 export function formatDiffInput(raw: string, language: DiffLanguage, dialect: SqlDialect): string {
-  if (!raw.trim() || language === "text") return raw;
+  if (!raw.trim() || language === "auto" || language === "text") return raw;
 
   try {
     if (language === "json") return JSON.stringify(JSON.parse(raw), null, 2);
     if (language === "yaml") return stringifyYaml(parseYaml(raw));
+    const selectedDialect = language.startsWith("sql:") ? language.slice(4) as SqlDialect : dialect;
     return formatSql(raw, {
-      language: dialect as SqlLanguage,
+      language: selectedDialect as SqlLanguage,
       keywordCase: "upper",
       tabWidth: 2,
     });
@@ -92,6 +198,7 @@ export function toDiffRows(hunks: DiffHunk[]): DiffRow[] {
         leftNumber += 1;
         rightNumber += 1;
       }
+
       continue;
     }
 
@@ -129,29 +236,38 @@ export function toDiffRows(hunks: DiffHunk[]): DiffRow[] {
   return rows;
 }
 
+export function toDiffPaneRows(rows: DiffRow[], pane: DiffPane): DiffPaneRow[] {
+  return rows.map((row) => ({
+    line: row[pane],
+    number: row[`${pane}Number`],
+    kind: row.kind,
+  }));
+}
+
 export function initDiffChecker(options: {
   isDesktop: () => boolean;
   onOpenChange?: (open: boolean) => void;
 }): void {
   const button = document.getElementById("diff-checker-btn") as HTMLButtonElement | null;
-  const closeButton = document.getElementById("diff-checker-close") as HTMLButtonElement | null;
+  const formatButton = document.getElementById("diff-checker-format") as HTMLButtonElement | null;
   const section = document.getElementById("diff-checker");
   const language = document.getElementById("diff-language") as HTMLSelectElement | null;
   const dialect = document.getElementById("diff-sql-dialect") as HTMLSelectElement | null;
   const original = document.getElementById("diff-original") as HTMLTextAreaElement | null;
   const modified = document.getElementById("diff-modified") as HTMLTextAreaElement | null;
-  const result = document.getElementById("diff-result");
   const summary = document.getElementById("diff-summary");
-  if (!button || !closeButton || !section || !language || !dialect || !original || !modified || !result || !summary) return;
+  const leftDisplay = document.getElementById("diff-left-display");
+  const rightDisplay = document.getElementById("diff-right-display");
+  if (!button || !formatButton || !section || !language || !dialect || !original || !modified || !summary || !leftDisplay || !rightDisplay) return;
   const checkerSection = section;
   const openButton = button;
-  const dismissButton = closeButton;
   const languageSelect = language;
   const dialectSelect = dialect;
   const originalEditor = original;
   const modifiedEditor = modified;
-  const diffResult = result;
   const diffSummary = summary;
+  const leftDiffDisplay = leftDisplay;
+  const rightDiffDisplay = rightDisplay;
   let storedState: DiffState | null = null;
   try {
     storedState = parseDiffState(localStorage.getItem(DIFF_STATE_KEY));
@@ -189,41 +305,42 @@ export function initDiffChecker(options: {
     const removedLines = rows.filter((row) => row.kind === "removed" || row.kind === "changed").length;
     const addedLines = rows.filter((row) => row.kind === "added" || row.kind === "changed").length;
     diffSummary.textContent = changedLines === 0 ? "No changes" : `${removedLines} removal${removedLines === 1 ? "" : "s"} · ${addedLines} addition${addedLines === 1 ? "" : "s"}`;
-    diffResult.replaceChildren();
-    const header = document.createElement("div");
-    header.className = "diff-result-header";
-    header.innerHTML = `
-      <div class="diff-result-side diff-result-side-left"><span>− ${removedLines} removal${removedLines === 1 ? "" : "s"}</span><span>${originalEditor.value ? `${originalEditor.value.split("\n").length} lines` : "0 lines"}</span></div>
-      <div class="diff-result-side diff-result-side-right"><span>＋ ${addedLines} addition${addedLines === 1 ? "" : "s"}</span><span>${modifiedEditor.value ? `${modifiedEditor.value.split("\n").length} lines` : "0 lines"}</span></div>
-    `;
-    diffResult.append(header);
-    for (const row of rows) {
-      const line = document.createElement("div");
-      line.className = `diff-line diff-line-${row.kind}`;
-      for (const side of ["left", "right"] as const) {
-        const cell = document.createElement("span");
-        cell.className = `diff-cell diff-cell-${side}`;
+    for (const pane of ["left", "right"] as const) {
+      const display = pane === "left" ? leftDiffDisplay : rightDiffDisplay;
+      display.replaceChildren();
+      for (const paneRow of toDiffPaneRows(rows, pane)) {
+        const line = document.createElement("div");
+        line.className = `diff-line diff-line-${paneRow.kind}`;
         const number = document.createElement("span");
         number.className = "diff-line-number";
-        number.textContent = row[`${side}Number`] === null ? "" : String(row[`${side}Number`]);
+        number.textContent = paneRow.number === null ? "" : String(paneRow.number);
         const text = document.createElement("span");
         text.className = "diff-line-text";
-        text.textContent = row[side];
-        cell.append(number, text);
-        line.append(cell);
+        text.textContent = paneRow.line;
+        line.append(number, text);
+        display.append(line);
       }
-      diffResult.append(line);
     }
   }
 
-  function formatTextarea(textarea: HTMLTextAreaElement): void {
+  function formatTextarea(textarea: HTMLTextAreaElement, selectedLanguage = languageSelect.value as DiffLanguage): void {
     textarea.value = formatDiffInput(
       textarea.value,
-      languageSelect.value as DiffLanguage,
+      selectedLanguage,
       dialectSelect.value as SqlDialect,
     );
     render();
     persist(!checkerSection.hidden);
+  }
+
+  function formatBoth(): void {
+    const selectedLanguage = languageSelect.value as DiffLanguage;
+    const detectedLanguage = selectedLanguage === "auto"
+      ? detectDiffLanguage(originalEditor.value.trim() ? originalEditor.value : modifiedEditor.value)
+      : selectedLanguage;
+    if (selectedLanguage === "auto") languageSelect.value = detectedLanguage;
+    formatTextarea(originalEditor, detectedLanguage);
+    formatTextarea(modifiedEditor, detectedLanguage);
   }
 
   function setOpen(open: boolean, save = true): void {
@@ -238,7 +355,7 @@ export function initDiffChecker(options: {
   }
 
   openButton.addEventListener("click", () => setOpen(checkerSection.hidden));
-  dismissButton.addEventListener("click", () => setOpen(false));
+  formatButton.addEventListener("click", formatBoth);
   for (const textarea of [originalEditor, modifiedEditor]) {
     textarea.addEventListener("input", () => {
       render();
@@ -246,11 +363,16 @@ export function initDiffChecker(options: {
     });
     textarea.addEventListener("paste", () => requestAnimationFrame(() => formatTextarea(textarea)));
   }
+  originalEditor.addEventListener("scroll", () => {
+    leftDiffDisplay.style.transform = `translate(${-originalEditor.scrollLeft}px, ${-originalEditor.scrollTop}px)`;
+  });
+  modifiedEditor.addEventListener("scroll", () => {
+    rightDiffDisplay.style.transform = `translate(${-modifiedEditor.scrollLeft}px, ${-modifiedEditor.scrollTop}px)`;
+  });
   languageSelect.addEventListener("change", () => {
     formatTextarea(originalEditor);
     formatTextarea(modifiedEditor);
-    dialectSelect.hidden = languageSelect.value !== "sql";
-    dialectSelect.previousElementSibling?.toggleAttribute("hidden", languageSelect.value !== "sql");
+    dialectSelect.hidden = true;
     persist(!checkerSection.hidden);
   });
   dialectSelect.addEventListener("change", () => {
@@ -258,8 +380,7 @@ export function initDiffChecker(options: {
     formatTextarea(modifiedEditor);
     persist(!checkerSection.hidden);
   });
-  dialectSelect.hidden = languageSelect.value !== "sql";
-  dialectSelect.previousElementSibling?.toggleAttribute("hidden", languageSelect.value !== "sql");
+  dialectSelect.hidden = true;
   render();
   setOpen(storedState?.open ?? false, false);
   window.addEventListener("resize", () => {
