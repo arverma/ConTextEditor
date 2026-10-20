@@ -2,11 +2,12 @@ import { expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 
 const mobileStyles = readFileSync('../src/editor/mobile.css', 'utf8');
+const editorMarkup = readFileSync('../src/editor/index.html', 'utf8');
 
-it('keeps the mobile view toggle paint inside its touch target', () => {
-  expect(mobileStyles).toContain('#view-toggle {');
-  expect(mobileStyles).toContain('box-sizing: border-box;');
-  expect(mobileStyles).toContain('overflow: hidden;');
-  expect(mobileStyles).toContain('inset-block: 8px;');
-  expect(mobileStyles).toContain('inset-block: 10px;');
+it('uses one compact mobile toggle instead of oversized view buttons', () => {
+  expect(editorMarkup).toContain('id="mobile-view-toggle"');
+  expect(mobileStyles).toContain('#view-toggle { display: none; }');
+  expect(mobileStyles).toContain('.mobile-view-toggle { display: inline-flex;');
+  expect(mobileStyles).toContain('width: 32px;');
+  expect(mobileStyles).not.toContain('.view-opt.active::before');
 });

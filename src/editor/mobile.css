@@ -1,5 +1,5 @@
 /* Mobile priorities: writing and view mode first; secondary actions stay discoverable. */
-#mobile-actions-toggle, .mobile-action-label { display: none; }
+#mobile-actions-toggle, .mobile-action-label, .mobile-view-toggle { display: none; }
 .mobile-actions-dialog { width: min(440px, calc(100vw - 24px)); }
 .mobile-note-actions { display: grid; gap: 4px; margin-top: 12px; }
 .mobile-note-actions button, .mobile-note-actions a {
@@ -30,14 +30,16 @@
   .titlebar-right { display: contents; }
   .toolbar-layout, .toolbar-actions, .note-counts { display: none; }
   /* 44px touch targets; the painted track stays 28px. No negative z-index: iOS paints a button ::before with z-index -1 behind the control. */
-  #view-toggle { position: relative; isolation: isolate; justify-self: auto; flex-shrink: 0; align-items: center; height: 44px; box-sizing: border-box; overflow: hidden; gap: 0; padding: 0; margin: 0; border: 0; background: transparent; }
-  #view-toggle::before { content: ''; position: absolute; z-index: 0; left: 0; right: 0; inset-block: 8px; border-radius: 7px; background: var(--surface-2); pointer-events: none; }
-  .view-opt { appearance: none; -webkit-appearance: none; position: relative; z-index: 1; display: inline-flex; flex: 0 0 auto; align-items: center; justify-content: center; min-width: 44px; height: 44px; min-height: 44px; box-sizing: border-box; padding: 0 10px; font-size: 13px; line-height: 1; color: var(--text-muted); background: transparent; box-shadow: none; border-radius: 0; -webkit-tap-highlight-color: transparent; }
-  .view-opt > span { position: relative; z-index: 1; }
-  .view-opt::before { content: none; }
-  .view-opt:hover { background: transparent; color: var(--text); }
-  .view-opt.active { color: var(--text); background: transparent; box-shadow: none; }
-  .view-opt.active::before { content: ''; position: absolute; z-index: 0; left: 2px; right: 2px; inset-block: 10px; border-radius: 5px; background: var(--surface); box-shadow: 0 1px 2px rgb(0 0 0 / 10%); pointer-events: none; }
+  #view-toggle { display: none; }
+  .mobile-view-toggle { display: inline-flex; align-items: center; gap: 6px; height: 44px; min-width: 72px; padding: 0 6px; border: 0; border-radius: 22px; background: transparent; color: var(--text-muted); font: 550 12px var(--font-ui); -webkit-tap-highlight-color: transparent; }
+  .mobile-view-toggle-track { position: relative; display: inline-flex; align-items: center; width: 32px; height: 20px; padding: 2px; border-radius: 10px; background: var(--text-faint); transition: background-color 160ms ease; }
+  .mobile-view-toggle-thumb { display: block; width: 16px; height: 16px; border-radius: 50%; background: var(--surface); box-shadow: 0 1px 2px rgb(0 0 0 / 18%); transition: transform 160ms ease; }
+  .mobile-view-toggle[aria-pressed="true"] { color: var(--accent); }
+  .mobile-view-toggle[aria-pressed="true"] .mobile-view-toggle-track { background: var(--accent); }
+  .mobile-view-toggle[aria-pressed="true"] .mobile-view-toggle-thumb { transform: translateX(12px); }
+  .mobile-view-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .mobile-view-toggle:active .mobile-view-toggle-thumb { transform: scale(.92); }
+  .mobile-view-toggle[aria-pressed="true"]:active .mobile-view-toggle-thumb { transform: translateX(12px) scale(.92); }
   #main .markdown-preview { padding: 24px 20px max(32px,env(safe-area-inset-bottom)); font-size: 16px; line-height: 1.7; }
   .markdown-preview h1 { font-size: 1.5em; line-height: 1.3; }
   .markdown-preview h2 { font-size: 1.25em; }

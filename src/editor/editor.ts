@@ -24,6 +24,7 @@ type ViewMode = "edit" | "preview";
 const container = document.getElementById("source-editor")!;
 const previewEl = document.getElementById("markdown-preview")!;
 const viewToggleEl = document.getElementById("view-toggle")!;
+const mobileViewToggleEl = document.getElementById("mobile-view-toggle") as HTMLButtonElement;
 const exportBtn = document.getElementById("export-btn") as HTMLButtonElement;
 const mirror = document.getElementById("full-text-mirror")!;
 const newSnippetBtn = document.getElementById("new-snippet-btn")!;
@@ -127,6 +128,10 @@ function applyViewMode(mode: ViewMode, { persist = true } = {}): void {
     btn.classList.toggle("active", btn.dataset.viewValue === mode);
     btn.setAttribute("aria-pressed", String(btn.dataset.viewValue === mode));
   });
+  const mobilePreview = mode === "preview";
+  mobileViewToggleEl.setAttribute("aria-label", mobilePreview ? "Switch to Edit" : "Switch to Preview");
+  mobileViewToggleEl.setAttribute("aria-pressed", String(mobilePreview));
+  mobileViewToggleEl.querySelector(".mobile-view-toggle-label")!.textContent = mobilePreview ? "Preview" : "Edit";
   updateExportButton();
 
   if (isPreview) rich.enable(true);
@@ -263,6 +268,7 @@ viewToggleEl.addEventListener("click", (event) => {
   const next = btn.dataset.viewValue === "preview" ? "preview" : "edit";
   applyViewMode(next);
 });
+mobileViewToggleEl.addEventListener("click", toggleViewMode);
 
 exportBtn.addEventListener("click", () => {
   flushPreview();
