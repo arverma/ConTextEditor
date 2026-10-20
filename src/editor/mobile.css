@@ -141,6 +141,29 @@
 @media (max-width: 700px), (max-width: 1000px) and (max-height: 500px) {
   #source-editor .cm-panel.cm-search { font-size: 16px; }
   #source-editor .cm-panel.cm-search .cm-textfield { font-size: 16px; }
+  #source-editor .cm-panel.cm-vscode-search {
+    top: 4px;
+    right: 8px;
+    left: 8px;
+    max-width: none;
+    padding: 6px;
+  }
+  .cm-vscode-search .cm-search-input-box {
+    flex: 1;
+    min-width: 0;
+    width: auto;
+    height: 32px;
+  }
+  .cm-vscode-search .cm-search-toggle-replace,
+  .cm-vscode-search .cm-icon-btn {
+    width: 28px;
+    height: 32px;
+  }
+  .cm-vscode-search .cm-search-toggle-opt {
+    height: 24px;
+    min-width: 24px;
+    font-size: 13px;
+  }
 }
 
 /* Keep the download action beside the first row, outside the table content. */

@@ -35,6 +35,7 @@ import {
 import { emojiCompletions } from "./emoji-completions";
 import { getFormattingEdit, type FormattingKind } from "./formatting";
 import { createSourceState, normalizedText, rawSource, replaceSource, sourceOffset } from "./source-state";
+import { VSCodeSearchPanel } from "./vscode-search-panel";
 
 export interface SourceEditor {
   getValue(): string;
@@ -72,7 +73,20 @@ function metricsTheme(compact: boolean) {
 
 function openReplace(view: EditorView): boolean {
   openSearchPanel(view);
-  view.dom.querySelector<HTMLInputElement>('.cm-search input[name="replace"]')?.focus();
+  const panel = view.dom.querySelector<HTMLElement>(".cm-vscode-search");
+  if (panel) {
+    const replaceRow = panel.querySelector<HTMLElement>(".cm-replace-row");
+    const toggleBtn = panel.querySelector<HTMLButtonElement>(".cm-search-toggle-replace");
+    const replaceInput = panel.querySelector<HTMLInputElement>('input[name="replace"]');
+    if (replaceRow && replaceRow.hidden && toggleBtn) {
+      toggleBtn.click();
+    } else {
+      replaceInput?.focus();
+      replaceInput?.select();
+    }
+  } else {
+    view.dom.querySelector<HTMLInputElement>('.cm-search input[name="replace"]')?.focus();
+  }
   return true;
 }
 
@@ -100,7 +114,10 @@ export function createSourceEditor(parent: HTMLElement, options: { onChange: () 
     rectangularSelection(),
     crosshairCursor(),
     markdown(),
-    search({ top: true }),
+    search({
+      top: true,
+      createPanel: (v) => new VSCodeSearchPanel(v),
+    }),
     emojiCompletions(),
     EditorView.lineWrapping,
     EditorView.contentAttributes.of({ "aria-label": "Markdown source" }),

@@ -682,21 +682,170 @@ body {
   border: none;
 }
 #source-editor .cm-content { padding: 16px 0; cursor: text; }
+#source-editor .cm-panels.cm-panels-top {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 25;
+  background: transparent;
+  border: none;
+  pointer-events: none;
+}
 .cm-panel.cm-search {
   background: var(--surface);
   color: var(--text);
-  border-bottom: 1px solid var(--border);
-  font: 13px var(--font-ui);
-  gap: 6px;
+  font: 12px var(--font-ui);
 }
-.cm-panel.cm-search .cm-textfield, .cm-panel.cm-search .cm-button {
+.cm-panel.cm-vscode-search {
+  position: absolute;
+  top: 8px;
+  right: 20px;
+  pointer-events: auto;
   border: 1px solid var(--border);
-  border-radius: 7px;
-  background: var(--surface-2);
-  color: var(--text);
-  font: 13px var(--font-ui);
+  border-radius: 6px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.22), 0 1px 3px rgba(0, 0, 0, 0.12);
+  padding: 4px 6px;
+  box-sizing: border-box;
+  max-width: calc(100vw - 40px);
+  z-index: 30;
 }
-.cm-panel.cm-search .cm-button { background: transparent; cursor: pointer; }
+.cm-vscode-search .cm-search-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.cm-vscode-search .cm-search-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.cm-vscode-search .cm-search-toggle-replace {
+  width: 20px;
+  height: 26px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+}
+.cm-vscode-search .cm-search-toggle-replace:hover,
+.cm-vscode-search .cm-icon-btn:hover {
+  background: var(--surface-hover);
+  color: var(--text);
+}
+.cm-vscode-search .cm-search-spacer {
+  width: 20px;
+  flex-shrink: 0;
+}
+.cm-vscode-search .cm-search-input-box {
+  display: flex;
+  align-items: center;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  width: 210px;
+  height: 26px;
+  box-sizing: border-box;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.cm-vscode-search .cm-search-input-box:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+.cm-vscode-search .cm-search-input-box.has-error {
+  border-color: var(--danger);
+  box-shadow: 0 0 0 1px var(--danger);
+}
+.cm-vscode-search .cm-textfield {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  border: none;
+  background: transparent;
+  color: var(--text);
+  font: 12px var(--font-ui);
+  padding: 0 4px 0 6px;
+  outline: none;
+}
+.cm-vscode-search .cm-search-input-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding-right: 2px;
+  flex-shrink: 0;
+}
+.cm-vscode-search .cm-search-toggle-opt {
+  height: 20px;
+  min-width: 20px;
+  padding: 0 3px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 500;
+  font-family: var(--font-ui);
+  line-height: 1;
+}
+.cm-vscode-search .cm-search-toggle-opt:hover {
+  background: var(--surface-hover);
+  color: var(--text);
+}
+.cm-vscode-search .cm-search-toggle-opt.cm-active,
+.cm-vscode-search .cm-search-toggle-opt[aria-pressed="true"] {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--text);
+}
+.cm-vscode-search .cm-opt-word-text {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.cm-vscode-search .cm-opt-regex-text {
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+.cm-vscode-search .cm-search-count {
+  font-size: 11px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  padding: 0 4px;
+  min-width: 44px;
+  text-align: center;
+  flex-shrink: 0;
+}
+.cm-vscode-search .cm-search-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+}
+.cm-vscode-search .cm-icon-btn {
+  width: 22px;
+  height: 26px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0;
+}
+.cm-vscode-search .cm-icon-btn:active {
+  transform: translateY(1px);
+}
 .cm-tooltip-autocomplete {
   border: 1px solid var(--border);
   border-radius: 10px;
