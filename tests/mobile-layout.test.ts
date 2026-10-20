@@ -11,3 +11,9 @@ it('uses one compact mobile toggle instead of oversized view buttons', () => {
   expect(mobileStyles).toContain('width: 32px;');
   expect(mobileStyles).not.toContain('.view-opt.active::before');
 });
+
+it('aligns the mobile sidebar icon and note title to the brand column', () => {
+  expect(mobileStyles).toContain('grid-template-columns: 28px minmax(0, 1fr) auto;');
+  expect(mobileStyles).toContain('padding: 0 12px;');
+  expect(mobileStyles).toContain('transform: translateX(-8px);');
+});

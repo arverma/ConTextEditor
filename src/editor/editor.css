@@ -397,8 +397,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  padding: 0 18px;
+  gap: 9px;
+  padding: 0 16px;
   border-bottom: 1px solid var(--border);
   flex-shrink: 0;
   background: var(--surface);
@@ -416,6 +416,8 @@ body {
 
 #note-titlebar > #sidebar-toggle {
   order: -1;
+  width: 28px;
+  height: 28px;
 }
 
 .titlebar-right {
@@ -1213,4 +1215,3 @@ body {
   .focus-exit { display: none !important; }
   #app[data-focus-mode="true"] #main { padding-top: 0 !important; }
 }
-
