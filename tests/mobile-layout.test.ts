@@ -79,6 +79,15 @@ it('uses accessible vector icons for preview formatting actions', () => {
   expect(editorMarkup).not.toContain('data-command="code" aria-label="Inline code" title="Inline code">&lt;/&gt;');
 });
 
+it('lets the rich formatting toolbar scroll sideways when focus mode does not fit', () => {
+  expect(editorStyles).toContain('overflow-x: auto; overflow-y: hidden; overscroll-behavior-x: contain;');
+  expect(editorStyles).toContain('.preview-format-group { display: flex; align-items: center; flex: 0 0 auto; gap: 2px; }');
+  expect(editorStyles).toContain('touch-action: none;');
+  expect(editorStyles).toContain('background: linear-gradient(to right, var(--surface), transparent);');
+  expect(editorStyles).toContain('background: linear-gradient(to left, var(--surface), transparent);');
+  expect(editorMarkup).toContain('class="preview-tools-scroll"');
+});
+
 it('provides a mobile-only focus mode action in the preview toolbar', () => {
   expect(editorMarkup).toContain('id="mobile-focus-mode-btn"');
   expect(editorMarkup).toContain('aria-label="Focus mode"');

@@ -170,6 +170,7 @@ function syncMirror(): void {
 }
 
 const previewToolbar = document.querySelector<HTMLElement>(".preview-tools")!;
+const previewScroller = previewToolbar.querySelector<HTMLElement>(".preview-tools-scroll")!;
 const linkField = previewToolbar.querySelector<HTMLInputElement>("#preview-link-url")!;
 const previewCommandName: Record<string, string> = {
   bold: "bold", italic: "italic", strike: "strike", link: "link",
@@ -221,6 +222,7 @@ const floatingPreview = selectionToolbar(previewToolbar, () => {
 rich.editor.on("selectionUpdate", () => floatingPreview.schedule());
 rich.editor.on("update", () => floatingPreview.schedule());
 let previewTouch = false;
+let toolbarPan: { id: number; x: number; left: number; moved: boolean; target: EventTarget | null; focus: boolean } | null = null;
 function applyPreview(target: EventTarget | null): void {
   const command = target instanceof Element ? target.closest<HTMLButtonElement>("[data-command]")?.dataset.command as PreviewCommand | undefined : undefined;
   if (command === "link") {
@@ -237,14 +239,43 @@ function applyPreview(target: EventTarget | null): void {
   if (command) rich.command(command, linkField.value);
 }
 previewToolbar.addEventListener("pointerdown", (event) => {
-  if (!(event.target instanceof Element) || !event.target.closest("button")) return;
-  if (event.target.closest("#mobile-focus-mode-btn")) return;
-  event.preventDefault();
+  const button = event.target instanceof Element ? event.target.closest("button") : null;
+  if (!button || event.button !== 0) return;
+  const focus = button.id === "mobile-focus-mode-btn";
   previewTouch = event.pointerType === "touch" || event.pointerType === "pen";
-  if (previewTouch) applyPreview(event.target);
+  if (!focus || previewTouch) event.preventDefault();
+  toolbarPan = { id: event.pointerId, x: event.clientX, left: previewScroller.scrollLeft, moved: false, target: button, focus };
+  if (previewTouch) {
+    try { previewToolbar.setPointerCapture(event.pointerId); } catch { /* pointer is already gone */ }
+  }
 });
+previewToolbar.addEventListener("pointermove", (event) => {
+  if (!toolbarPan || event.pointerId !== toolbarPan.id || !previewTouch) return;
+  const dx = event.clientX - toolbarPan.x;
+  if (!toolbarPan.moved && Math.abs(dx) < 8) return;
+  toolbarPan.moved = true;
+  previewScroller.scrollLeft = toolbarPan.left - dx;
+  updateToolbarFade();
+});
+previewToolbar.addEventListener("pointerup", (event) => {
+  if (!toolbarPan || event.pointerId !== toolbarPan.id) return;
+  const pan = toolbarPan;
+  toolbarPan = null;
+  if (pan.moved || !previewTouch) return;
+  if (pan.focus) (pan.target instanceof HTMLButtonElement ? pan.target : null)?.click();
+  else applyPreview(pan.target);
+});
+previewToolbar.addEventListener("pointercancel", () => { toolbarPan = null; });
+function updateToolbarFade(): void {
+  const hidden = previewScroller.scrollWidth - previewScroller.clientWidth;
+  previewToolbar.classList.toggle("fade-left", previewScroller.scrollLeft > 2);
+  previewToolbar.classList.toggle("fade-right", hidden - previewScroller.scrollLeft > 2);
+}
+previewScroller.addEventListener("scroll", updateToolbarFade, { passive: true });
+if (typeof ResizeObserver !== "undefined") new ResizeObserver(updateToolbarFade).observe(previewScroller);
 previewToolbar.addEventListener("click", (event) => {
   if (previewTouch && event.detail !== 0) return;
+  if (event.target instanceof Element && event.target.closest("#mobile-focus-mode-btn")) return;
   applyPreview(event.target);
 });
 linkField.addEventListener("keydown", (event) => {

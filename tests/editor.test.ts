@@ -90,6 +90,36 @@ it("exposes pressed states and only toggles for the modifier-only gesture", asyn
   expect(document.querySelector('[data-theme-value="light"]')!.getAttribute("aria-pressed")).toBe("true");
 });
 
+it("scrolls the rich toolbar on a sideways touch and still formats on a tap", async () => {
+  await import("../src/editor/editor");
+  const toolbar = document.querySelector<HTMLElement>(".preview-tools")!;
+  const scroller = toolbar.querySelector<HTMLElement>(".preview-tools-scroll")!;
+  toolbar.hidden = false;
+  let left = 0;
+  Object.defineProperty(scroller, "scrollLeft", { configurable: true, get: () => left, set: (value: number) => { left = value; } });
+  class TouchPointerEvent extends MouseEvent {
+    pointerId: number;
+    pointerType = "touch";
+    constructor(type: string, init: MouseEventInit & { pointerId: number; clientX: number }) {
+      super(type, init);
+      this.pointerId = init.pointerId;
+    }
+  }
+  const point = (type: string, x: number, id: number, target: Element) => target.dispatchEvent(new TouchPointerEvent(type, { bubbles: true, cancelable: true, clientX: x, pointerId: id, button: 0 }));
+  const bold = toolbar.querySelector<HTMLButtonElement>('[data-command="bold"]')!;
+  point("pointerdown", 80, 1, bold);
+  point("pointermove", 40, 1, toolbar);
+  point("pointerup", 40, 1, toolbar);
+  expect(left).toBe(40);
+  expect(preview.command).not.toHaveBeenCalled();
+  point("pointerdown", 20, 2, bold);
+  point("pointerup", 22, 2, bold);
+  expect(preview.command).toHaveBeenCalledWith("bold", "");
+  point("pointerdown", 10, 3, document.getElementById("mobile-focus-mode-btn")!);
+  point("pointerup", 10, 3, document.getElementById("mobile-focus-mode-btn")!);
+  expect(document.getElementById("app")!.dataset.focusMode).toBe("true");
+});
+
 it("defaults mobile users to Rich and keeps the toolbar hidden in Markdown", async () => {
   vi.stubGlobal("matchMedia", (query: string) => ({ matches: query.includes("700px"), addEventListener: vi.fn() }));
   await import("../src/editor/editor");
