@@ -1,169 +1,133 @@
 # ConText Editor
 
-A local-first Markdown editor website with a comfortable writing surface,
-live preview, persistent note history, and complete backups. Open it in your
-browser and start writing; no installation or account is required.
+A local-first Markdown editor that runs in the browser. One note string is the source of truth: **Markdown** is a CodeMirror view of that string, and **Rich** is a Tiptap document that writes Markdown back only after an edit. Notes, Trash, and appearance settings stay in `localStorage` on the page origin. The app does not upload them.
 
-**Live editor:** [Open ConText Editor](https://editor.arverma.dev/)
+**Live editor:** [editor.arverma.dev](https://editor.arverma.dev/) · [Privacy policy](https://editor.arverma.dev/privacy.html) · [Source](https://github.com/arverma/ConTextEditor)
 
-Notes stay in browser storage on the editor origin and are never uploaded by
-this app. [Privacy policy](https://editor.arverma.dev/privacy.html).
+## Stack
 
-## Features
+| Piece | Role |
+| --- | --- |
+| [Vite 5](https://vite.dev/) | Dev server and production build |
+| TypeScript (strict, `noEmit`) | App source under `src/` |
+| [CodeMirror 6](https://codemirror.net/) | Markdown source editor, find/replace, emoji completions |
+| [Tiptap 3](https://tiptap.dev/) | Rich editor and Markdown parse/serialize |
+| [DOMPurify](https://github.com/cure53/DOMPurify) | Sanitize raw HTML blocks shown in Rich mode |
+| [Mermaid](https://mermaid.js.org/) | Diagrams in Rich mode (`securityLevel: "strict"`) |
+| `diff`, `sql-formatter`, `yaml` | Local diff checker (text, JSON, YAML, SQL) |
 
-- Markdown editing with Edit/Preview, sanitized HTML, and Mermaid diagrams
-- Centered writing, Full width, and distraction-free Focus mode
-- Searchable note history, autosave, persistent Trash, and quick Undo
-- Copy Markdown, raw text download, and PDF export through browser printing
-- UTF-8 Markdown import and complete JSON backup/restore
-- System, Light, and Dark themes; keyboard commands and responsive layouts
+There is no backend, account, or remote app script. Assets are bundled with the site.
 
-See [the architecture](docs/ARCHITECTURE.md) for implementation details.
+## Requirements
 
-## Development
+Node.js must satisfy the test package: **20.19+**, **22.12+**, or **24+**. GitHub Actions builds with Node 22. The root `package.json` `engines` field (`>=18`) is looser than Vitest allows; use a version the tests accept.
 
-Use Node.js 24 LTS (the tests also support Node 20.19+ or 22.12+).
+Install both lockfiles. Tests are a separate package so Vitest, jsdom, and Playwright stay out of the site bundle.
 
 ```bash
 npm ci
-npm run dev       # http://localhost:5173/ConTextEditor/
-npm run build     # standalone website in dist-editor/
-npm run preview   # production build at http://localhost:4173/
+npm ci --prefix tests
 ```
 
-GitHub Pages deploys the website on pushes to `main`. The editor root, privacy
-page, and sitemap are included in the production build. `localStorage` is
-per-origin: localhost notes do not appear on the deployed website.
+## Quick start
 
-## Usage
+```bash
+npm run dev       # http://localhost:5173/ConTextEditor/
+npm run build     # static site in dist-editor/
+npm run preview   # rebuild, then http://localhost:4173/
+```
 
-- **New note** — sidebar “+ New note”
-- **Switch / edit** — click a note; edits autosave (~0.6s)
-- **Markdown / Rich** — title bar toggle. Markdown changes the raw Markdown. Rich is the same note as a document: bold, italic, strikethrough, link, lists, quote, and inline code appear when text is selected. Opening Rich does not change the file. The first edit there can normalize ordinary Markdown; front matter, fenced code, and HTML blocks stay as written until that block changes.
-- **Format text** — in Edit, Ctrl/Cmd+B and Ctrl/Cmd+I toggle bold and italic. In Preview, select text for bold, italic, strikethrough, link, lists, quote, and inline code.
-- **Export** — TXT in Edit; PDF (print → Save as PDF) in Preview
-- **Download image** — use the download icon in a Mermaid diagram’s top-right corner or beside a centered Markdown table’s top-right edge. The expanded diagram also has a download icon. Images include the full content in the current theme.
-- **Delete** — trash icon on a note; Undo is available for 10 seconds
-- **Focus mode** — hide surrounding controls; use Exit focus or Escape to return. Available in the toolbar and command menu.
-- **Full width** — expand the centered writing column for wide code or diagrams
-- **Copy Markdown** — copy the complete raw note from Edit or Preview; manual copy opens if clipboard access is unavailable
-- **Theme** — System / Light / Dark (top-right)
+The dev server is the only mode that uses the `/ConTextEditor/` base path. `vite preview` and production use `/`, so asset URLs differ. `localStorage` is per origin: notes created on localhost do not appear on [editor.arverma.dev](https://editor.arverma.dev/).
 
-On phones, the header keeps note history, save status, and **More note actions**
-visible. Edit/Preview stays beside the note title. Open More for Copy, Export,
-Focus mode, Full width, Commands, Privacy, and appearance choices. Desktop controls
-return to their usual positions when the window grows.
+## Commands
 
-On phones, Mermaid diagrams can be scrolled without shrinking their labels. Choose **Expand**
-for a larger view, use its zoom controls, and close it to return to the same
-reading position. Invalid diagrams show their source and an error message.
+| Command | What it does |
+| --- | --- |
+| `npm run dev` | Vite dev server with live reload |
+| `npm run build` | Production build into `dist-editor/` |
+| `npm run preview` | Build, then serve that output |
+| `npm test` | Vitest in `tests/` (jsdom). Requires `npm ci --prefix tests` |
+| `npx tsc --noEmit` | Typecheck `src/` only |
+| `npm --prefix tests run test:browser` | Playwright smoke test. Start `npm run dev` first |
 
-## Keyboard shortcuts
+`dev:editor`, `build:editor`, and `preview:editor` are aliases of the scripts above.
 
-Open **Commands & shortcuts** using the keyboard icon, **Cmd/Ctrl+K**, or
-**Cmd/Ctrl+Shift+/**. Search for an action, use Up/Down to navigate, Enter to
-run it, and Escape to close. Button tooltips show their shortcuts.
+`make` wraps the same steps: `install`, `dev`, `build`, `preview`, `test`, `test-browser`, `typecheck`, `verify` (test + typecheck + build), and `clean` (deletes `dist-editor/`).
 
-- **Cmd/Ctrl+Shift+Enter** — new note
-- **Cmd/Ctrl+\** — toggle note history
-- **Cmd/Ctrl+Shift+F** — open history and search notes
-- **Cmd/Ctrl+E** — switch Markdown / Rich
-- **Cmd+Option** (Mac) — press together and release to switch Markdown / Rich;
-  adding another key cancels the toggle so other shortcuts keep working
-- **Cmd/Ctrl+Shift+E** — export raw text in Edit, PDF in Preview
-- **Cmd/Ctrl+S** — save immediately (autosave stays enabled)
-- **Cmd/Ctrl+Shift+Backspace** — delete current note (Undo available)
-- **Alt/Option+Shift+1 / 2 / 3** — System / Light / Dark theme
-- **Alt/Option+Shift+P** — privacy policy
+The browser test opens `http://127.0.0.1:5173/ConTextEditor/` unless `EDITOR_BASE_URL` is set. It needs the dev server running and Playwright’s Chromium (`npx --prefix tests playwright install chromium`).
 
-Standard editor shortcuts remain available, including undo/redo, cut/copy/paste,
-select all, **Cmd/Ctrl+F** to find, and **Cmd/Ctrl+R** to replace while editing.
+## Repository layout
 
-Mac editor navigation follows the usual writing keys while the source editor has focus:
+```
+src/editor/                 Vite root (HTML, CSS, TypeScript)
+  editor.ts                 Theme, view mode, and panel wiring
+  note-session.ts           Active note, 600ms autosave, delete and restore
+  source-editor.ts          CodeMirror Markdown editor
+  preview-editor.ts         Tiptap rich editor
+  markdown-document.ts      Parse and serialize; protected slices stay verbatim
+  storage.ts                localStorage notes and Trash
+  ownership.ts              UTF-8 Markdown import and version-1 JSON backup
+  recovery.ts               10-second undo toast after delete
+  shortcuts.ts              Command palette and shortcut bindings
+  diff-checker.ts           Local diff and format tool
+  public/                   Copied as-is: sitemap.xml, robots.txt, editor.html
+vite.editor.config.ts       Build config. Output is dist-editor/
+tests/                      Vitest package, plus tests/browser/editor-preview.mjs
+docs/ARCHITECTURE.md        Editing model in more detail
+.github/workflows/deploy-pages.yml
+```
 
-- **Cmd+← / →** — start/end of the current line.
-- **Cmd+↑ / ↓** — start/end of the document.
-- **Option+← / →** — previous/next word boundary.
-- **Option+↑ / ↓** — move the current line or selected lines up/down.
-- Add **Shift** to word navigation or Command-arrow navigation to extend selection.
-- **Option+Shift+↑ / ↓** — copy the current line or selected lines up/down.
+`src/editor/public/editor.html` redirects old `/editor.html` links to the site root. `index.html` and `privacy.html` are Rollup inputs; everything else in `public/` is copied unchanged. Do not commit `dist-editor/`.
 
-## History and recovery
+## Editing model
 
-Search matches note titles and raw content locally, ignoring case. Arrow keys
-move focus through notes; Enter or Space opens one. Escape clears search before
-closing the mobile history drawer. Search does not change the note being edited.
+`NoteSession` owns the current note string. UI loads must not be treated as edits.
 
-Deletion uses the same Undo action for mouse and keyboard. Each deletion can be
-undone for 10 seconds, newest first; hovering or focusing the notification pauses
-the timer. After the toast expires or the page reloads, the note remains in
-**Trash** until you explicitly delete it forever. Restore keeps the original source
-and timestamps; an occupied note ID can be restored as a new copy. Typing after
-deleting the last note creates a saved note.
-If saving fails, keep the tab open, export your draft, and use Retry save.
+- **Markdown** edits that string directly. Line endings, a leading BOM, and CodeMirror undo history stay intact.
+- **Rich** parses the string into a Tiptap document. Switching modes without typing does not change the file. The first Rich edit can normalize ordinary Markdown. Front matter, fenced code, and HTML blocks are copied back verbatim until that block itself changes.
+- Autosave, copy, export, note switching, and closing the tab flush Rich first, so the stored string includes the last edit.
+- History, Trash, import, and backup operate on the stored string. They do not know which surface is open.
+- A failed save leaves the previous collection intact and keeps the draft on screen.
 
-## Import and backups
+Raw HTML blocks in Rich mode are sanitized with DOMPurify before they are inserted. Mermaid runs with `securityLevel: "strict"`. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
-Open **Import & backup** at the bottom of note history, or use the command menu.
-Markdown imports accept UTF-8 `.md` and `.markdown` files, up to 5 MiB per batch.
-Review the complete batch before adding it. Only an initial encoding BOM is
-removed; remaining source, line endings, and code fences are preserved.
+## Browser storage
 
-**Download backup** saves version 1 JSON containing all notes, Trash, original
-IDs/timestamps, active-note reference, and recognized appearance preferences.
-If local saving fails, the download still includes the latest in-memory draft
-when the existing collection can be read. Check the browser downloads; the app
-cannot confirm where the browser ultimately saves the file. Backups are plain
-JSON, not encrypted or uploaded to a cloud service.
+Keys on the editor origin:
 
-**Restore backup** accepts ConText JSON up to 5 MiB. Review the additive merge:
-identical IDs/content are skipped, conflicts become copies, and Trash stays
-separate from active notes. Existing work is never replaced. Appearance restore
-is optional. A changed collection invalidates a pending review; close and review
-again. All collection changes use one atomic local save. A failed save leaves
-the previous collection intact. Appearance settings are applied separately after
-note restoration and failures are reported without undoing restored notes.
+| Key | Contents |
+| --- | --- |
+| `context-editor.snippets` | Notes and Trash in one collection |
+| `context-editor.activeSnippetId` | Selected note |
+| `context-editor.theme` | `light` or `dark`. System theme removes the key |
+| `context-editor.viewMode` | `edit` or `preview` |
+| `context-editor.fullWidth` | `true` or `false` |
+| `context-editor.sidebarOpen` | `true` or `false` |
+| `context-editor.diffChecker` | Diff checker text and options |
 
-Notes and Trash belong to this browser origin. Clearing site data removes both;
-keep a downloaded backup for independent recovery. Reload older editor tabs
-before using these features. Simultaneous multi-tab edits remain last-write-wins.
+Import accepts UTF-8 `.md` and `.markdown` files, 5 MiB per batch. Backups are plain JSON (`format: "context-editor-backup"`, `version: 1`), also capped at 5 MiB. Restore merges; it does not replace existing notes. Clearing site data deletes notes and Trash. Two tabs editing the same note are last-write-wins.
+
+Use a separate origin and disposable notes when testing storage. Do not wipe a profile that already has real notes.
 
 ## Tests
 
-The test tools are isolated from the app's build dependencies. Use Node 24 LTS
-(or supported Node 20.19+/22.12+ releases):
-
 ```bash
-npm ci --prefix tests
 npm test
 npx tsc --noEmit
 npm run build
 ```
 
-Tests use isolated browser-like storage and cover note lifecycle, failed saves,
-Undo timing, history focus/search, mobile drawer transitions, export, and shortcuts.
-Browser checks should use a separate local origin with disposable notes, rather
-than deleting or replacing existing user notes. Simultaneous edits to the same
-note in multiple tabs still use last-write-wins storage; this is not collaborative
-editing. Unsaved local edits are preserved as a new note after external deletion.
+`make verify` runs those three. Tests use isolated browser-like storage and cover note lifecycle, failed saves, undo timing, history search, export, shortcuts, Rich editing, and the diff checker. The Playwright script checks that typing in Markdown, switching to Rich, and editing there keeps one document.
 
-## Scripts
+CI does not run tests. `.github/workflows/deploy-pages.yml` only installs, builds, and deploys.
 
-- `npm run dev` — local website with live updates.
-- `npm run build` — production website in `dist-editor/`.
-- `npm run preview` — build and serve a production preview.
-- `npm test` — run the isolated test suite after installing `tests/` dependencies.
-- The existing `dev:editor`, `build:editor`, and `preview:editor` aliases remain available.
+## Deployment
 
-## Troubleshooting
-
-- **Page will not load** — confirm GitHub Pages is available, or run the local development server.
-- **Notes seem missing** — check the browser profile and website origin. Browser storage is separate for each.
-- **Saving fails** — keep the page open, download a backup of your draft, and retry after freeing space.
+A push to `main` (or a manual run of **Deploy website to GitHub Pages**) builds with Node 22 and publishes `dist-editor/` to GitHub Pages. The public site is [https://editor.arverma.dev/](https://editor.arverma.dev/). Confirm the artifact contains `index.html`, `privacy.html`, `sitemap.xml`, `robots.txt`, and `editor.html`.
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md).
+See [CONTRIBUTING.md](CONTRIBUTING.md). Keep storage local, preserve exact Markdown source, sanitize raw HTML blocks, and test failed saves when storage behavior changes. Shortcut bindings live in `src/editor/shortcuts.ts`.
 
 ## License
 
