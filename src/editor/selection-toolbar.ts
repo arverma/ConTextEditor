@@ -5,8 +5,16 @@ export interface SelectionAnchor {
   editor: HTMLElement;
 }
 
+export interface SelectionToolbarOptions {
+  isMobile?: () => boolean;
+  mobileKeyboard?: {
+    isOpen: () => boolean;
+    anchor: () => SelectionAnchor | null;
+  };
+}
+
 /** Keep formatting beside a live editor selection without taking pointer focus. */
-export function selectionToolbar(toolbar: HTMLElement, anchor: () => SelectionAnchor | null) {
+export function selectionToolbar(toolbar: HTMLElement, anchor: () => SelectionAnchor | null, options: SelectionToolbarOptions = {}) {
   let frame = 0;
   let dismissed = '';
   let lastAnchor: SelectionAnchor | null = null;
@@ -15,7 +23,8 @@ export function selectionToolbar(toolbar: HTMLElement, anchor: () => SelectionAn
   function update() {
     frame = 0;
     if (selecting) { toolbar.hidden = true; return; }
-    const selected = anchor();
+    const mobileKeyboard = options.isMobile?.() && options.mobileKeyboard?.isOpen();
+    const selected = mobileKeyboard ? options.mobileKeyboard?.anchor() ?? null : options.isMobile?.() ? null : anchor();
     lastAnchor = selected;
     if (!selected) {
       dismissed = '';
@@ -39,6 +48,11 @@ export function selectionToolbar(toolbar: HTMLElement, anchor: () => SelectionAn
     }
     toolbar.hidden = false;
     const size = toolbar.getBoundingClientRect();
+    if (mobileKeyboard) {
+      toolbar.style.left = `${Math.max(left + 8, left + (width - size.width) / 2)}px`;
+      toolbar.style.top = `${Math.max(top + 8, top + height - size.height - 8)}px`;
+      return;
+    }
     const editorBox = selected.editor.getBoundingClientRect();
     const minX = Math.max(left + 8, editorBox.left + 4);
     const maxX = Math.min(left + width - size.width - 8, editorBox.right - size.width - 4);

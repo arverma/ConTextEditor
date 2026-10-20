@@ -189,6 +189,24 @@ const floatingPreview = selectionToolbar(previewToolbar, () => {
     key: `preview:${rect.left}:${rect.top}:${rect.right}:${rect.bottom}`,
     editor: rich.editor.view.dom,
   };
+}, {
+  isMobile: () => compactEditor.matches,
+  mobileKeyboard: {
+    isOpen: () => {
+      const viewport = window.visualViewport;
+      return !!viewport && window.innerHeight - viewport.height > 100;
+    },
+    anchor: () => {
+      if (!rich.editor.isFocused) return null;
+      const bounds = previewEl.getBoundingClientRect();
+      return {
+        rect: { left: bounds.left, right: bounds.right, top: bounds.top, bottom: bounds.bottom },
+        bounds,
+        key: "preview:mobile-keyboard",
+        editor: rich.editor.view.dom,
+      };
+    },
+  },
 });
 rich.editor.on("selectionUpdate", () => floatingPreview.schedule());
 rich.editor.on("update", () => floatingPreview.schedule());
