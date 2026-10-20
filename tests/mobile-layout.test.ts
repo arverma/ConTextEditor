@@ -2,6 +2,7 @@ import { expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 
 const mobileStyles = readFileSync('../src/editor/mobile.css', 'utf8');
+const editorStyles = readFileSync('../src/editor/editor.css', 'utf8');
 const editorMarkup = readFileSync('../src/editor/index.html', 'utf8');
 
 it('uses one compact mobile toggle instead of oversized view buttons', () => {
@@ -31,6 +32,10 @@ it('places the live counter in the top bar before the saved status', () => {
   expect(countsIndex).toBeGreaterThan(-1);
   expect(countsIndex).toBeLessThan(savedIndex);
   expect(editorMarkup.match(/id="note-counts"/g)).toHaveLength(1);
+});
+
+it('uses the same bold filename weight across responsive layouts', () => {
+  expect(editorStyles).toMatch(/#note-title\s*\{[\s\S]*?font-weight: 600;/);
 });
 
 it('keeps mobile appearance controls compact without shrinking their touch targets', () => {
