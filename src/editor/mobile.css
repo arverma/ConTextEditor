@@ -85,7 +85,7 @@
   .command-header button { width: 44px; min-width: 44px; height: 44px; }
   .command-list button { min-height: 48px; font-size: 14px; }
   .trash-actions button, .ownership-confirm { min-height: 44px; }
-  .focus-exit { top: max(12px,env(safe-area-inset-top)); right: 12px; min-height: 44px; }
+  .focus-exit { top: max(12px,env(safe-area-inset-top)); right: 12px; width: 44px; height: 44px; min-height: 44px; }
   .undo-toast { left: 12px; right: 12px; bottom: max(16px,env(safe-area-inset-bottom)); transform: none; max-width: none; }
 }
 @media (max-width: 1000px) and (max-height: 500px) {

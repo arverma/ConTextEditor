@@ -16,6 +16,7 @@ import { exportPdf, exportTxt } from "./export";
 import { createSourceEditor } from "./source-editor";
 import { previewEditor, type PreviewCommand } from "./preview-editor";
 import { selectionToolbar } from "./selection-toolbar";
+import { initDiffChecker } from "./diff-checker";
 
 const VIEW_MODE_KEY = "context-editor.viewMode";
 
@@ -366,3 +367,4 @@ initShortcuts({
 });
 
 mobileActions = initMobileActions();
+initDiffChecker({ isDesktop: () => !compactEditor.matches });

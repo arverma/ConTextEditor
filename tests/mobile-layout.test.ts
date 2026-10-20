@@ -87,6 +87,15 @@ it('provides a mobile-only focus mode action in the preview toolbar', () => {
   expect(mobileStyles).toContain('.preview-tools .mobile-focus-group { display: flex; }');
 });
 
+it('uses an accessible icon-only control to exit focus mode', () => {
+  expect(editorMarkup).toMatch(/id="focus-exit"[^>]*aria-label="Exit focus mode"/);
+  expect(editorMarkup).toMatch(/id="focus-exit"[\s\S]*?<svg/);
+  expect(editorMarkup).not.toContain('<kbd>Esc</kbd>');
+  expect(editorStyles).toContain('width: 36px; height: 36px;');
+  expect(editorStyles).toContain('padding: 0;');
+  expect(mobileStyles).toContain('.focus-exit { top: max(12px,env(safe-area-inset-top)); right: 12px; width: 44px; height: 44px;');
+});
+
 it('centers formatting controls and uses theme surfaces for their states', () => {
   expect(editorStyles).toContain('display: inline-flex; align-items: center; justify-content: center;');
   expect(editorStyles).toContain('appearance: none; -webkit-appearance: none;');
