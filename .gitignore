@@ -4,6 +4,20 @@ node_modules/
 # Build outputs (regenerated via `npm run build`)
 dist-editor/
 
+# Local development
+.vscode/
+.env
+.env.*
+!.env.example
+
+# Test and tooling output
+coverage/
+test-results/
+playwright-report/
+.cache/
+.vite/
+*.tsbuildinfo
+
 # Logs
 *.log
 
