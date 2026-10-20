@@ -9,13 +9,13 @@ export function initMobileActions(): { close: (restoreFocus?: boolean) => void }
   dialog.innerHTML = '<div class="command-header"><h2 id="mobile-actions-title">Note actions</h2><button type="button" aria-label="Close note actions">×</button></div><div class="mobile-note-actions"></div><h3 class="mobile-theme-title">Appearance</h3><div class="mobile-theme-slot"></div>';
   document.body.append(dialog);
   const actions = dialog.querySelector('.mobile-note-actions')!;
-  const ids = ['privacy-fab','theme-toggle'];
+  const ids = ['privacy-fab','github-link','theme-toggle'];
   const homes = ids.map(id => {
     const element = document.getElementById(id)!;
     const marker = document.createComment(`home:${id}`); element.before(marker);
     if (id !== 'theme-toggle' && id !== 'export-btn') {
       const label = document.createElement('span'); label.className = 'mobile-action-label';
-      label.textContent = id === 'shortcuts-btn' ? 'Commands & shortcuts' : id === 'privacy-fab' ? 'Privacy policy' : element.getAttribute('aria-label');
+      label.textContent = id === 'shortcuts-btn' ? 'Commands & shortcuts' : id === 'privacy-fab' ? 'Privacy policy' : id === 'github-link' ? 'View source on GitHub' : element.getAttribute('aria-label');
       element.append(label);
     }
     return {element,marker};

@@ -11,10 +11,14 @@ beforeEach(() => {
 });
 it('moves the existing controls into mobile actions and restores the same nodes on desktop', () => {
  const privacy = document.getElementById('privacy-fab')!; const original = privacy.parentNode;
+ const github = document.getElementById('github-link')!;
  initMobileActions(); expect(privacy.closest('.mobile-actions-dialog')).not.toBeNull();
+ expect(github.closest('.mobile-actions-dialog')).not.toBeNull();
  expect(privacy.closest('.mobile-actions-dialog')).not.toBeNull();
  expect(document.querySelectorAll('#privacy-fab')).toHaveLength(1);
+ expect(github.getAttribute('href')).toBe('https://github.com/arverma/ConTextEditor');
  mobile=false; resize(); expect(privacy.parentNode).toBe(original);
+ expect(github.closest('.topbar-right')).not.toBeNull();
 });
 it('leaves copy and PDF actions in the mobile title bar', () => {
  initMobileActions();

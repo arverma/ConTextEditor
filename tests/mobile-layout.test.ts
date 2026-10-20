@@ -34,6 +34,13 @@ it('places the live counter in the top bar before the saved status', () => {
   expect(editorMarkup.match(/id="note-counts"/g)).toHaveLength(1);
 });
 
+it('places the GitHub link at the end of the desktop top bar', () => {
+  const githubIndex = editorMarkup.indexOf('id="github-link"');
+  const themeIndex = editorMarkup.indexOf('id="theme-toggle"');
+  expect(githubIndex).toBeGreaterThan(themeIndex);
+  expect(editorMarkup).toContain('href="https://github.com/arverma/ConTextEditor"');
+});
+
 it('uses the same bold filename weight across responsive layouts', () => {
   expect(editorStyles).toMatch(/#note-title\s*\{[\s\S]*?font-weight: 600;/);
 });
