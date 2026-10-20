@@ -17,3 +17,11 @@ it('aligns the mobile sidebar icon and note title to the brand column', () => {
   expect(mobileStyles).toContain('padding: 0 12px;');
   expect(mobileStyles).toContain('transform: translateX(-8px);');
 });
+
+it('keeps counts and note actions on the filename row', () => {
+  expect(mobileStyles).toContain('grid-template-rows: 44px;');
+  expect(mobileStyles).toContain('.titlebar-right { display: flex;');
+  expect(mobileStyles).toContain('.note-counts { display: block;');
+  expect(mobileStyles).toContain('.toolbar-actions { display: flex;');
+  expect(mobileStyles).toContain('.toolbar-actions #export-label { display: none; }');
+});

@@ -9,7 +9,7 @@ export function initMobileActions(): { close: (restoreFocus?: boolean) => void }
   dialog.innerHTML = '<div class="command-header"><h2 id="mobile-actions-title">Note actions</h2><button type="button" aria-label="Close note actions">×</button></div><div class="mobile-note-actions"></div><h3 class="mobile-theme-title">Appearance</h3><div class="mobile-theme-slot"></div>';
   document.body.append(dialog);
   const actions = dialog.querySelector('.mobile-note-actions')!;
-  const ids = ['copy-markdown-btn','export-btn','focus-mode-btn','writing-width-btn','shortcuts-btn','privacy-fab','theme-toggle'];
+  const ids = ['privacy-fab','theme-toggle'];
   const homes = ids.map(id => {
     const element = document.getElementById(id)!;
     const marker = document.createComment(`home:${id}`); element.before(marker);

@@ -10,16 +10,25 @@ beforeEach(() => {
  HTMLDialogElement.prototype.close = function(){this.removeAttribute('open');this.dispatchEvent(new Event('close'));};
 });
 it('moves the existing controls into mobile actions and restores the same nodes on desktop', () => {
- const width = document.getElementById('writing-width-btn')!; width.setAttribute('aria-pressed','true'); const original = width.parentNode;
- initMobileActions(); expect(width.closest('.mobile-actions-dialog')).not.toBeNull();
- expect(document.querySelectorAll('#writing-width-btn')).toHaveLength(1);
- mobile=false; resize(); expect(width.parentNode).toBe(original); expect(width.getAttribute('aria-pressed')).toBe('true');
+ const privacy = document.getElementById('privacy-fab')!; const original = privacy.parentNode;
+ initMobileActions(); expect(privacy.closest('.mobile-actions-dialog')).not.toBeNull();
+ expect(privacy.closest('.mobile-actions-dialog')).not.toBeNull();
+ expect(document.querySelectorAll('#privacy-fab')).toHaveLength(1);
+ mobile=false; resize(); expect(privacy.parentNode).toBe(original);
+});
+it('leaves copy and PDF actions in the mobile title bar', () => {
+ initMobileActions();
+ expect(document.getElementById('copy-markdown-btn')!.closest('.mobile-actions-dialog')).toBeNull();
+ expect(document.getElementById('export-btn')!.closest('.mobile-actions-dialog')).toBeNull();
+ expect(document.getElementById('focus-mode-btn')!.closest('.mobile-actions-dialog')).toBeNull();
+ expect(document.getElementById('writing-width-btn')!.closest('.mobile-actions-dialog')).toBeNull();
+ expect(document.getElementById('shortcuts-btn')!.closest('.mobile-actions-dialog')).toBeNull();
 });
 it('closes the sheet before running actions so a second modal or focus mode can open safely', () => {
  initMobileActions(); document.getElementById('mobile-actions-toggle')!.click();
  const dialog = document.querySelector<HTMLDialogElement>('.mobile-actions-dialog')!; expect(dialog.open).toBe(true);
- const run = vi.fn(()=>expect(dialog.open).toBe(false)); document.getElementById('export-btn')!.addEventListener('click',run);
- document.getElementById('export-btn')!.click(); expect(run).toHaveBeenCalled(); expect(document.activeElement?.id).toBe('mobile-actions-toggle');
+ const run = vi.fn(()=>expect(dialog.open).toBe(false)); document.getElementById('privacy-fab')!.addEventListener('click',run);
+ document.getElementById('privacy-fab')!.click(); expect(run).toHaveBeenCalled(); expect(document.activeElement?.id).toBe('mobile-actions-toggle');
 });
 it('keeps theme choice in the sheet and closes cleanly on resize', () => {
  initMobileActions(); document.getElementById('mobile-actions-toggle')!.click();

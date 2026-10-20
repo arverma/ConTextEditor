@@ -103,7 +103,7 @@ function getStoredViewMode(): ViewMode {
 
 function updateExportButton(): void {
   const isPreview = viewMode === "preview";
-  const label = isPreview ? "Export PDF" : "Export Raw";
+  const label = compactEditor.matches ? "Share PDF" : isPreview ? "Export PDF" : "Export Raw";
   exportBtn.setAttribute("aria-label", label);
   document.getElementById("export-label")!.textContent = label;
   exportBtn.title = `${label} (${shortcutLabel("Mod+Shift+E")})`;
@@ -274,6 +274,10 @@ exportBtn.addEventListener("click", () => {
   flushPreview();
   const content = editor.getValue();
   const title = deriveTitle(content);
+  if (compactEditor.matches) {
+    exportPdf(title);
+    return;
+  }
   if (viewMode === "edit") {
     exportTxt(content, title);
     return;
