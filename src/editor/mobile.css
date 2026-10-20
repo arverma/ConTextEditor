@@ -33,7 +33,6 @@
   #note-title { grid-column: 2; grid-row: 1; min-width: 0; font-size: 14px; }
   .titlebar-right { display: flex; grid-column: 3; grid-row: 1; gap: 0; margin-left: 0; min-width: 0; }
   #shortcuts-btn, .toolbar-layout { display: none; }
-  .note-counts { display: block; margin: 0; font: 11px var(--font-mono); white-space: nowrap; }
   .toolbar-actions { display: flex; gap: 0; margin: 0; border: 0; padding: 0; }
   .toolbar-actions .export-btn, .toolbar-actions #export-btn { width: 44px; min-width: 44px; padding: 0; }
   .toolbar-actions #export-label { display: none; }

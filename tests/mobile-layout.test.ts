@@ -18,12 +18,19 @@ it('aligns the mobile sidebar icon and note title to the brand column', () => {
   expect(mobileStyles).toContain('transform: translateX(-8px);');
 });
 
-it('keeps counts and note actions on the filename row', () => {
+it('keeps note actions on the filename row', () => {
   expect(mobileStyles).toContain('grid-template-rows: 44px;');
   expect(mobileStyles).toContain('.titlebar-right { display: flex;');
-  expect(mobileStyles).toContain('.note-counts { display: block;');
   expect(mobileStyles).toContain('.toolbar-actions { display: flex;');
   expect(mobileStyles).toContain('.toolbar-actions #export-label { display: none; }');
+});
+
+it('places the live counter in the top bar before the saved status', () => {
+  const countsIndex = editorMarkup.indexOf('id="note-counts"');
+  const savedIndex = editorMarkup.indexOf('id="save-status"');
+  expect(countsIndex).toBeGreaterThan(-1);
+  expect(countsIndex).toBeLessThan(savedIndex);
+  expect(editorMarkup.match(/id="note-counts"/g)).toHaveLength(1);
 });
 
 it('keeps mobile appearance controls compact without shrinking their touch targets', () => {

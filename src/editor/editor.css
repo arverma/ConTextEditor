@@ -371,9 +371,6 @@ body {
     box-shadow: var(--shadow);
   }
 
-  .note-counts {
-    display: none;
-  }
 }
 
 .sidebar-empty {
