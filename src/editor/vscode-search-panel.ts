@@ -24,6 +24,7 @@ const ICONS = {
 
 export class VSCodeSearchPanel implements Panel {
   readonly dom: HTMLElement;
+  readonly top = true;
   private readonly searchInput: HTMLInputElement;
   private readonly replaceInput: HTMLInputElement;
   private readonly searchWrapper: HTMLElement;
@@ -313,7 +314,7 @@ export class VSCodeSearchPanel implements Panel {
   private updateMatchCount(): void {
     const searchVal = this.searchInput.value;
     if (!searchVal) {
-      this.matchCountEl.textContent = "";
+      this.matchCountEl.textContent = "No results";
       this.matchCountEl.title = "";
       this.searchWrapper.classList.remove("has-error");
       return;

@@ -31,6 +31,10 @@ describe("VSCodeSearchPanel", () => {
     expect(panel).not.toBeNull();
     expect(panel?.classList.contains("cm-search")).toBe(true);
 
+    // Verify it is placed inside .cm-panels-top (not bottom)
+    const topPanels = parent.querySelector<HTMLElement>(".cm-panels.cm-panels-top");
+    expect(topPanels?.contains(panel)).toBe(true);
+
     // Inputs
     const searchInput = panel?.querySelector<HTMLInputElement>('input[name="search"]');
     const replaceInput = panel?.querySelector<HTMLInputElement>('input[name="replace"]');
@@ -124,8 +128,8 @@ describe("VSCodeSearchPanel", () => {
     const searchInput = panel.querySelector<HTMLInputElement>('input[name="search"]')!;
     const countEl = panel.querySelector<HTMLElement>(".cm-search-count")!;
 
-    // Initial empty search
-    expect(countEl.textContent).toBe("");
+    // Initial empty search defaults to "No results"
+    expect(countEl.textContent).toBe("No results");
 
     // Search for 'foo' (3 matches)
     searchInput.value = "foo";
