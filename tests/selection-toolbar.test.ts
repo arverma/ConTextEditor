@@ -96,6 +96,7 @@ it('shows the mobile toolbar when iOS keeps the viewport height unchanged', asyn
       isOpen: () => editor === document.activeElement,
       anchor: () => anchor(editor),
       bottomInset: () => 104,
+      placement: () => "top",
     },
   });
 
@@ -103,5 +104,5 @@ it('shows the mobile toolbar when iOS keeps the viewport height unchanged', asyn
   await nextFrame();
 
   expect(toolbar.hidden).toBe(false);
-  expect(toolbar.style.top).toBe('648px');
+  expect(toolbar.style.top).toBe('8px');
 });

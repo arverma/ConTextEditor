@@ -216,6 +216,10 @@ const floatingPreview = selectionToolbar(previewToolbar, () => {
         (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
       return isIPhoneOrIPad ? 104 : 0;
     },
+    placement: () => {
+      const viewport = window.visualViewport;
+      return viewport && window.innerHeight - viewport.height > 100 ? "bottom" : "top";
+    },
   },
 });
 rich.editor.on("selectionUpdate", () => floatingPreview.schedule());
