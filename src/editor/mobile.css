@@ -54,7 +54,7 @@
   .markdown-preview pre code { overflow-wrap: normal; }
   .history-dialog { width: min(336px, calc(100vw - 32px)); padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }
   .sidebar-heading { min-height: 60px; padding: 8px 12px; gap: 0; }
-  .sidebar-heading .btn-new { width: 44px; height: 44px; min-width: 44px; padding: 0; margin: 0; flex-shrink: 0; color: var(--accent); background: transparent; }
+  .sidebar-heading .btn-new { width: 44px; height: 44px; min-width: 44px; padding: 0; margin: 0; flex-shrink: 0; color: var(--accent); background: transparent; border-color: var(--border); }
   .sidebar-heading .btn-new:hover { background: var(--surface-hover); }
   .sidebar-heading .btn-new span { display: none; }
   .sidebar-heading .btn-new svg { width: 18px; height: 18px; }

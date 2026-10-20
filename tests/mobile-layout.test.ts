@@ -23,8 +23,8 @@ it('places the compact New note control in the sidebar heading row', () => {
   expect(editorMarkup).not.toContain('<h2>Notes</h2>');
   expect(editorMarkup).toMatch(/<div class="sidebar-heading">[\s\S]*id="new-snippet-btn"/);
   expect(editorStyles).toContain('.sidebar-heading');
-  expect(editorStyles).toContain('width: 32px;');
-  expect(editorStyles).toContain('height: 32px;');
+  expect(editorStyles).toContain('border: 1px solid var(--accent);');
+  expect(editorStyles).toContain('.btn-new span');
 });
 
 it('keeps note actions on the filename row', () => {
