@@ -2,7 +2,7 @@ import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { initFocusMode } from "../src/editor/focus-mode";
 let cleanup: () => void;
 beforeEach(() => {
-  document.body.innerHTML = '<div id="app"><button id="focus-mode-btn"></button><button id="focus-exit" hidden></button><article id="markdown-preview"></article><div id="source-editor"></div></div>';
+  document.body.innerHTML = '<div id="app"><button id="focus-mode-btn"></button><button id="mobile-focus-mode-btn"></button><button id="focus-exit" hidden></button><article id="markdown-preview"></article><div id="source-editor"></div></div>';
 });
 afterEach(() => cleanup?.());
 function setup() {
@@ -19,6 +19,13 @@ it("enters and exits without persisting mode, with visible exit and view-preserv
   document.getElementById("focus-exit")!.click();
   expect(mode.isActive()).toBe(false); expect(sidebar.setSuppressed).toHaveBeenLastCalledWith(false);
   expect(ed.setScrollTop).toHaveBeenCalledTimes(2);
+});
+it("can enter focus mode from the mobile toolbar trigger", () => {
+  const { mode } = setup();
+  document.getElementById("mobile-focus-mode-btn")!.click();
+  expect(mode.isActive()).toBe(true);
+  expect(document.getElementById("focus-mode-btn")!.getAttribute("aria-pressed")).toBe("true");
+  expect(document.getElementById("mobile-focus-mode-btn")!.getAttribute("aria-pressed")).toBe("true");
 });
 it("lets Escape exit focus only when nothing else claims it", () => {
   const { mode } = setup(); document.getElementById("focus-mode-btn")!.click();

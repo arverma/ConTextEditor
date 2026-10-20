@@ -22,6 +22,12 @@
 .mobile-theme-slot .theme-opt.active::before { background: var(--surface); box-shadow: var(--shadow); }
 
 @media (max-width: 700px), (max-width: 1000px) and (max-height: 500px) {
+  .preview-tools .mobile-focus-group { display: flex; }
+  #app[data-focus-mode="true"] #main { padding-top: 0; }
+  #app[data-focus-mode="true"] #main > :not(#markdown-preview):not(.preview-tools),
+  #app[data-focus-mode="true"] .focus-exit { display: none !important; }
+  #app[data-focus-mode="true"] #markdown-preview { display: block !important; }
+
   #topbar { height: 48px; min-height: 48px; padding: 0 12px; gap: 8px; flex-wrap: nowrap; }
   .brand { gap: 6px; min-width: 0; }
   .brand-name { font-size: 14px; white-space: nowrap; }

@@ -7,13 +7,16 @@ export function initFocusMode(
   stateChanged: (active: boolean) => void = () => {},
 ) {
   const app = document.getElementById("app")!;
-  const button = document.getElementById("focus-mode-btn")!;
+  const buttons = [
+    document.getElementById("focus-mode-btn"),
+    document.getElementById("mobile-focus-mode-btn"),
+  ].filter((button): button is HTMLButtonElement => button instanceof HTMLButtonElement);
   const exitButton = document.getElementById("focus-exit")!;
   let active = false;
   const blockedEscapes = new WeakSet<KeyboardEvent>();
   function paint(): void {
     app.dataset.focusMode = String(active);
-    button.setAttribute("aria-pressed", String(active));
+    buttons.forEach(button => button.setAttribute("aria-pressed", String(active)));
     exitButton.hidden = !active;
     stateChanged(active);
   }
@@ -43,7 +46,7 @@ export function initFocusMode(
     exit();
   }
   paint();
-  button.addEventListener("click", toggle);
+  buttons.forEach(button => button.addEventListener("click", toggle));
   exitButton.addEventListener("click", exit);
   window.addEventListener("keydown", captureEscape, true);
   window.addEventListener("keydown", handleEscape);
@@ -51,7 +54,7 @@ export function initFocusMode(
     exit,
     isActive: () => active,
     dispose() {
-      button.removeEventListener("click", toggle);
+      buttons.forEach(button => button.removeEventListener("click", toggle));
       exitButton.removeEventListener("click", exit);
       window.removeEventListener("keydown", captureEscape, true);
       window.removeEventListener("keydown", handleEscape);

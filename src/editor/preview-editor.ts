@@ -5,7 +5,7 @@ import { parseMarkdownDocument, previewExtensions, repaintPreviewDiagrams, seria
 
 export type PreviewCommand = 'bold' | 'italic' | 'strike' | 'link' | 'bullet' | 'ordered' | 'quote' | 'code';
 
-/** Rich Preview. Writes Markdown back only after an edit, one history step per burst. */
+/** Rich editor. Writes Markdown back only after an edit, one history step per burst. */
 export function previewEditor(root: HTMLElement, read: () => string, write: (raw: string) => void) {
   let loadedRaw = read();
   let baseline = '';
@@ -18,7 +18,7 @@ export function previewEditor(root: HTMLElement, read: () => string, write: (raw
     extensions: previewExtensions(),
     content: parseMarkdownDocument(loadedRaw),
     editorProps: {
-      attributes: { 'aria-label': 'Markdown preview', class: 'rich-editor', role: 'textbox', 'aria-multiline': 'true' },
+      attributes: { 'aria-label': 'Rich editor', class: 'rich-editor', role: 'textbox', 'aria-multiline': 'true' },
       handlePaste(_view, event) {
         event.preventDefault();
         const text = event.clipboardData?.getData('text/plain') ?? '';

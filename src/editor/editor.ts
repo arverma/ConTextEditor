@@ -98,7 +98,9 @@ themeToggleEl.addEventListener("click", (event) => {
 });
 
 function getStoredViewMode(): ViewMode {
-  return localStorage.getItem(VIEW_MODE_KEY) === "preview" ? "preview" : "edit";
+  const stored = localStorage.getItem(VIEW_MODE_KEY);
+  if (stored === "preview" || stored === "edit") return stored;
+  return compactEditor.matches ? "preview" : "edit";
 }
 
 function updateExportButton(): void {
@@ -129,9 +131,9 @@ function applyViewMode(mode: ViewMode, { persist = true } = {}): void {
     btn.setAttribute("aria-pressed", String(btn.dataset.viewValue === mode));
   });
   const mobilePreview = mode === "preview";
-  mobileViewToggleEl.setAttribute("aria-label", mobilePreview ? "Switch to Edit" : "Switch to Preview");
+  mobileViewToggleEl.setAttribute("aria-label", mobilePreview ? "Switch to Markdown" : "Switch to Rich");
   mobileViewToggleEl.setAttribute("aria-pressed", String(mobilePreview));
-  mobileViewToggleEl.querySelector(".mobile-view-toggle-label")!.textContent = mobilePreview ? "Preview" : "Edit";
+  mobileViewToggleEl.querySelector(".mobile-view-toggle-label")!.textContent = mobilePreview ? "Rich" : "Markdown";
   updateExportButton();
 
   if (isPreview) rich.enable(true);
@@ -193,15 +195,9 @@ const floatingPreview = selectionToolbar(previewToolbar, () => {
   isMobile: () => compactEditor.matches,
   mobileKeyboard: {
     isOpen: () => {
-      const viewport = window.visualViewport;
-      const viewportShrunk = !!viewport && window.innerHeight - viewport.height > 100;
-      // iOS Chrome can keep the visual viewport height unchanged while the
-      // keyboard covers the lower part of the page. A focused contenteditable
-      // is the reliable fallback because focusing it invokes the keyboard.
-      return viewportShrunk || rich.editor.isFocused;
+      return viewMode === "preview";
     },
     anchor: () => {
-      if (!rich.editor.isFocused) return null;
       const bounds = previewEl.getBoundingClientRect();
       return {
         rect: { left: bounds.left, right: bounds.right, top: bounds.top, bottom: bounds.bottom },
@@ -217,8 +213,7 @@ const floatingPreview = selectionToolbar(previewToolbar, () => {
       return isIPhoneOrIPad ? 104 : 0;
     },
     placement: () => {
-      const viewport = window.visualViewport;
-      return viewport && window.innerHeight - viewport.height > 100 ? "bottom" : "top";
+      return "top";
     },
   },
 });
@@ -232,6 +227,7 @@ function applyPreview(target: EventTarget | null): void {
 }
 previewToolbar.addEventListener("pointerdown", (event) => {
   if (!(event.target instanceof Element) || !event.target.closest("button")) return;
+  if (event.target.closest("#mobile-focus-mode-btn")) return;
   event.preventDefault();
   previewTouch = event.pointerType === "touch" || event.pointerType === "pen";
   if (previewTouch) applyPreview(event.target);

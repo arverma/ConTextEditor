@@ -59,3 +59,28 @@ it('keeps mobile appearance controls compact without shrinking their touch targe
   expect(mobileStyles).toContain('inset: 4px 2px;');
   expect(mobileStyles).toContain('.mobile-theme-slot .theme-opt.active::before');
 });
+
+it('uses accessible vector icons for preview formatting actions', () => {
+  for (const command of ['link', 'bullet', 'ordered', 'quote', 'code']) {
+    expect(editorMarkup).toMatch(new RegExp(`data-command="${command}"[\\s\\S]*?<svg`));
+  }
+  expect(editorMarkup).not.toMatch(/data-command="bullet"[^>]*>•</);
+  expect(editorMarkup).not.toMatch(/data-command="quote"[^>]*>“</);
+  expect(editorMarkup).not.toContain('data-command="code" aria-label="Inline code" title="Inline code">&lt;/&gt;');
+});
+
+it('provides a mobile-only focus mode action in the preview toolbar', () => {
+  expect(editorMarkup).toContain('id="mobile-focus-mode-btn"');
+  expect(editorMarkup).toContain('aria-label="Focus mode"');
+  expect(editorMarkup).toContain('aria-pressed="false"');
+  expect(editorStyles).toContain('.mobile-focus-group { display: none; }');
+  expect(mobileStyles).toContain('.preview-tools .mobile-focus-group { display: flex; }');
+});
+
+it('uses Markdown and Rich as the view labels', () => {
+  expect(editorMarkup).toContain('<span>Markdown</span>');
+  expect(editorMarkup).toContain('<span>Rich</span>');
+  expect(editorMarkup).toContain('aria-label="Rich formatting"');
+  expect(editorMarkup).not.toMatch(/data-view-value="edit"><span>Edit<\/span>/);
+  expect(editorMarkup).not.toMatch(/data-view-value="preview"><span>Preview<\/span>/);
+});

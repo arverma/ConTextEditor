@@ -24,16 +24,17 @@ export function selectionToolbar(toolbar: HTMLElement, anchor: () => SelectionAn
 
   function update() {
     frame = 0;
-    if (selecting) { toolbar.hidden = true; return; }
+    const mobile = options.isMobile?.() ?? false;
+    if (selecting && !mobile) { toolbar.hidden = true; return; }
     const mobileKeyboard = options.isMobile?.() && options.mobileKeyboard?.isOpen();
-    const selected = mobileKeyboard ? options.mobileKeyboard?.anchor() ?? null : options.isMobile?.() ? null : anchor();
+    const selected = mobileKeyboard ? options.mobileKeyboard?.anchor() ?? null : mobile ? null : anchor();
     lastAnchor = selected;
     if (!selected) {
       dismissed = '';
       toolbar.hidden = true;
       return;
     }
-    if (selected.key === dismissed) {
+    if (!mobile && selected.key === dismissed) {
       toolbar.hidden = true;
       return;
     }
@@ -44,7 +45,7 @@ export function selectionToolbar(toolbar: HTMLElement, anchor: () => SelectionAn
     const width = viewport?.width ?? innerWidth;
     const height = viewport?.height ?? innerHeight;
     const rect = selected.rect;
-    if (rect.bottom < top || rect.top > top + height || rect.right < left || rect.left > left + width) {
+    if (!mobile && (rect.bottom < top || rect.top > top + height || rect.right < left || rect.left > left + width)) {
       toolbar.hidden = true;
       return;
     }
@@ -81,6 +82,7 @@ export function selectionToolbar(toolbar: HTMLElement, anchor: () => SelectionAn
   document.addEventListener('selectionchange', schedule);
   document.addEventListener('pointerdown', event => {
     if (event.target instanceof Node && toolbar.contains(event.target)) return;
+    if (options.isMobile?.()) { selecting = false; schedule(); return; }
     selecting = true;
     dismissed = '';
     toolbar.hidden = true;
@@ -94,7 +96,7 @@ export function selectionToolbar(toolbar: HTMLElement, anchor: () => SelectionAn
   window.visualViewport?.addEventListener('resize', schedule);
   window.visualViewport?.addEventListener('scroll', schedule);
   document.addEventListener('keydown', event => {
-    if (event.key === 'Escape' && !toolbar.hidden) {
+    if (event.key === 'Escape' && !toolbar.hidden && !options.isMobile?.()) {
       event.preventDefault();
       dismissed = lastAnchor?.key ?? '';
       toolbar.hidden = true;

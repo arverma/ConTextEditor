@@ -14,7 +14,7 @@ export function initShortcuts(actions: { toggleView: () => void; save: () => voi
   const commands: Command[] = [
     { label: "New note", keys: "Mod+Shift+Enter", run: click("#new-snippet-btn"), element: "#new-snippet-btn" },
     { label: "Toggle note history", keys: "Mod+\\", run: click("#sidebar-toggle") },
-    { label: "Toggle Edit / Preview", keys: "Mod+E", run: actions.toggleView, element: "#view-toggle" },
+    { label: "Toggle Markdown / Rich", keys: "Mod+E", run: actions.toggleView, element: "#view-toggle" },
     { label: "Export current view (Raw / PDF)", keys: "Mod+Shift+E", run: click("#export-btn") },
     { label: "Toggle focus mode", run: click("#focus-mode-btn") },
     { label: "Toggle full width", run: click("#writing-width-btn") },
@@ -40,7 +40,7 @@ export function initShortcuts(actions: { toggleView: () => void; save: () => voi
 
   for (const button of document.querySelectorAll<HTMLElement>(".view-opt")) {
     button.setAttribute("aria-keyshortcuts", mac ? "Meta+E" : "Control+E");
-    button.title = `Toggle Edit / Preview (${shortcutLabel("Mod+E")}${mac ? " or ⌘+Option, then release" : ""})`;
+    button.title = `Toggle Markdown / Rich (${shortcutLabel("Mod+E")}${mac ? " or ⌘+Option, then release" : ""})`;
   }
 
   const dialog = document.createElement("dialog");

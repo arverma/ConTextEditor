@@ -29,7 +29,7 @@ it('uses the existing selection behavior on desktop', async () => {
   expect(toolbar.style.top).not.toBe('');
 });
 
-it('shows only the keyboard toolbar on mobile and pins it above the visual viewport', async () => {
+it('keeps the mobile toolbar visible without a selection or keyboard', async () => {
   const toolbar = document.createElement('div');
   const editor = document.createElement('div');
   editor.tabIndex = 0;
@@ -38,23 +38,31 @@ it('shows only the keyboard toolbar on mobile and pins it above the visual viewp
   vi.spyOn(toolbar, 'getBoundingClientRect').mockReturnValue({ width: 100, height: 40 } as DOMRect);
   vi.stubGlobal('innerHeight', 800);
   vi.stubGlobal('visualViewport', visualViewport(800));
-  const keyboardOpen = vi.fn(() => false);
-  const view = selectionToolbar(toolbar, () => anchor(editor), {
+  const view = selectionToolbar(toolbar, () => null, {
     isMobile: () => true,
-    mobileKeyboard: { isOpen: keyboardOpen, anchor: () => anchor(editor) },
+    mobileKeyboard: { isOpen: () => true, anchor: () => anchor(editor), placement: () => "top" },
   });
 
   view.schedule();
   await nextFrame();
-  expect(toolbar.hidden).toBe(true);
+  expect(toolbar.hidden).toBe(false);
+  expect(toolbar.style.top).toBe('8px');
+});
 
-  keyboardOpen.mockReturnValue(true);
-  vi.stubGlobal('visualViewport', visualViewport(500));
-  view.schedule();
+it('keeps the mobile toolbar visible while text selection is in progress', async () => {
+  const toolbar = document.createElement('div');
+  const editor = document.createElement('div');
+  document.body.append(toolbar, editor);
+  vi.spyOn(toolbar, 'getBoundingClientRect').mockReturnValue({ width: 100, height: 40 } as DOMRect);
+  selectionToolbar(toolbar, () => null, {
+    isMobile: () => true,
+    mobileKeyboard: { isOpen: () => true, anchor: () => anchor(editor), placement: () => "top" },
+  });
+
+  document.dispatchEvent(new MouseEvent('pointerdown'));
   await nextFrame();
 
   expect(toolbar.hidden).toBe(false);
-  expect(toolbar.style.top).toBe('452px');
 });
 
 it('reserves the iPhone keyboard accessory area below the toolbar', async () => {

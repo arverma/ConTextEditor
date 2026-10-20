@@ -90,6 +90,16 @@ it("exposes pressed states and only toggles for the modifier-only gesture", asyn
   expect(document.querySelector('[data-theme-value="light"]')!.getAttribute("aria-pressed")).toBe("true");
 });
 
+it("defaults mobile users to Rich and keeps the toolbar hidden in Markdown", async () => {
+  vi.stubGlobal("matchMedia", (query: string) => ({ matches: query.includes("700px"), addEventListener: vi.fn() }));
+  await import("../src/editor/editor");
+  expect(document.querySelector<HTMLButtonElement>('[data-view-value="preview"]')!.getAttribute("aria-pressed")).toBe("true");
+  expect(document.getElementById("markdown-preview")!.hidden).toBe(false);
+  document.querySelector<HTMLButtonElement>('[data-view-value="edit"]')!.click();
+  expect(document.querySelector<HTMLButtonElement>('[data-view-value="edit"]')!.getAttribute("aria-pressed")).toBe("true");
+  expect(document.querySelector<HTMLElement>(".preview-tools")!.hidden).toBe(true);
+});
+
 it("changes width without rewriting the note and copies pending raw source in preview", async () => {
   const writeText = vi.fn().mockResolvedValue(undefined);
   Object.defineProperty(navigator, "clipboard", { configurable: true, value: { writeText } });
