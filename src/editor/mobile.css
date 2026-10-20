@@ -12,10 +12,14 @@
 .mobile-actions-dialog .mobile-action-label { display: inline; }
 .mobile-actions-dialog #export-label { font-size: 14px; }
 .mobile-note-actions [aria-pressed="true"] { background: var(--accent-soft); color: var(--accent); }
-.mobile-theme-title { padding-top: 16px; margin: 12px 0; border-top: 1px solid var(--border); font-size: 12px; font-weight: 600; color: var(--text-muted); }
+.mobile-theme-title { padding-top: 12px; margin: 10px 0 8px; border-top: 1px solid var(--border); font-size: 12px; font-weight: 600; color: var(--text-muted); }
 .mobile-theme-slot #theme-toggle { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); width: 100%; padding: 4px; }
-.mobile-theme-slot .theme-opt { display: flex; gap: 6px; width: 100%; min-height: 44px; font: 13px var(--font-ui); color: var(--text-muted); }
-.mobile-theme-slot .theme-opt.active { color: var(--accent); }
+.mobile-theme-slot .theme-opt { position: relative; display: flex; gap: 6px; width: 100%; min-height: 44px; font: 13px var(--font-ui); color: var(--text-muted); background: transparent; box-shadow: none; }
+.mobile-theme-slot .theme-opt { isolation: isolate; }
+.mobile-theme-slot .theme-opt > * { position: relative; z-index: 1; }
+.mobile-theme-slot .theme-opt::before { content: ''; position: absolute; inset: 4px 2px; z-index: 0; border-radius: 7px; background: transparent; transition: background 120ms ease, box-shadow 120ms ease; }
+.mobile-theme-slot .theme-opt.active { color: var(--accent); background: transparent; box-shadow: none; }
+.mobile-theme-slot .theme-opt.active::before { background: var(--surface); box-shadow: var(--shadow); }
 
 @media (max-width: 700px), (max-width: 1000px) and (max-height: 500px) {
   #topbar { height: 48px; min-height: 48px; padding: 0 12px; gap: 8px; flex-wrap: nowrap; }

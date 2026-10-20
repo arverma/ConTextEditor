@@ -25,3 +25,10 @@ it('keeps counts and note actions on the filename row', () => {
   expect(mobileStyles).toContain('.toolbar-actions { display: flex;');
   expect(mobileStyles).toContain('.toolbar-actions #export-label { display: none; }');
 });
+
+it('keeps mobile appearance controls compact without shrinking their touch targets', () => {
+  expect(mobileStyles).toContain('.mobile-theme-slot .theme-opt { position: relative;');
+  expect(mobileStyles).toContain('min-height: 44px;');
+  expect(mobileStyles).toContain('inset: 4px 2px;');
+  expect(mobileStyles).toContain('.mobile-theme-slot .theme-opt.active::before');
+});
