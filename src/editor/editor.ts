@@ -194,7 +194,11 @@ const floatingPreview = selectionToolbar(previewToolbar, () => {
   mobileKeyboard: {
     isOpen: () => {
       const viewport = window.visualViewport;
-      return !!viewport && window.innerHeight - viewport.height > 100;
+      const viewportShrunk = !!viewport && window.innerHeight - viewport.height > 100;
+      // iOS Chrome can keep the visual viewport height unchanged while the
+      // keyboard covers the lower part of the page. A focused contenteditable
+      // is the reliable fallback because focusing it invokes the keyboard.
+      return viewportShrunk || rich.editor.isFocused;
     },
     anchor: () => {
       if (!rich.editor.isFocused) return null;
