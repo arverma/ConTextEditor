@@ -60,10 +60,10 @@
   .markdown-preview code { overflow-wrap: anywhere; }
   .markdown-preview pre code { overflow-wrap: normal; }
   .history-dialog { width: min(336px, calc(100vw - 32px)); padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }
-  .sidebar-heading { min-height: 60px; padding: 8px 12px; gap: 0; }
-  .sidebar-heading .btn-new { width: 44px; height: 44px; min-width: 44px; padding: 0; margin: 0; flex-shrink: 0; color: var(--accent); background: transparent; border-color: var(--border); }
+  .sidebar-heading { min-height: 60px; padding: 8px 12px; gap: 8px; }
+  .sidebar-heading .btn-new { flex: 1 1 auto; width: auto; height: 44px; min-width: 0; padding: 0 10px; margin: 0; color: var(--accent); background: transparent; border-color: var(--border); }
   .sidebar-heading .btn-new:hover { background: var(--surface-hover); }
-  .sidebar-heading .btn-new span { display: none; }
+  .sidebar-heading .btn-new span { display: inline; }
   .sidebar-heading .btn-new svg { width: 18px; height: 18px; }
   #sidebar-close { font-size: 20px; }
   .note-search-row { height: 44px; margin: 0 12px 8px; position: relative; isolation: isolate; }

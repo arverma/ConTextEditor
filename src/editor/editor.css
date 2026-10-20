@@ -243,6 +243,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 8px;
   min-height: 52px;
   padding: 8px 12px;
 }
@@ -252,9 +253,10 @@ body {
   align-items: center;
   justify-content: center;
   gap: 7px;
+  flex: 1 1 auto;
   width: auto;
   height: 32px;
-  min-width: 96px;
+  min-width: 0;
   padding: 0 10px;
   margin: 0;
   background: transparent;

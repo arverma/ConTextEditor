@@ -27,6 +27,16 @@ it('places the compact New note control in the sidebar heading row', () => {
   expect(editorStyles).toContain('.btn-new span');
 });
 
+it('makes New note fill the sidebar heading without exceeding the toggle height', () => {
+  expect(editorStyles).toContain('flex: 1 1 auto;');
+  expect(editorStyles).toContain('min-width: 0;');
+  expect(editorStyles).toContain('height: 32px;');
+  expect(editorStyles).toContain('gap: 8px;');
+  expect(mobileStyles).toContain('.sidebar-heading .btn-new { flex: 1 1 auto;');
+  expect(mobileStyles).toContain('height: 44px;');
+  expect(mobileStyles).toContain('.sidebar-heading .btn-new span { display: inline; }');
+});
+
 it('keeps note actions on the filename row', () => {
   expect(mobileStyles).toContain('grid-template-rows: 44px;');
   expect(mobileStyles).toContain('.titlebar-right { display: flex;');
