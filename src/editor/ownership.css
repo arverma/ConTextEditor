@@ -40,7 +40,7 @@
 .toolbar-group { display: flex; align-items: center; gap: 4px; }
 .toolbar-group + .toolbar-group { border-left: 1px solid var(--border); padding-left: 8px; }
 .titlebar-right { gap: 8px; }
-.note-counts { margin-right: 8px; }
+.note-counts { padding-left: 12px; border-left: 1px solid var(--border); }
 .ownership-dialog .ownership-confirm:hover { background: var(--accent-hover); }
 .restore-settings input { margin: 0; padding: 0; accent-color: var(--accent); }
 @media (max-width: 480px) {
@@ -56,16 +56,29 @@
 
 /* Stable toolbar hierarchy: title, writing/view controls, then note actions. */
 #note-titlebar { flex-wrap: nowrap; }
-#note-title { flex: 1 1 0; }
+#note-title { flex: 0 1 45ch; min-width: 6ch; }
+.titlebar-note-meta { overflow: hidden; }
+.titlebar-note-meta > * { flex-shrink: 0; }
+.titlebar-note-meta > #note-title { flex-shrink: 1; }
+/* Counts are the first thing to give way when the bar is tight. */
+@media (min-width: 701px) and (max-width: 900px) {
+  .desktop-note-counts { display: none; }
+  /* Keep the save dot (state is still announced via role=status text); drop the visible word. */
+  .desktop-save-status { font-size: 0; gap: 0; }
+  .desktop-save-status::before { width: 8px; height: 8px; }
+  #export-label { display: none; }
+  #export-btn { padding: 0 8px; }
+}
 .titlebar-right { flex-wrap: nowrap; }
 .toolbar-actions { border-left: 1px solid var(--border); padding-left: 12px; margin-left: 4px; }
 #export-btn { width: auto; gap: 6px; padding: 0 8px; white-space: nowrap; }
-#export-label { font-size: 12px; }
-@container writing-workspace (max-width: 520px) {
-  #note-titlebar { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px 12px; padding: 8px 12px; }
-  #note-title { grid-column: 1; grid-row: 1; }
-  .titlebar-right { display: contents; }
-  .toolbar-layout { grid-column: 2; grid-row: 1; justify-self: end; }
-  #view-toggle { grid-column: 1; grid-row: 2; justify-self: start; }
-  .toolbar-actions { grid-column: 2; grid-row: 2; justify-self: end; padding-left: 0; margin-left: 0; border-left: 0; }
+
+/* Hierarchy, left to right by frequency of use: mode switch -> layout -> tools -> note actions.
+   Export is the one primary action; everything else stays quiet. */
+#topbar .toolbar-group + .toolbar-group { border-left: 1px solid var(--border); padding-left: 8px; margin-left: 2px; }
+#topbar .toolbar-group { margin-right: 4px; }
+@media (min-width: 701px) {
+  #export-btn { padding: 0 12px; border: 1px solid var(--accent); color: var(--accent); background: var(--accent-soft); }
+  #export-btn:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
 }
+#export-label { font-size: 12px; }

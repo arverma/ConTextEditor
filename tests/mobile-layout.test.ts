@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 
 const mobileStyles = readFileSync('../src/editor/mobile.css', 'utf8');
 const editorStyles = readFileSync('../src/editor/editor.css', 'utf8');
+const ownershipStyles = readFileSync('../src/editor/ownership.css', 'utf8');
 const editorMarkup = readFileSync('../src/editor/index.html', 'utf8');
 
 it('uses one compact mobile toggle instead of oversized view buttons', () => {
@@ -17,6 +18,7 @@ it('aligns the mobile sidebar icon and note title to the brand column', () => {
   expect(mobileStyles).toContain('grid-template-columns: 28px minmax(0, 1fr) auto;');
   expect(mobileStyles).toContain('padding: 0 12px;');
   expect(mobileStyles).toContain('transform: translateX(-8px);');
+  expect(mobileStyles).not.toContain('max-width: 1000px');
 });
 
 it('places the compact New note control in the sidebar heading row', () => {
@@ -44,12 +46,41 @@ it('keeps note actions on the filename row', () => {
   expect(mobileStyles).toContain('.toolbar-actions #export-label { display: none; }');
 });
 
-it('places the live counter in the top bar before the saved status', () => {
+it('keeps the live counter in the desktop note titlebar and mobile top bar', () => {
   const countsIndex = editorMarkup.indexOf('id="note-counts"');
-  const savedIndex = editorMarkup.indexOf('id="save-status"');
+  const titleIndex = editorMarkup.indexOf('id="note-title"');
+  const actionsIndex = editorMarkup.indexOf('class="titlebar-right"');
+  const mobileCountsIndex = editorMarkup.indexOf('id="mobile-note-counts"');
   expect(countsIndex).toBeGreaterThan(-1);
-  expect(countsIndex).toBeLessThan(savedIndex);
+  expect(countsIndex).toBeGreaterThan(titleIndex);
+  expect(countsIndex).toBeLessThan(actionsIndex);
+  expect(mobileCountsIndex).toBeGreaterThan(-1);
   expect(editorMarkup.match(/id="note-counts"/g)).toHaveLength(1);
+});
+
+it('orders the desktop filename, save status, count, and controls', () => {
+  const metadataIndex = editorMarkup.indexOf('class="titlebar-note-meta"');
+  const titleIndex = editorMarkup.indexOf('id="note-title"');
+  const statusIndex = editorMarkup.indexOf('id="desktop-save-status"');
+  const countsIndex = editorMarkup.indexOf('id="note-counts"');
+  const controlsIndex = editorMarkup.indexOf('class="titlebar-right"');
+  expect(metadataIndex).toBeGreaterThan(-1);
+  expect(titleIndex).toBeGreaterThan(metadataIndex);
+  expect(statusIndex).toBeGreaterThan(titleIndex);
+  expect(countsIndex).toBeGreaterThan(statusIndex);
+  expect(controlsIndex).toBeGreaterThan(countsIndex);
+  expect(editorStyles).toMatch(/#note-title\s*\{[\s\S]*?flex: 0 1 auto;/);
+  expect(editorStyles).toMatch(/#note-title\s*\{[\s\S]*?max-width: 45ch;/);
+  expect(editorStyles).toMatch(/#note-title\s*\{[\s\S]*?width: auto;/);
+  expect(editorStyles).not.toContain('margin-left: -4px;');
+  expect(editorStyles).toMatch(/#note-titlebar\s*\{[\s\S]*?justify-content: flex-start(?: !important)?;/);
+  expect(editorStyles).toMatch(/\.titlebar-note-meta\s*\{[\s\S]*?display: flex;[\s\S]*?gap: 12px;/);
+  expect(editorStyles).toContain('#note-titlebar > #desktop-save-status');
+  expect(editorStyles).toMatch(/\.titlebar-right\s*\{[\s\S]*?margin-left: auto;/);
+  expect(ownershipStyles).not.toContain('#note-title { flex: 1 1 0; }');
+  expect(editorStyles).not.toContain('#note-titlebar { height: auto; min-height: 42px;');
+  expect(editorStyles).not.toContain('@container writing-workspace (max-width: 650px)');
+  expect(editorMarkup).not.toContain('id="save-status"');
 });
 
 it('places the GitHub link at the end of the desktop top bar', () => {
@@ -122,4 +153,27 @@ it('uses Markdown and Rich as the view labels', () => {
 
 it('removes mobile safe-area top padding in focus mode', () => {
   expect(mobileStyles).toContain('#app[data-focus-mode="true"] { padding-top: 0 !important;');
+});
+
+it('keeps view tools in the top bar and note actions in the note titlebar', () => {
+  const topbar = editorMarkup.slice(editorMarkup.indexOf('id="topbar"'), editorMarkup.indexOf('id="note-titlebar"'));
+  const titlebar = editorMarkup.slice(editorMarkup.indexOf('id="note-titlebar"'), editorMarkup.indexOf('id="save-error"'));
+  for (const id of ['focus-mode-btn', 'writing-width-btn', 'diff-checker-btn']) {
+    expect(topbar).toContain(`id="${id}"`);
+    expect(titlebar).not.toContain(`id="${id}"`);
+  }
+  for (const id of ['view-toggle', 'copy-markdown-btn', 'export-btn']) expect(titlebar).toContain(`id="${id}"`);
+  expect(mobileStyles).toContain('.toolbar-tools { display: none; }');
+});
+
+it('collapses save status and counts before they can collide with the view switch', () => {
+  expect(ownershipStyles).toMatch(/max-width: 900px\)[\s\S]*?\.desktop-note-counts \{ display: none; \}[\s\S]*?\.desktop-save-status \{ font-size: 0;/);
+});
+
+it('keeps the dark workspace gutter visibly distinct from the writing page', () => {
+  const lum = (hex: string) => { const n = parseInt(hex.slice(1), 16); const c = [n >> 16, (n >> 8) & 255, n & 255].map((v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; }); return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]; };
+  const root = editorStyles.slice(0, editorStyles.indexOf(':root[data-theme="light"]'));
+  const bg = root.match(/--bg: (#[0-9a-f]{6})/)![1];
+  const page = root.match(/--editor-bg: (#[0-9a-f]{6})/)![1];
+  expect((lum(page) + 0.05) / (lum(bg) + 0.05)).toBeGreaterThanOrEqual(1.3);
 });

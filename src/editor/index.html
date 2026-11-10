@@ -3,30 +3,40 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content" />
-    <title>Online Markdown Editor | Private, Local-First Writing</title>
-    <meta name="description" content="A private online Markdown editor and lightweight online code editor that runs in your browser. No account, tracking, ads, or data collection." />
+    <title>Cursor-style Rich Markdown Editor | ConText Editor</title>
+    <meta name="description" content="A private, local-first rich Markdown editor with a Cursor-style workflow, Markdown source view, previews, diagrams, and browser-only notes." />
     <meta name="robots" content="index, follow" />
     <link rel="canonical" href="https://editor.arverma.dev/" />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://editor.arverma.dev/" />
-    <meta property="og:title" content="ConText Editor: Private Online Markdown Editor" />
-    <meta property="og:description" content="Write Markdown and code in your browser with local-first storage. No account, tracking, ads, or data collection." />
+    <meta property="og:title" content="Cursor-style Rich Markdown Editor | ConText Editor" />
+    <meta property="og:description" content="A private, local-first rich Markdown editor with a Cursor-style workflow, Markdown source view, previews, diagrams, and browser-only notes." />
+    <meta property="og:image" content="https://editor.arverma.dev/logo.svg" />
+    <meta property="og:image:alt" content="ConText Editor logo" />
+    <meta property="og:image:type" content="image/svg+xml" />
+    <meta property="og:image:width" content="512" />
+    <meta property="og:image:height" content="512" />
     <meta name="twitter:card" content="summary" />
-    <meta name="twitter:title" content="ConText Editor: Private Online Markdown Editor" />
-    <meta name="twitter:description" content="Write Markdown and code in your browser with local-first storage. No account, tracking, ads, or data collection." />
+    <meta name="twitter:title" content="Cursor-style Rich Markdown Editor | ConText Editor" />
+    <meta name="twitter:description" content="A private, local-first rich Markdown editor with a Cursor-style workflow, Markdown source view, previews, diagrams, and browser-only notes." />
+    <meta name="twitter:image" content="https://editor.arverma.dev/logo.svg" />
+    <meta name="twitter:image:alt" content="ConText Editor logo" />
+    <meta name="theme-color" content="#7c6cf0" />
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
-        "@type": "WebApplication",
-        "name": "ConText Editor",
+        "@type": "SoftwareApplication",
+        "name": "ConText Editor — Cursor-style Rich Markdown Editor",
         "url": "https://editor.arverma.dev/",
-        "description": "A private online Markdown editor and lightweight online code editor that runs in your browser with local-first storage.",
+        "description": "A private, local-first rich Markdown editor with a Cursor-style workflow, Markdown source view, previews, diagrams, and browser-only notes.",
+        "image": "https://editor.arverma.dev/logo.svg",
         "applicationCategory": "ProductivityApplication",
         "operatingSystem": "Any",
         "browserRequirements": "Requires JavaScript and a modern web browser",
         "isAccessibleForFree": true,
         "featureList": [
-          "Online Markdown editor",
+          "Cursor-style rich Markdown editor",
+          "Markdown source editing",
           "Browser-based code editing",
           "Local-first note storage",
           "Markdown and Rich editor"
@@ -37,7 +47,7 @@
     <link
       rel="icon"
       type="image/svg+xml"
-      href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAzMiAzMic+PHJlY3Qgd2lkdGg9JzMyJyBoZWlnaHQ9JzMyJyByeD0nNycgZmlsbD0nIzdjNmNmMCcvPjxwYXRoIGQ9J00xMyA5bC01IDcgNSA3JyBmaWxsPSdub25lJyBzdHJva2U9JyNmZmZmZmYnIHN0cm9rZS13aWR0aD0nMi42JyBzdHJva2UtbGluZWNhcD0ncm91bmQnIHN0cm9rZS1saW5lam9pbj0ncm91bmQnLz48cGF0aCBkPSdNMTkgOWw1IDctNSA3JyBmaWxsPSdub25lJyBzdHJva2U9JyNmZmZmZmYnIHN0cm9rZS13aWR0aD0nMi42JyBzdHJva2UtbGluZWNhcD0ncm91bmQnIHN0cm9rZS1saW5lam9pbj0ncm91bmQnIG9wYWNpdHk9JzAuNTUnLz48L3N2Zz4="
+      href="favicon.svg"
     />
     <link rel="stylesheet" href="editor.css" />
     <link rel="stylesheet" href="ownership.css" />
@@ -64,7 +74,22 @@
         <p>JavaScript is required to use the editor. <a href="privacy.html">Read the privacy policy</a>.</p>
       </main>
     </noscript>
-    <div id="app">
+      <details class="seo-intro">
+        <summary aria-label="About ConText Editor" title="About ConText Editor">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M12 11v5M12 8h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </summary>
+        <section class="seo-intro-content" aria-labelledby="seo-intro-title">
+          <p class="seo-eyebrow">Private writing, right in your browser</p>
+          <h1 id="seo-intro-title">A focused Markdown editor for notes, docs, and code</h1>
+          <p>
+            ConText Editor helps writers, developers, and researchers draft Markdown with a
+            rich editor, source view, previews, diagrams, and local-first note storage.
+            There is no account or upload: your notes stay in this browser.
+          </p>
+          <a href="features.html">Explore features and workflows</a>
+        </section>
+      </details>
+      <div id="app">
       <header id="topbar">
         <div class="brand">
           <span class="brand-mark" aria-hidden="true">
@@ -80,8 +105,21 @@
           <button id="shortcuts-btn" class="sidebar-toggle" type="button" aria-label="Commands and keyboard shortcuts">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2" stroke="currentColor" stroke-width="1.7"/><path d="M6 9h.01M10 9h.01M14 9h.01M18 9h.01M6 12h.01M10 12h.01M14 12h.01M18 12h.01M7 15h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
           </button>
-          <span id="note-counts" class="note-counts" aria-live="polite">0 words · 0 chars</span>
-          <div id="save-status" role="status" class="save-status" data-state="saved">Saved</div>
+              <div class="toolbar-group toolbar-layout" role="group" aria-label="Writing layout">
+              <button id="focus-mode-btn" class="export-btn" type="button" aria-label="Focus mode" aria-pressed="false" title="Focus mode">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+              <button id="writing-width-btn" class="export-btn" type="button" aria-label="Full width" aria-pressed="false" title="Full width">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8 8 4 12l4 4m8-8 4 4-4 4M4 12h16" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+              </div>
+              <div class="toolbar-group toolbar-tools" role="group" aria-label="Tools">
+              <button id="diff-checker-btn" class="export-btn desktop-only-action" type="button" aria-label="Open diff checker" aria-pressed="false" title="Diff checker">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 4h10M7 20h10M5 7h14M5 17h14" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path d="M9 10h6M9 14h6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+                <span>Diff</span>
+              </button>
+              </div>
+          <span id="mobile-note-counts" class="note-counts mobile-note-counts" aria-live="polite">0 words · 0 chars</span>
           <button id="mobile-actions-toggle" class="sidebar-toggle" type="button" aria-label="More note actions" aria-controls="mobile-actions-dialog" aria-expanded="false" title="More note actions">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg>
           </button>
@@ -140,20 +178,12 @@
                 <path d="M9 4v16" stroke="currentColor" stroke-width="1.8"/>
               </svg>
             </button>
-            <span id="note-title">Untitled</span>
+            <div class="titlebar-note-meta">
+              <span id="note-title">Untitled</span>
+              <div id="desktop-save-status" role="status" class="save-status desktop-save-status" data-state="saved">Saved</div>
+              <span id="note-counts" class="note-counts desktop-note-counts" aria-live="polite">0 words · 0 chars</span>
+            </div>
             <div class="titlebar-right">
-              <div class="toolbar-group toolbar-layout" role="group" aria-label="Writing layout">
-              <button id="focus-mode-btn" class="export-btn" type="button" aria-label="Focus mode" aria-pressed="false" title="Focus mode">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              </button>
-              <button id="writing-width-btn" class="export-btn" type="button" aria-label="Full width" aria-pressed="false" title="Full width">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8 8 4 12l4 4m8-8 4 4-4 4M4 12h16" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              </button>
-              </div>
-              <button id="diff-checker-btn" class="export-btn desktop-only-action" type="button" aria-label="Open diff checker" aria-pressed="false" title="Diff checker">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 4h10M7 20h10M5 7h14M5 17h14" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path d="M9 10h6M9 14h6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
-                <span>Diff</span>
-              </button>
               <div id="view-toggle" class="view-toggle" role="group" aria-label="View mode">
                 <button type="button" class="view-opt active" data-view-value="edit"><span>Markdown</span></button>
                 <button type="button" class="view-opt" data-view-value="preview"><span>Rich</span></button>

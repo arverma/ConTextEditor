@@ -8,11 +8,17 @@ import {
   parseDiffState,
   SQL_DIALECTS,
   toDiffPaneRows,
+  DEFAULT_DIFF_MODIFIED,
+  DEFAULT_DIFF_ORIGINAL,
   toDiffRows,
   type DiffState,
 } from "../src/editor/diff-checker";
 
 describe("diff checker formatting", () => {
+  it("provides a first-use sample for the two diff panes", () => {
+    expect(DEFAULT_DIFF_ORIGINAL).toBe('{"title":"ConText Editor","version":1}');
+    expect(DEFAULT_DIFF_MODIFIED).toBe('{"title":"ConText Editor","version":2}');
+  });
   it("detects JSON, YAML, and SQL content for Auto Format", () => {
     expect(detectDiffLanguage('{"name":"ConText"}')).toBe("json");
     expect(detectDiffLanguage("name: ConText\nenabled: true")).toBe("yaml");
