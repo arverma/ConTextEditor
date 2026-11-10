@@ -12,6 +12,7 @@ export default defineConfig(({ command, isPreview }) => ({
     rollupOptions: {
       input: {
         main: resolve(__dirname, "src/editor/index.html"),
+        features: resolve(__dirname, "src/editor/features.html"),
         privacy: resolve(__dirname, "src/editor/privacy.html"),
       },
     },

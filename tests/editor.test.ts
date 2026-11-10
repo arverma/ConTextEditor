@@ -73,6 +73,7 @@ it("retains local edits when another tab deletes the active note", async () => {
   expect(getSnippets()[0].id).not.toBe(id); expect(getSnippets()[0].content).toBe("Recovered local text");
 });
 it("exposes pressed states and only toggles for the modifier-only gesture", async () => {
+  localStorage.setItem("context-editor.viewMode", "edit");
   await import("../src/editor/editor");
   const pressed = () => document.querySelector('[data-view-value="preview"]')!.getAttribute("aria-pressed");
   expect(pressed()).toBe("false");
@@ -88,6 +89,12 @@ it("exposes pressed states and only toggles for the modifier-only gesture", asyn
   expect(pressed()).toBe("true");
   document.querySelector<HTMLButtonElement>('[data-theme-value="light"]')!.click();
   expect(document.querySelector('[data-theme-value="light"]')!.getAttribute("aria-pressed")).toBe("true");
+});
+
+it("defaults a first desktop visit to Rich", async () => {
+  await import("../src/editor/editor");
+  expect(document.querySelector<HTMLButtonElement>('[data-view-value="preview"]')!.getAttribute("aria-pressed")).toBe("true");
+  expect(document.getElementById("markdown-preview")!.hidden).toBe(false);
 });
 
 it("scrolls the rich toolbar on a sideways touch and still formats on a tap", async () => {
@@ -173,9 +180,9 @@ it('uses the same persistent record for Trash and Undo, without a second restore
 });
 it('labels export visibly for the current view and separates it from view controls', async () => {
  await import('../src/editor/editor');
- expect(document.getElementById('export-label')!.textContent).toBe('Export Raw');
- document.querySelector<HTMLButtonElement>('[data-view-value="preview"]')!.click();
  expect(document.getElementById('export-label')!.textContent).toBe('Export PDF');
+ document.querySelector<HTMLButtonElement>('[data-view-value="edit"]')!.click();
+ expect(document.getElementById('export-label')!.textContent).toBe('Export Raw');
  expect(document.querySelector('.toolbar-actions #export-btn')).not.toBeNull();
  expect(document.querySelector('.toolbar-actions #view-toggle')).toBeNull();
 });

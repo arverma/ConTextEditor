@@ -30,8 +30,8 @@ const exportBtn = document.getElementById("export-btn") as HTMLButtonElement;
 const mirror = document.getElementById("full-text-mirror")!;
 const newSnippetBtn = document.getElementById("new-snippet-btn")!;
 const noteTitleEl = document.getElementById("note-title")!;
-const noteCountsEl = document.getElementById("note-counts")!;
-const saveStatusEl = document.getElementById("save-status")!;
+const noteCountsEls = document.querySelectorAll<HTMLElement>(".note-counts");
+const saveStatusEl = document.getElementById("desktop-save-status")!;
 const themeToggleEl = document.getElementById("theme-toggle")!;
 
 type ThemeMode = "system" | "light" | "dark";
@@ -101,7 +101,7 @@ themeToggleEl.addEventListener("click", (event) => {
 function getStoredViewMode(): ViewMode {
   const stored = localStorage.getItem(VIEW_MODE_KEY);
   if (stored === "preview" || stored === "edit") return stored;
-  return compactEditor.matches ? "preview" : "edit";
+  return "preview";
 }
 
 function updateExportButton(): void {
@@ -147,8 +147,9 @@ function toggleViewMode(): void {
 }
 
 function setSaveStatus(state: "saved" | "saving" | "error"): void {
+  const label = state === "error" ? "Not saved" : state === "saving" ? "Saving…" : "Saved";
   saveStatusEl.dataset.state = state;
-  saveStatusEl.textContent = state === "error" ? "Not saved" : state === "saving" ? "Saving…" : "Saved";
+  saveStatusEl.textContent = label;
 }
 
 function countWords(text: string): number {
@@ -159,7 +160,10 @@ function countWords(text: string): number {
 function updateNoteCounts(value: string): void {
   const words = countWords(value);
   const chars = value.length;
-  noteCountsEl.textContent = `${words.toLocaleString()} words · ${chars.toLocaleString()} chars`;
+  const counts = `${words.toLocaleString()} words · ${chars.toLocaleString()} chars`;
+  noteCountsEls.forEach((element) => {
+    element.textContent = counts;
+  });
 }
 
 function syncMirror(): void {

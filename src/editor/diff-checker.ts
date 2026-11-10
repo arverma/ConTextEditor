@@ -25,6 +25,8 @@ export type SqlDialect =
 export type DiffLanguage = "auto" | "json" | "yaml" | "sql" | "text" | `sql:${SqlDialect}`;
 export type DiffHunkType = "equal" | "remove" | "add";
 export const DIFF_STATE_KEY = "context-editor.diffChecker";
+export const DEFAULT_DIFF_ORIGINAL = '{"title":"ConText Editor","version":1}';
+export const DEFAULT_DIFF_MODIFIED = '{"title":"ConText Editor","version":2}';
 
 export const SQL_DIALECTS: ReadonlyArray<{ label: string; value: SqlDialect }> = [
   { label: "Trino / Presto", value: "trino" },
@@ -279,6 +281,9 @@ export function initDiffChecker(options: {
     modifiedEditor.value = storedState.modified;
     languageSelect.value = storedState.language;
     dialectSelect.value = storedState.dialect;
+  } else {
+    originalEditor.value = DEFAULT_DIFF_ORIGINAL;
+    modifiedEditor.value = DEFAULT_DIFF_MODIFIED;
   }
 
   function persist(open: boolean): void {

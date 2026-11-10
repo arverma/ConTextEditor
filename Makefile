@@ -1,4 +1,4 @@
-.DEFAULT_GOAL := all
+.DEFAULT_GOAL := help
 
 .PHONY: all help install dev build preview test test-browser check typecheck verify clean
 
