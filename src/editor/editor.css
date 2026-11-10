@@ -86,6 +86,8 @@ body {
   margin: 0;
 }
 
+.seo-intro[open] { z-index: 35; } /* above the floating Rich toolbar (30) while the card is open */
+
 .seo-intro summary {
   display: flex;
   align-items: center;
@@ -1386,6 +1388,7 @@ body {
   #note-titlebar,
   #source-editor,
   .privacy-fab,
+  .seo-intro,
   .preview-tools,
   .cm-panel {
     display: none !important;
@@ -1622,6 +1625,7 @@ body {
 #app[data-focus-mode="true"] #topbar,
 #app[data-focus-mode="true"] #note-titlebar,
 #app[data-focus-mode="true"] .privacy-fab { display: none; }
+body:has(#app[data-focus-mode="true"]) .seo-intro { display: none; }
 #app[data-focus-mode="true"] #main { padding-top: 56px; }
 .focus-exit {
   position: fixed; top: 12px; right: 16px; z-index: 25;

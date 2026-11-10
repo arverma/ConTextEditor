@@ -190,3 +190,12 @@ it('scrolls on full-width surfaces so the scrollbar sits at the workspace edge, 
   expect(editorStyles).toMatch(/\.markdown-preview \{\s*padding-inline: calc\(\(100% - var\(--page-w\)\) \/ 2 \+ 28px\)/);
   expect(editorStyles).toContain('scrollbar-width: thin;');
 });
+
+it('hides the info button in focus mode and print', () => {
+  expect(editorStyles).toContain('body:has(#app[data-focus-mode="true"]) .seo-intro { display: none; }');
+  expect(editorStyles).toMatch(/@media print \{[\s\S]*?\.seo-intro,/);
+});
+
+it('lifts the open info card above the floating Rich toolbar', () => {
+  expect(editorStyles).toMatch(/\.seo-intro\[open\] \{ z-index: 35; \}/);
+});
