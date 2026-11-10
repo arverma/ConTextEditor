@@ -208,3 +208,8 @@ it('shows the mobile Rich formatting bar only while the editor has focus, docked
   expect(editorStyles).toContain('.preview-tools.docked {');
   expect(mobileStyles).toContain('scroll-padding-bottom: 64px');
 });
+
+it('sizes docked formatting keys like iOS keys and keeps the URL field at 16px to avoid iOS zoom', () => {
+  expect(editorStyles).toMatch(/\.preview-tools\.docked button \{ width: 52px; height: 52px;/);
+  expect(editorStyles).toMatch(/\.preview-tools\.docked #preview-link-url \{[^}]*font-size: 16px/);
+});

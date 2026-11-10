@@ -1,3 +1,4 @@
+import { newId } from "./ids";
 export interface Snippet {
   id: string;
   content: string;
@@ -107,7 +108,7 @@ export function restoreTrashEntry(id: string, asCopy = false): Snippet {
   if (activeNotes(snippets).some(note => note.id === snapshot.id) && !asCopy) {
     throw new Error("That note already exists. Use Restore as copy to keep both notes.");
   }
-  const restored = { ...snapshot, id: asCopy ? crypto.randomUUID() : snapshot.id };
+  const restored = { ...snapshot, id: asCopy ? newId() : snapshot.id };
   // One atomic collection write both restores the note and removes its Trash record.
   writeSnippets(snippets.map((note, i) => i === index ? restored : note));
   return restored;
@@ -141,7 +142,7 @@ export function getActiveSnippet(): Snippet | null {
 export function createSnippet(content = ""): Snippet {
   const { snippets } = readAll();
   const snippet: Snippet = {
-    id: crypto.randomUUID(),
+    id: newId(),
     content,
     updatedAt: Date.now(),
   };
@@ -162,7 +163,7 @@ export function deleteSnippet(id: string, wasActive?: boolean): TrashEntry | nul
   const { snippets, activeSnippetId } = readAll();
   const note = activeNotes(snippets).find(note => note.id === id);
   if (!note) return null;
-  const trash = { id: crypto.randomUUID(), deletedAt: Date.now(), wasActive: wasActive ?? activeSnippetId === id };
+  const trash = { id: newId(), deletedAt: Date.now(), wasActive: wasActive ?? activeSnippetId === id };
   writeSnippets(snippets.map(item => item === note ? { ...item, trash } : item));
   if (activeSnippetId === id) rememberActive(sortByUpdated(activeNotes(snippets).filter(item => item.id !== id))[0]?.id ?? null);
   return { ...trash, note: { ...note } };

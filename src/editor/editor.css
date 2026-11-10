@@ -1307,7 +1307,14 @@ body {
 .preview-tools.docked {
   max-width: none; border-radius: 0; box-shadow: 0 -1px 0 var(--border), 0 -6px 16px rgb(0 0 0 / 8%);
 }
-.preview-tools.docked .preview-tools-scroll { padding: 2px 6px; }
+.preview-tools.docked .preview-tools-scroll { padding: 4px 8px; gap: 0; }
+/* Keys as large as the iOS letter keys (about 44x52pt): easy to hit, and wide enough that the row scrolls sideways. */
+.preview-tools.docked button { width: 52px; height: 52px; min-width: 52px; min-height: 52px; border-radius: 10px; font-size: 20px; }
+.preview-tools.docked button svg { width: 24px; height: 24px; }
+.preview-tools.docked .preview-mark-italic { font-size: 22px; }
+.preview-tools.docked .preview-format-group { gap: 4px; }
+.preview-tools.docked .preview-format-group + .preview-format-group { margin-left: 8px; padding-left: 8px; }
+.preview-tools.docked #preview-link-url { width: min(220px, 58vw); height: 44px; font-size: 16px; /* 16px stops iOS zooming into the field */ }
 .preview-tools.docked .preview-tools-fade-left, .preview-tools.docked .preview-tools-fade-right { border-radius: 0; }
 [data-theme="dark"] .preview-tools.docked { box-shadow: 0 -1px 0 var(--border), 0 -6px 16px rgb(0 0 0 / 35%); }
 .preview-tools button {

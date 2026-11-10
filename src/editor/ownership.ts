@@ -1,3 +1,4 @@
+import { newId } from './ids';
 import { readCollection, type StoredSnippet } from './storage';
 export const INPUT_BYTE_LIMIT = 5 * 1024 * 1024;
 export const preferenceValues: Record<string, readonly string[]> = {
@@ -48,7 +49,7 @@ export function makeBackup(draft?: { id: string | null; content: string; dirty: 
   let activeNoteId = localStorage.getItem('context-editor.activeSnippetId');
   if (draft?.dirty) {
     const existing = notes.find(note => note.id === draft.id && !note.trash);
-    const current = { id: existing?.id ?? crypto.randomUUID(), content: draft.content, updatedAt: Date.now() };
+    const current = { id: existing?.id ?? newId(), content: draft.content, updatedAt: Date.now() };
     notes = existing ? notes.map(note => note === existing ? current : note) : [...notes, current];
     activeNoteId = current.id;
   }
@@ -71,8 +72,8 @@ export function mergeBackup(current: StoredSnippet[], incoming: StoredSnippet[])
     const same = existing && existing.content === candidate.content && Boolean(existing.trash) === Boolean(candidate.trash) &&
       (!existing.trash || (existing.trash.id === candidate.trash?.id && existing.trash.deletedAt === candidate.trash.deletedAt && existing.trash.wasActive === candidate.trash.wasActive));
     if (same) { skipped++; mapping.set(candidate.id, existing.id); continue; }
-    const collision = occupied.has(candidate.id); const id = collision ? crypto.randomUUID() : candidate.id;
-    const trash = candidate.trash ? { ...candidate.trash, id: trashIds.has(candidate.trash.id) ? crypto.randomUUID() : candidate.trash.id } : undefined;
+    const collision = occupied.has(candidate.id); const id = collision ? newId() : candidate.id;
+    const trash = candidate.trash ? { ...candidate.trash, id: trashIds.has(candidate.trash.id) ? newId() : candidate.trash.id } : undefined;
     const next = { ...candidate, id, ...(trash ? { trash } : {}) };
     notes.push(next); occupied.add(id); if (trash) trashIds.add(trash.id);
     mapping.set(candidate.id, id); if (collision) copied++; else added++;
