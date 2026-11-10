@@ -27,3 +27,16 @@ it('publishes crawlable editor content and metadata', () => {
   expect(features).toContain('https://arverma.dev/');
   expect(sitemap).toContain('https://editor.arverma.dev/features.html');
 });
+
+it('links back to the main site, has a single H1, and ships social tags', () => {
+  const read = (f: string) => readFileSync(resolve('../src/editor/' + f), 'utf8');
+  const [home, privacy, features] = ['index.html', 'privacy.html', 'features.html'].map(read);
+
+  for (const page of [home, privacy]) expect(page).toContain('href="https://arverma.dev/">More work at arverma.dev</a>');
+  expect(home.match(/<h1[\s>]/g)).toHaveLength(1);
+  expect(home).toContain('"price": "0"');
+  for (const tag of ['og:title', 'og:description', 'og:image', 'og:url']) expect(privacy).toContain(`property="${tag}"`);
+  expect(privacy).toContain('og:url" content="https://editor.arverma.dev/privacy.html"');
+  expect(privacy).toContain('name="twitter:card"');
+  expect(features).toContain('name="twitter:card"');
+});
