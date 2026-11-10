@@ -12,6 +12,8 @@
   --accent-soft: rgba(124, 108, 240, 0.14);
   --danger: #f0656f;
   --danger-soft: rgba(240, 101, 111, 0.16);
+  --page-edge: #34343f;
+  --page-glow: rgb(0 0 0 / 45%);
   --editor-bg: #24242d; /* writing page: lifted so its edges read against the gutters */
   --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 4px 16px rgba(0, 0, 0, 0.25);
   --font-ui: -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", Roboto, Helvetica, Arial, sans-serif;
@@ -23,6 +25,8 @@
    shared declaration block lives in a mixin-style selector list so the two
    trigger paths never drift apart. */
 :root[data-theme="light"] {
+  --page-edge: var(--border);
+  --page-glow: rgb(0 0 0 / 6%);
   --bg: #f6f6f8;
   --surface: #ffffff;
   --surface-2: #f0f0f3;
@@ -43,6 +47,8 @@
 /* System mode = no explicit data-theme: follow the OS. Explicit light/dark win. */
 @media (prefers-color-scheme: light) {
   :root:not([data-theme="dark"]):not([data-theme="light"]) {
+    --page-edge: var(--border);
+    --page-glow: rgb(0 0 0 / 6%);
     --bg: #f6f6f8;
     --surface: #ffffff;
     --surface-2: #f0f0f3;
@@ -1573,11 +1579,7 @@ body {
 @container writing-workspace (min-width: 850px) {
   #main:not([data-full-width="true"]) #source-editor,
   #main:not([data-full-width="true"]) .markdown-preview {
-    box-shadow: -1px 0 0 var(--border), 1px 0 0 var(--border), 0 0 24px rgb(0 0 0 / 6%);
-  }
-  :root:not([data-theme="light"]) #main:not([data-full-width="true"]) #source-editor,
-  :root:not([data-theme="light"]) #main:not([data-full-width="true"]) .markdown-preview {
-    box-shadow: -1px 0 0 #34343f, 1px 0 0 #34343f, 0 0 40px rgb(0 0 0 / 55%);
+    box-shadow: -1px 0 0 var(--page-edge), 1px 0 0 var(--page-edge), 0 0 24px var(--page-glow);
   }
 }
 @media print {

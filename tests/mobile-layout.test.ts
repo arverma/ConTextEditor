@@ -177,3 +177,10 @@ it('keeps the dark workspace gutter visibly distinct from the writing page', () 
   const page = root.match(/--editor-bg: (#[0-9a-f]{6})/)![1];
   expect((lum(page) + 0.05) / (lum(bg) + 0.05)).toBeGreaterThanOrEqual(1.3);
 });
+
+it('themes the page edge through palette variables so light mode never inherits the dark glow', () => {
+  expect(editorStyles).toContain('0 0 24px var(--page-glow)');
+  expect(editorStyles).not.toMatch(/:root:not\(\[data-theme="light"\]\)[^{]*\.markdown-preview/);
+  const lightBlocks = editorStyles.match(/data-theme="light"\][^{]*\{[^}]*--page-glow: rgb\(0 0 0 \/ 6%\)/g) ?? [];
+  expect(lightBlocks.length).toBe(2);
+});
