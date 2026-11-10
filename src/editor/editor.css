@@ -1303,6 +1303,13 @@ body {
 .preview-format-group { display: flex; align-items: center; flex: 0 0 auto; gap: 2px; }
 .preview-format-group + .preview-format-group { margin-left: 4px; padding-left: 4px; border-left: 1px solid var(--border); }
 .mobile-focus-group { display: none; }
+/* Mobile: full-width dock flush above the keyboard (positioned by selection-toolbar.ts via visualViewport). */
+.preview-tools.docked {
+  max-width: none; border-radius: 0; box-shadow: 0 -1px 0 var(--border), 0 -6px 16px rgb(0 0 0 / 8%);
+}
+.preview-tools.docked .preview-tools-scroll { padding: 2px 6px; }
+.preview-tools.docked .preview-tools-fade-left, .preview-tools.docked .preview-tools-fade-right { border-radius: 0; }
+[data-theme="dark"] .preview-tools.docked { box-shadow: 0 -1px 0 var(--border), 0 -6px 16px rgb(0 0 0 / 35%); }
 .preview-tools button {
   display: inline-flex; align-items: center; justify-content: center;
   width: 30px; height: 30px; min-width: 30px; min-height: 30px; padding: 0;

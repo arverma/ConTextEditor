@@ -199,3 +199,12 @@ it('hides the info button in focus mode and print', () => {
 it('lifts the open info card above the floating Rich toolbar', () => {
   expect(editorStyles).toMatch(/\.seo-intro\[open\] \{ z-index: 35; \}/);
 });
+
+it('shows the mobile Rich formatting bar only while the editor has focus, docked above the keyboard', () => {
+  const src = readFileSync('../src/editor/editor.ts', 'utf8');
+  expect(src).toContain('rich.editor.view.hasFocus()');
+  expect(src).toContain('placement: () => "dock"');
+  expect(src).not.toContain('placement: () => "top"');
+  expect(editorStyles).toContain('.preview-tools.docked {');
+  expect(mobileStyles).toContain('scroll-padding-bottom: 64px');
+});

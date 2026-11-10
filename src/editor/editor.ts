@@ -203,9 +203,8 @@ const floatingPreview = selectionToolbar(previewToolbar, () => {
 }, {
   isMobile: () => compactEditor.matches,
   mobileKeyboard: {
-    isOpen: () => {
-      return viewMode === "preview";
-    },
+    // Only while typing: the editor (or the link field in the bar) has focus, which is when the keyboard is up.
+    isOpen: () => viewMode === "preview" && (rich.editor.view.hasFocus() || previewToolbar.contains(document.activeElement)),
     anchor: () => {
       const bounds = previewEl.getBoundingClientRect();
       return {
@@ -215,15 +214,7 @@ const floatingPreview = selectionToolbar(previewToolbar, () => {
         editor: rich.editor.view.dom,
       };
     },
-    bottomInset: () => {
-      const userAgent = navigator.userAgent;
-      const isIPhoneOrIPad = /iPhone|iPad|iPod/.test(userAgent) ||
-        (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
-      return isIPhoneOrIPad ? 104 : 0;
-    },
-    placement: () => {
-      return "top";
-    },
+    placement: () => "dock",
   },
 });
 rich.editor.on("selectionUpdate", () => floatingPreview.schedule());
