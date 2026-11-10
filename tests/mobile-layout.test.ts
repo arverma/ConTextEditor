@@ -177,3 +177,16 @@ it('keeps the dark workspace gutter visibly distinct from the writing page', () 
   const page = root.match(/--editor-bg: (#[0-9a-f]{6})/)![1];
   expect((lum(page) + 0.05) / (lum(bg) + 0.05)).toBeGreaterThanOrEqual(1.3);
 });
+
+it('paints the page edge from per-theme palette variables so light mode never inherits the dark edge', () => {
+  expect(editorStyles).toContain('var(--page-edge) calc(var(--page-l) - 1px) var(--page-l)');
+  expect(editorStyles).not.toMatch(/:root:not\(\[data-theme="light"\]\)[^{]*\.markdown-preview/);
+  const lightBlocks = editorStyles.match(/data-theme="light"\][^{]*\{\s*--page-edge: var\(--border\)/g) ?? [];
+  expect(lightBlocks.length).toBe(2);
+});
+
+it('scrolls on full-width surfaces so the scrollbar sits at the workspace edge, not inside the page', () => {
+  expect(editorStyles).not.toMatch(/\.markdown-preview \{[^}]*max-width: 806px/);
+  expect(editorStyles).toMatch(/\.markdown-preview \{\s*padding-inline: calc\(\(100% - var\(--page-w\)\) \/ 2 \+ 28px\)/);
+  expect(editorStyles).toContain('scrollbar-width: thin;');
+});
