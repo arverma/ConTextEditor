@@ -13,7 +13,6 @@
   --danger: #f0656f;
   --danger-soft: rgba(240, 101, 111, 0.16);
   --page-edge: #34343f;
-  --page-glow: rgb(0 0 0 / 45%);
   --editor-bg: #24242d; /* writing page: lifted so its edges read against the gutters */
   --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 4px 16px rgba(0, 0, 0, 0.25);
   --font-ui: -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", Roboto, Helvetica, Arial, sans-serif;
@@ -26,7 +25,6 @@
    trigger paths never drift apart. */
 :root[data-theme="light"] {
   --page-edge: var(--border);
-  --page-glow: rgb(0 0 0 / 6%);
   --bg: #f6f6f8;
   --surface: #ffffff;
   --surface-2: #f0f0f3;
@@ -48,7 +46,6 @@
 @media (prefers-color-scheme: light) {
   :root:not([data-theme="dark"]):not([data-theme="light"]) {
     --page-edge: var(--border);
-    --page-glow: rgb(0 0 0 / 6%);
     --bg: #f6f6f8;
     --surface: #ffffff;
     --surface-2: #f0f0f3;
@@ -1544,11 +1541,12 @@ body {
 }
 
 /* The shared frame keeps Edit and Preview in the same writing column. */
+/* Scrolling lives on full-width elements so the scrollbar sits at the workspace edge (like Google Docs);
+   the centred "page" is painted behind the content, see the writing-workspace container query below. */
+#main { --page-w: 806px; }
 #main:not([data-full-width="true"]) #source-editor,
 #main:not([data-full-width="true"]) .markdown-preview {
   width: 100%;
-  max-width: 806px;
-  margin-inline: auto;
 }
 #main[data-full-width="true"] #source-editor,
 #main[data-full-width="true"] .markdown-preview { width: 100%; }
@@ -1579,12 +1577,43 @@ body {
 @container writing-workspace (min-width: 850px) {
   #main:not([data-full-width="true"]) #source-editor,
   #main:not([data-full-width="true"]) .markdown-preview {
-    box-shadow: -1px 0 0 var(--page-edge), 1px 0 0 var(--page-edge), 0 0 24px var(--page-glow);
+    --page-l: calc(50% - var(--page-w) / 2);
+    --page-r: calc(50% + var(--page-w) / 2);
+    background: linear-gradient(to right,
+      var(--bg) calc(var(--page-l) - 1px),
+      var(--page-edge) calc(var(--page-l) - 1px) var(--page-l),
+      var(--editor-bg) var(--page-l) var(--page-r),
+      var(--page-edge) var(--page-r) calc(var(--page-r) + 1px),
+      var(--bg) calc(var(--page-r) + 1px));
+  }
+  #main:not([data-full-width="true"]) .markdown-preview {
+    padding-inline: calc((100% - var(--page-w)) / 2 + 28px);
+  }
+  #main:not([data-full-width="true"]) #source-editor .cm-scroller {
+    padding-inline: calc((100% - var(--page-w)) / 2);
+  }
+  #main:not([data-full-width="true"]) #source-editor .cm-editor,
+  #main:not([data-full-width="true"]) #source-editor .cm-gutters { background: transparent; }
+}
+
+/* Slim, faded scrollbar that brightens on hover, on the two scrolling surfaces. */
+.markdown-preview, #source-editor .cm-scroller {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--text) 22%, transparent) transparent;
+}
+.markdown-preview:hover, #source-editor .cm-scroller:hover {
+  scrollbar-color: color-mix(in srgb, var(--text) 40%, transparent) transparent;
+}
+@supports not (scrollbar-color: auto) {
+  .markdown-preview::-webkit-scrollbar, #source-editor .cm-scroller::-webkit-scrollbar { width: 10px; height: 10px; }
+  .markdown-preview::-webkit-scrollbar-track, #source-editor .cm-scroller::-webkit-scrollbar-track { background: transparent; }
+  .markdown-preview::-webkit-scrollbar-thumb, #source-editor .cm-scroller::-webkit-scrollbar-thumb {
+    background: color-mix(in srgb, var(--text) 22%, transparent); border-radius: 8px; border: 2px solid transparent; background-clip: content-box;
   }
 }
 @media print {
   #main { container-type: normal; }
-  #main .markdown-preview { box-shadow: none !important; }
+  #main .markdown-preview { box-shadow: none !important; background: none !important; padding-inline: 28px !important; }
 }
 
 /* Focus mode is a session-only shell state; errors and Undo stay reachable. */
