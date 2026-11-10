@@ -1551,10 +1551,12 @@ body {
 #main[data-full-width="true"] #source-editor,
 #main[data-full-width="true"] .markdown-preview { width: 100%; }
 #writing-width-btn[aria-pressed="true"] { color: var(--accent); background: var(--accent-soft); }
-.copy-check { display: none; }
-#copy-markdown-btn[data-copied="true"] .copy-icon { display: none; }
-#copy-markdown-btn[data-copied="true"] .copy-check { display: block; color: var(--accent); }
-#copy-markdown-btn:disabled { cursor: progress; }
+#export-btn .icon-copy, #export-btn .icon-check { display: none; }
+#export-btn[data-mode="copy"] .icon-pdf { display: none; }
+#export-btn[data-mode="copy"] .icon-copy { display: block; }
+#export-btn[data-mode="copy"][data-copied="true"] .icon-copy { display: none; }
+#export-btn[data-mode="copy"][data-copied="true"] .icon-check { display: block; }
+#export-btn:disabled { cursor: progress; }
 .copy-dialog p { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
 .copy-dialog textarea {
   display: block; width: 100%; height: min(45dvh, 320px); resize: vertical;

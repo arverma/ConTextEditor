@@ -9,7 +9,7 @@ interface Command {
   element?: string;
 }
 
-export function initShortcuts(actions: { toggleView: () => void; save: () => void; deleteNote: () => void; searchNotes: () => void; beforeOpen: () => void }): void {
+export function initShortcuts(actions: { copyMarkdown: () => void; toggleView: () => void; save: () => void; deleteNote: () => void; searchNotes: () => void; beforeOpen: () => void }): void {
   const click = (selector: string) => () => document.querySelector<HTMLElement>(selector)?.click();
   const openDiff = () => {
     const diffButton = document.querySelector<HTMLButtonElement>("#diff-checker-btn");
@@ -27,14 +27,14 @@ export function initShortcuts(actions: { toggleView: () => void; save: () => voi
     { label: "Toggle Markdown / Rich", keys: "Mod+E", run: actions.toggleView, element: "#view-toggle" },
     { label: "Open Diff Checker", keys: "Mod+Shift+D", run: openDiff, element: "#diff-checker-btn" },
     { label: "Format Diff Checker panes", keys: "Alt+Shift+F", run: formatDiff, element: "#diff-checker-format" },
-    { label: "Export current view (Raw / PDF)", keys: "Mod+Shift+E", run: click("#export-btn") },
+    { label: "Copy Markdown / Export PDF (current view)", keys: "Mod+Shift+E", run: click("#export-btn") },
     { label: "Toggle focus mode", keys: "Mod+Shift+O", run: click("#focus-mode-btn"), element: "#focus-mode-btn" },
     { label: "Toggle full width", keys: "Mod+Shift+W", run: click("#writing-width-btn"), element: "#writing-width-btn" },
     { label: "Import Markdown files", run: click("#import-notes-btn") },
     { label: "Download complete backup", run: click("#backup-btn") },
     { label: "Restore backup", run: click("#restore-backup-btn") },
     { label: "Open Trash", keys: "Mod+Shift+T", run: click("#trash-btn"), element: "#trash-btn" },
-    { label: "Copy Markdown", keys: "Mod+Shift+C", run: click("#copy-markdown-btn"), element: "#copy-markdown-btn" },
+    { label: "Copy Markdown", keys: "Mod+Shift+C", run: actions.copyMarkdown },
     { label: "Save note", keys: "Mod+S", run: actions.save },
     { label: "System theme", keys: "Alt+Shift+1", run: click('[data-theme-value="system"]'), element: '[data-theme-value="system"]' },
     { label: "Light theme", keys: "Alt+Shift+2", run: click('[data-theme-value="light"]'), element: '[data-theme-value="light"]' },

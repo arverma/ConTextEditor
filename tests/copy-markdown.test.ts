@@ -2,7 +2,7 @@ import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { initCopyMarkdown } from "../src/editor/copy-markdown";
 afterEach(() => vi.unstubAllGlobals());
 beforeEach(() => {
-  document.body.innerHTML = '<button id="copy-markdown-btn" aria-label="Copy Markdown"></button><span id="copy-status"></span>';
+  document.body.innerHTML = '<button id="export-btn" aria-label="Copy Markdown"></button><span id="copy-status"></span>';
   HTMLDialogElement.prototype.showModal = function () { this.setAttribute("open", ""); };
   HTMLDialogElement.prototype.close = function () { this.removeAttribute("open"); this.dispatchEvent(new Event("close")); };
 });
@@ -17,7 +17,7 @@ it("copies the exact current raw draft, not the rendered preview or last saved v
 it("opens an inert-source manual fallback when clipboard permission is denied", async () => {
   vi.stubGlobal("navigator", { clipboard: { writeText: vi.fn().mockRejectedValue(Error("denied")) } });
   const text = "<script>not executable</script>";
-  const copy = initCopyMarkdown(() => text); const button = document.getElementById("copy-markdown-btn")!; button.focus();
+  const copy = initCopyMarkdown(() => text); const button = document.getElementById("export-btn")!; button.focus();
   await copy();
   const field = document.querySelector<HTMLTextAreaElement>(".copy-dialog textarea")!;
   expect(field.value).toBe(text); expect(field.readOnly).toBe(true); expect(document.querySelector(".copy-dialog script")).toBeNull();
@@ -29,7 +29,7 @@ it("supports empty notes and reports success only after the clipboard write reso
   let done!: () => void; const writeText = vi.fn(() => new Promise<void>(resolve => { done = resolve; }));
   vi.stubGlobal("navigator", { clipboard: { writeText } }); const copy = initCopyMarkdown(() => "");
   const pending = copy(); expect(document.getElementById("copy-status")!.textContent).not.toBe("Markdown copied.");
-  expect((document.getElementById("copy-markdown-btn") as HTMLButtonElement).disabled).toBe(true);
+  expect((document.getElementById("export-btn") as HTMLButtonElement).disabled).toBe(true);
   done(); await pending; expect(writeText).toHaveBeenCalledWith("");
-  expect((document.getElementById("copy-markdown-btn") as HTMLButtonElement).disabled).toBe(false);
+  expect((document.getElementById("export-btn") as HTMLButtonElement).disabled).toBe(false);
 });

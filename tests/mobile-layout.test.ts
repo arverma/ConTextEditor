@@ -162,7 +162,7 @@ it('keeps view tools in the top bar and note actions in the note titlebar', () =
     expect(topbar).toContain(`id="${id}"`);
     expect(titlebar).not.toContain(`id="${id}"`);
   }
-  for (const id of ['view-toggle', 'copy-markdown-btn', 'export-btn']) expect(titlebar).toContain(`id="${id}"`);
+  for (const id of ['view-toggle', 'export-btn']) expect(titlebar).toContain(`id="${id}"`);
   expect(mobileStyles).toContain('.toolbar-tools { display: none; }');
 });
 

@@ -7,20 +7,6 @@ function sanitizeFilename(title: string): string {
   return cleaned || "note";
 }
 
-export function exportTxt(content: string, title: string): void {
-  const name = sanitizeFilename(title);
-  const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `${name}.txt`;
-  a.rel = "noopener";
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(url);
-}
-
 export function exportPdf(title: string): void {
   const prevTitle = document.title;
   document.title = sanitizeFilename(title);

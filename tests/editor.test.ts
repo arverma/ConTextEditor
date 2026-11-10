@@ -2,7 +2,7 @@ import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { readFileSync } from "node:fs";
 const shell = readFileSync("../src/editor/index.html", "utf8");
 import { createSnippet, getSnippets, deleteSnippet } from "../src/editor/storage";
-vi.mock("../src/editor/export", () => ({ exportTxt: vi.fn(), exportPdf: vi.fn() }));
+vi.mock("../src/editor/export", () => ({ exportPdf: vi.fn() }));
 
 const model = vi.hoisted(() => ({ value: "", listeners: [] as Array<() => void>, compact: false, setCompact: vi.fn() }));
 const preview = vi.hoisted(() => ({ enable: vi.fn(), flush: vi.fn(), load: vi.fn(), repaint: vi.fn(), focus: vi.fn(), command: vi.fn(), active: vi.fn(() => false), linkHref: vi.fn(() => ""), selectionRect: vi.fn(() => null) }));
@@ -146,7 +146,8 @@ it("changes width without rewriting the note and copies pending raw source in pr
   expect(getSnippets()[0].updatedAt).toBe(original.updatedAt);
   edit("# Pending source\n\n```md\nraw text\n```");
   document.querySelector<HTMLButtonElement>('[data-view-value="preview"]')!.click();
-  document.getElementById("copy-markdown-btn")!.click();
+  document.querySelector<HTMLButtonElement>('[data-view-value="edit"]')!.click();
+  document.getElementById("export-btn")!.click();
   await Promise.resolve();
   expect(writeText).toHaveBeenCalledWith(model.value);
   expect(document.getElementById("full-text-mirror")!.textContent).toBe(model.value);
@@ -178,11 +179,20 @@ it('uses the same persistent record for Trash and Undo, without a second restore
   expect(document.getElementById('undo-toast')!.hidden).toBe(true);
   expect(getSnippets().filter(note => note.content === 'Persistent note')).toHaveLength(1);
 });
-it('labels export visibly for the current view and separates it from view controls', async () => {
+it('makes the single primary button export a PDF in Rich view and copy Markdown in Markdown view', async () => {
+ const writeText = vi.fn().mockResolvedValue(undefined);
+ Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText } });
  await import('../src/editor/editor');
+ const btn = document.getElementById('export-btn')!;
  expect(document.getElementById('export-label')!.textContent).toBe('Export PDF');
+ expect(btn.dataset.mode).toBe('pdf');
  document.querySelector<HTMLButtonElement>('[data-view-value="edit"]')!.click();
- expect(document.getElementById('export-label')!.textContent).toBe('Export Raw');
+ expect(document.getElementById('export-label')!.textContent).toBe('Copy Markdown');
+ expect(btn.dataset.mode).toBe('copy');
+ btn.click(); await Promise.resolve(); await Promise.resolve();
+ expect(writeText).toHaveBeenCalled();
+ expect(document.getElementById('export-label')!.textContent).toBe('Copied');
+ expect(document.getElementById('copy-markdown-btn')).toBeNull();
  expect(document.querySelector('.toolbar-actions #export-btn')).not.toBeNull();
  expect(document.querySelector('.toolbar-actions #view-toggle')).toBeNull();
 });

@@ -1,6 +1,7 @@
 /** Copy the live source, including pending edits, without touching the editor model. */
-export function initCopyMarkdown(getSource: () => string, beforeFallback: () => void = () => {}): () => Promise<void> {
-  const button = document.getElementById("copy-markdown-btn") as HTMLButtonElement;
+/** The single primary action button doubles as Copy Markdown in source view; `onState` lets its owner refresh label/title. */
+export function initCopyMarkdown(getSource: () => string, beforeFallback: () => void = () => {}, onState: () => void = () => {}): () => Promise<void> {
+  const button = document.getElementById("export-btn") as HTMLButtonElement;
   const status = document.getElementById("copy-status")!;
   const dialog = document.createElement("dialog");
   dialog.className = "command-dialog copy-dialog";
@@ -29,15 +30,15 @@ export function initCopyMarkdown(getSource: () => string, beforeFallback: () => 
       await navigator.clipboard.writeText(source);
       status.textContent = "Markdown copied.";
       button.dataset.copied = "true";
-      button.title = "Markdown copied";
+      onState();
       feedbackTimer = setTimeout(() => {
         button.dataset.copied = "false";
-        button.title = "Copy Markdown";
         status.textContent = "";
+        onState();
       }, 2000);
     } catch {
       status.textContent = "Clipboard unavailable. Manual copy opened.";
-      button.title = "Copy Markdown";
+      onState();
       beforeFallback();
       field.value = source;
       // The native modal keeps the fallback accessible and its source inert.
@@ -48,6 +49,5 @@ export function initCopyMarkdown(getSource: () => string, beforeFallback: () => 
       button.disabled = false;
     }
   }
-  button.addEventListener("click", () => { void copy(); });
   return copy;
 }

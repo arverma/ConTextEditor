@@ -12,7 +12,7 @@ import { NoteSession } from "./note-session";
 import { initRecovery } from "./recovery";
 import { initSidebar } from "./sidebar";
 import { initHistoryPanel } from "./history-panel";
-import { exportPdf, exportTxt } from "./export";
+import { exportPdf } from "./export";
 import { createSourceEditor } from "./source-editor";
 import { previewEditor, type PreviewCommand } from "./preview-editor";
 import { selectionToolbar } from "./selection-toolbar";
@@ -104,12 +104,15 @@ function getStoredViewMode(): ViewMode {
   return "preview";
 }
 
+/** One primary action: Rich view exports a PDF, Markdown view copies the source. */
 function updateExportButton(): void {
   const isPreview = viewMode === "preview";
-  const label = compactEditor.matches ? "Share PDF" : isPreview ? "Export PDF" : "Export Raw";
-  exportBtn.setAttribute("aria-label", label);
+  const copied = exportBtn.dataset.copied === "true";
+  const label = isPreview ? (compactEditor.matches ? "Share PDF" : "Export PDF") : copied ? "Copied" : "Copy Markdown";
+  exportBtn.dataset.mode = isPreview ? "pdf" : "copy";
+  exportBtn.setAttribute("aria-label", isPreview ? label : "Copy Markdown");
   document.getElementById("export-label")!.textContent = label;
-  exportBtn.title = `${label} (${shortcutLabel("Mod+Shift+E")})`;
+  exportBtn.title = `${isPreview ? label : "Copy Markdown"} (${shortcutLabel("Mod+Shift+E")})`;
 }
 
 function flushPreview(): void {
@@ -345,18 +348,12 @@ viewToggleEl.addEventListener("click", (event) => {
 mobileViewToggleEl.addEventListener("click", toggleViewMode);
 
 exportBtn.addEventListener("click", () => {
-  flushPreview();
-  const content = editor.getValue();
-  const title = deriveTitle(content);
-  if (compactEditor.matches) {
-    exportPdf(title);
-    return;
-  }
   if (viewMode === "edit") {
-    exportTxt(content, title);
+    void copyMarkdown();
     return;
   }
-  exportPdf(title);
+  flushPreview();
+  exportPdf(deriveTitle(editor.getValue()));
 });
 
 newSnippetBtn.addEventListener("click", () => {
@@ -389,11 +386,12 @@ applyTheme(initialMode);
 session.start();
 applyViewMode(getStoredViewMode(), { persist: false });
 focusMode = initFocusMode(editor, sidebar, focusContent);
-initCopyMarkdown(() => { flushPreview(); return editor.getValue(); }, () => {
+const copyMarkdown = initCopyMarkdown(() => { flushPreview(); return editor.getValue(); }, () => {
   sidebar.closeMobile(true);
   document.querySelector<HTMLDialogElement>(".command-dialog:not(.copy-dialog)[open]")?.close();
-});
+}, updateExportButton);
 initShortcuts({
+  copyMarkdown: () => { void copyMarkdown(); },
   toggleView: toggleViewMode,
   save: () => { flushPreview(); session.flush(); },
   deleteNote: () => { if (session.id) removeNote(session.id); },
