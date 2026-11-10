@@ -162,7 +162,7 @@ it('keeps view tools in the top bar and note actions in the note titlebar', () =
     expect(topbar).toContain(`id="${id}"`);
     expect(titlebar).not.toContain(`id="${id}"`);
   }
-  for (const id of ['view-toggle', 'copy-markdown-btn', 'export-btn']) expect(titlebar).toContain(`id="${id}"`);
+  for (const id of ['view-toggle', 'export-btn']) expect(titlebar).toContain(`id="${id}"`);
   expect(mobileStyles).toContain('.toolbar-tools { display: none; }');
 });
 
@@ -189,4 +189,27 @@ it('scrolls on full-width surfaces so the scrollbar sits at the workspace edge, 
   expect(editorStyles).not.toMatch(/\.markdown-preview \{[^}]*max-width: 806px/);
   expect(editorStyles).toMatch(/\.markdown-preview \{\s*padding-inline: calc\(\(100% - var\(--page-w\)\) \/ 2 \+ 28px\)/);
   expect(editorStyles).toContain('scrollbar-width: thin;');
+});
+
+it('hides the info button in focus mode and print', () => {
+  expect(editorStyles).toContain('body:has(#app[data-focus-mode="true"]) .seo-intro { display: none; }');
+  expect(editorStyles).toMatch(/@media print \{[\s\S]*?\.seo-intro,/);
+});
+
+it('lifts the open info card above the floating Rich toolbar', () => {
+  expect(editorStyles).toMatch(/\.seo-intro\[open\] \{ z-index: 35; \}/);
+});
+
+it('shows the mobile Rich formatting bar only while the editor has focus, docked above the keyboard', () => {
+  const src = readFileSync('../src/editor/editor.ts', 'utf8');
+  expect(src).toContain('rich.editor.view.hasFocus()');
+  expect(src).toContain('placement: () => "dock"');
+  expect(src).not.toContain('placement: () => "top"');
+  expect(editorStyles).toContain('.preview-tools.docked {');
+  expect(mobileStyles).toContain('scroll-padding-bottom: 64px');
+});
+
+it('sizes docked formatting keys like iOS keys and keeps the URL field at 16px to avoid iOS zoom', () => {
+  expect(editorStyles).toMatch(/\.preview-tools\.docked button \{ width: 52px; height: 52px;/);
+  expect(editorStyles).toMatch(/\.preview-tools\.docked #preview-link-url \{[^}]*font-size: 16px/);
 });

@@ -20,9 +20,9 @@ it('moves the existing controls into mobile actions and restores the same nodes 
  mobile=false; resize(); expect(privacy.parentNode).toBe(original);
  expect(github.closest('.topbar-right')).not.toBeNull();
 });
-it('leaves copy and PDF actions in the mobile title bar', () => {
+it('leaves the primary export/copy action in the mobile title bar', () => {
  initMobileActions();
- expect(document.getElementById('copy-markdown-btn')!.closest('.mobile-actions-dialog')).toBeNull();
+ expect(document.getElementById('copy-markdown-btn')).toBeNull();
  expect(document.getElementById('export-btn')!.closest('.mobile-actions-dialog')).toBeNull();
  expect(document.getElementById('focus-mode-btn')!.closest('.mobile-actions-dialog')).toBeNull();
  expect(document.getElementById('writing-width-btn')!.closest('.mobile-actions-dialog')).toBeNull();

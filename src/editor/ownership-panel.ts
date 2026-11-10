@@ -1,3 +1,4 @@
+import { newId } from './ids';
 import { commitCollection, deriveTitle, readCollection, setActiveSnippetId, type StoredSnippet } from './storage';
 import { decodeMarkdown, INPUT_BYTE_LIMIT, makeBackup, mergeBackup, validateBackup, type Backup } from './ownership';
 import type { NoteSession } from './note-session';
@@ -51,7 +52,7 @@ export function initOwnershipPanel(session: NoteSession, actions: {
       } else {
         const sources = await Promise.all(files.map(async file => decodeMarkdown(file.name, new Uint8Array(await file.arrayBuffer()))));
         if (request !== generation || !dialog.open) return;
-        const notes = sources.map(content => ({ id: crypto.randomUUID(), content, updatedAt: Date.now() }));
+        const notes = sources.map(content => ({ id: newId(), content, updatedAt: Date.now() }));
         pending = { token: current.token, notes: [...current.notes, ...notes], first: notes[0].id };
         showReview(files.map(file => file.name), `${files.length} ${files.length === 1 ? 'file' : 'files'} will be added as new notes. Existing notes stay unchanged.`, false);
       }

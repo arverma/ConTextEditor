@@ -86,6 +86,8 @@ body {
   margin: 0;
 }
 
+.seo-intro[open] { z-index: 35; } /* above the floating Rich toolbar (30) while the card is open */
+
 .seo-intro summary {
   display: flex;
   align-items: center;
@@ -1301,6 +1303,20 @@ body {
 .preview-format-group { display: flex; align-items: center; flex: 0 0 auto; gap: 2px; }
 .preview-format-group + .preview-format-group { margin-left: 4px; padding-left: 4px; border-left: 1px solid var(--border); }
 .mobile-focus-group { display: none; }
+/* Mobile: full-width dock flush above the keyboard (positioned by selection-toolbar.ts via visualViewport). */
+.preview-tools.docked {
+  max-width: none; border-radius: 0; box-shadow: 0 -1px 0 var(--border), 0 -6px 16px rgb(0 0 0 / 8%);
+}
+.preview-tools.docked .preview-tools-scroll { padding: 4px 8px; gap: 0; }
+/* Keys as large as the iOS letter keys (about 44x52pt): easy to hit, and wide enough that the row scrolls sideways. */
+.preview-tools.docked button { width: 52px; height: 52px; min-width: 52px; min-height: 52px; border-radius: 10px; font-size: 20px; }
+.preview-tools.docked button svg { width: 24px; height: 24px; }
+.preview-tools.docked .preview-mark-italic { font-size: 22px; }
+.preview-tools.docked .preview-format-group { gap: 4px; }
+.preview-tools.docked .preview-format-group + .preview-format-group { margin-left: 8px; padding-left: 8px; }
+.preview-tools.docked #preview-link-url { width: min(220px, 58vw); height: 44px; font-size: 16px; /* 16px stops iOS zooming into the field */ }
+.preview-tools.docked .preview-tools-fade-left, .preview-tools.docked .preview-tools-fade-right { border-radius: 0; }
+[data-theme="dark"] .preview-tools.docked { box-shadow: 0 -1px 0 var(--border), 0 -6px 16px rgb(0 0 0 / 35%); }
 .preview-tools button {
   display: inline-flex; align-items: center; justify-content: center;
   width: 30px; height: 30px; min-width: 30px; min-height: 30px; padding: 0;
@@ -1386,6 +1402,7 @@ body {
   #note-titlebar,
   #source-editor,
   .privacy-fab,
+  .seo-intro,
   .preview-tools,
   .cm-panel {
     display: none !important;
@@ -1551,10 +1568,12 @@ body {
 #main[data-full-width="true"] #source-editor,
 #main[data-full-width="true"] .markdown-preview { width: 100%; }
 #writing-width-btn[aria-pressed="true"] { color: var(--accent); background: var(--accent-soft); }
-.copy-check { display: none; }
-#copy-markdown-btn[data-copied="true"] .copy-icon { display: none; }
-#copy-markdown-btn[data-copied="true"] .copy-check { display: block; color: var(--accent); }
-#copy-markdown-btn:disabled { cursor: progress; }
+#export-btn .icon-copy, #export-btn .icon-check { display: none; }
+#export-btn[data-mode="copy"] .icon-pdf { display: none; }
+#export-btn[data-mode="copy"] .icon-copy { display: block; }
+#export-btn[data-mode="copy"][data-copied="true"] .icon-copy { display: none; }
+#export-btn[data-mode="copy"][data-copied="true"] .icon-check { display: block; }
+#export-btn:disabled { cursor: progress; }
 .copy-dialog p { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
 .copy-dialog textarea {
   display: block; width: 100%; height: min(45dvh, 320px); resize: vertical;
@@ -1620,6 +1639,7 @@ body {
 #app[data-focus-mode="true"] #topbar,
 #app[data-focus-mode="true"] #note-titlebar,
 #app[data-focus-mode="true"] .privacy-fab { display: none; }
+body:has(#app[data-focus-mode="true"]) .seo-intro { display: none; }
 #app[data-focus-mode="true"] #main { padding-top: 56px; }
 .focus-exit {
   position: fixed; top: 12px; right: 16px; z-index: 25;

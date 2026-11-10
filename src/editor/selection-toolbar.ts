@@ -11,7 +11,8 @@ export interface SelectionToolbarOptions {
     isOpen: () => boolean;
     anchor: () => SelectionAnchor | null;
     bottomInset?: () => number;
-    placement?: () => "bottom" | "top";
+    /** "dock" = full-width bar flush with the bottom of the visual viewport, i.e. directly above the on-screen keyboard. */
+    placement?: () => "bottom" | "top" | "dock";
   };
 }
 
@@ -50,6 +51,15 @@ export function selectionToolbar(toolbar: HTMLElement, anchor: () => SelectionAn
       return;
     }
     toolbar.hidden = false;
+    const docked = mobileKeyboard && options.mobileKeyboard?.placement?.() === "dock";
+    toolbar.classList.toggle("docked", Boolean(docked));
+    if (docked) {
+      toolbar.style.left = `${left}px`;
+      toolbar.style.width = `${width}px`;
+      toolbar.style.top = `${top + height - toolbar.getBoundingClientRect().height}px`;
+      return;
+    }
+    toolbar.style.width = "";
     const size = toolbar.getBoundingClientRect();
     if (mobileKeyboard) {
       toolbar.style.left = `${Math.max(left + 8, left + (width - size.width) / 2)}px`;
@@ -91,6 +101,7 @@ export function selectionToolbar(toolbar: HTMLElement, anchor: () => SelectionAn
   document.addEventListener('pointercancel', () => { selecting = false; schedule(); });
   document.addEventListener('keyup', schedule);
   document.addEventListener('focusin', schedule);
+  document.addEventListener('focusout', () => setTimeout(schedule, 0));
   document.addEventListener('scroll', schedule, true);
   window.addEventListener('resize', schedule);
   window.visualViewport?.addEventListener('resize', schedule);

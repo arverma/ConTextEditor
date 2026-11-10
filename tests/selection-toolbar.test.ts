@@ -114,3 +114,48 @@ it('shows the mobile toolbar when iOS keeps the viewport height unchanged', asyn
   expect(toolbar.hidden).toBe(false);
   expect(toolbar.style.top).toBe('8px');
 });
+
+it('docks full width flush above the keyboard and hides when typing stops', async () => {
+  const toolbar = document.createElement('div');
+  const editor = document.createElement('div');
+  document.body.append(toolbar, editor);
+  vi.spyOn(toolbar, 'getBoundingClientRect').mockReturnValue({ width: 100, height: 44 } as DOMRect);
+  vi.stubGlobal('innerHeight', 800);
+  vi.stubGlobal('visualViewport', visualViewport(500)); // keyboard takes the bottom 300px
+  let typing = true;
+  const view = selectionToolbar(toolbar, () => anchor(editor), {
+    isMobile: () => true,
+    mobileKeyboard: { isOpen: () => typing, anchor: () => anchor(editor), placement: () => 'dock' },
+  });
+
+  view.schedule();
+  await nextFrame();
+  expect(toolbar.hidden).toBe(false);
+  expect(toolbar.classList.contains('docked')).toBe(true);
+  expect(toolbar.style.width).toBe('400px');
+  expect(toolbar.style.left).toBe('0px');
+  expect(toolbar.style.top).toBe('456px'); // 500 - 44: the bar's bottom edge meets the keyboard
+
+  typing = false;
+  view.schedule();
+  await nextFrame();
+  expect(toolbar.hidden).toBe(true);
+});
+
+it('clears the dock width when the bar is no longer docked', async () => {
+  const toolbar = document.createElement('div');
+  const editor = document.createElement('div');
+  document.body.append(toolbar, editor);
+  vi.spyOn(toolbar, 'getBoundingClientRect').mockReturnValue({ width: 100, height: 44 } as DOMRect);
+  vi.stubGlobal('innerHeight', 800);
+  vi.stubGlobal('visualViewport', visualViewport(500));
+  let placement: 'dock' | 'top' = 'dock';
+  const view = selectionToolbar(toolbar, () => anchor(editor), {
+    isMobile: () => true,
+    mobileKeyboard: { isOpen: () => true, anchor: () => anchor(editor), placement: () => placement },
+  });
+  view.schedule(); await nextFrame();
+  placement = 'top'; view.schedule(); await nextFrame();
+  expect(toolbar.style.width).toBe('');
+  expect(toolbar.classList.contains('docked')).toBe(false);
+});

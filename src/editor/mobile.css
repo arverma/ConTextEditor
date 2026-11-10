@@ -56,7 +56,7 @@
   .mobile-view-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   .mobile-view-toggle:active .mobile-view-toggle-thumb { transform: scale(.92); }
   .mobile-view-toggle[aria-pressed="true"]:active .mobile-view-toggle-thumb { transform: translateX(12px) scale(.92); }
-  #main .markdown-preview { padding: 24px 20px max(32px,env(safe-area-inset-bottom)); font-size: 16px; line-height: 1.7; }
+  #main .markdown-preview { scroll-padding-bottom: 64px; padding: 24px 20px max(80px,env(safe-area-inset-bottom)); font-size: 16px; line-height: 1.7; }
   .markdown-preview h1 { font-size: 1.5em; line-height: 1.3; }
   .markdown-preview h2 { font-size: 1.25em; }
   .markdown-preview code { overflow-wrap: anywhere; }
