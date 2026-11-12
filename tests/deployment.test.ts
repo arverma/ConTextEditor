@@ -40,3 +40,22 @@ it('links back to the main site, has a single H1, and ships social tags', () => 
   expect(privacy).toContain('name="twitter:card"');
   expect(features).toContain('name="twitter:card"');
 });
+
+it('uses a 1200x630 PNG for og:image/twitter:image on every page (no SVG)', () => {
+  const read = (f: string) => readFileSync(resolve('../src/editor/' + f), 'utf8');
+  const url = 'https://editor.arverma.dev/og-image.png';
+  const png = readFileSync(resolve('../src/editor/public/og-image.png'));
+  expect(png.subarray(1, 4).toString()).toBe('PNG');
+  expect([png.readUInt32BE(16), png.readUInt32BE(20)]).toEqual([1200, 630]);
+  for (const f of ['index.html', 'features.html', 'privacy.html']) {
+    const page = read(f);
+    expect(page, f).toContain(`property="og:image" content="${url}"`);
+    expect(page, f).toContain(`name="twitter:image" content="${url}"`);
+    expect(page, f).toContain('property="og:image:type" content="image/png"');
+    expect(page, f).toContain('property="og:image:width" content="1200"');
+    expect(page, f).toContain('property="og:image:height" content="630"');
+    expect(page, f).toContain('name="twitter:card" content="summary_large_image"');
+    expect(page, f).not.toContain('content="https://editor.arverma.dev/logo.svg"');
+  }
+  expect(read('index.html')).toContain(`"image": "${url}"`);
+});
