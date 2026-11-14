@@ -80,6 +80,72 @@
                 "item": "https://editor.arverma.dev/features.html"
               }
             ]
+          },
+          {
+            "@type": "FAQPage",
+            "@id": "https://editor.arverma.dev/features.html#faq",
+            "url": "https://editor.arverma.dev/features.html",
+            "isPartOf": {
+              "@id": "https://editor.arverma.dev/features.html#webpage"
+            },
+            "mainEntity": [
+              {
+                "@type": "Question",
+                "name": "Does ConText Editor upload or sync my notes?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "No. Notes, history and Trash live in your browser's storage on this device. The website host only serves the app files. There is no account, analytics or tracking."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "How do I move my notes to another device?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Use Download complete backup from the note library tools, then choose Restore backup on the other device. Backups are unencrypted JSON files, so keep them somewhere you trust. You can also export single notes as Markdown."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "What happens if I clear my browser data?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Clearing this site's data removes your notes and Trash, because they are stored only in the browser. Download a backup first if you want to keep a copy."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Can I recover a note I deleted?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Yes. Deleted notes move to Trash first. Open Trash, restore the note, or choose Delete forever to remove it for good."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "What is the difference between Markdown and Rich view?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Markdown view shows the raw source with syntax. Rich view shows the same note formatted, with headings, lists, tables and code blocks. Both edit one note, and you can switch at any time."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Does the editor support diagrams?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Yes. Mermaid diagrams are rendered in the preview, and you can open them in a larger viewer."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Can I collaborate with other people in real time?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "No. ConText Editor is a single-user, local-first tool with no shared accounts, comments or server-side sync."
+                }
+              }
+            ]
           }
         ]
       }
@@ -101,47 +167,152 @@
         ConText Editor is a private, local-first workspace for people who want a
         calm place to write notes, documentation, and code. It combines a
         Markdown source editor with a rich writing view while keeping your work
-        on your device.
+        on your device. This guide walks through each feature with short steps
+        and keyboard shortcuts.
       </p>
+      <nav class="toc" aria-label="On this page">
+        <a href="#features-heading">Features</a>
+        <a href="#shortcuts-heading">Shortcuts</a>
+        <a href="#faq-heading">FAQ</a>
+        <a href="#audience-heading">Who it is for</a>
+      </nav>
 
       <section aria-labelledby="features-heading">
-        <h2 id="features-heading">What the editor does</h2>
-        <div class="feature-list">
-          <article>
-            <h3>Switch between Markdown and Rich views</h3>
-            <p>
-              Use the Markdown view for precise syntax and the Rich view for
-              readable formatting. Headings, lists, links, tables, task lists,
-              images, and code blocks stay part of one note.
-            </p>
-          </article>
-          <article>
-            <h3>Preview diagrams and formatted content</h3>
-            <p>
-              See Markdown as you write, including Mermaid diagrams and
-              formatted code. A local diff checker also helps compare text,
-              JSON, YAML, and SQL without sending files to a server.
-            </p>
-          </article>
-          <article>
-            <h3>Keep notes local and recoverable</h3>
-            <p>
-              Notes, history, Trash, and appearance settings use browser
-              storage. Import Markdown files, export your work, and create
-              backups when you need to move between devices or profiles.
-            </p>
-          </article>
-        </div>
+        <h2 id="features-heading">Features and how to use them</h2>
+        <article id="markdown-rich">
+          <h3>Switch between Markdown and Rich view</h3>
+          <p>Work in raw Markdown for precise syntax, or in Rich view for readable formatting. Both views edit the same note.</p>
+          <ol>
+            <li>Open or create a note.</li>
+            <li>Select the view toggle in the top bar, or press the shortcut below.</li>
+            <li>Edit in either view; headings, lists, tables, task lists, links and code blocks carry over.</li>
+          </ol>
+          <p class="keys">Shortcuts: Toggle Markdown / Rich <kbd>Ctrl/⌘</kbd> + <kbd>E</kbd>.</p>
+        </article>
+        <article id="notes">
+          <h3>Create, search and organise notes</h3>
+          <p>Every note is saved in your browser as you write, and the history panel lists them all so you can find one quickly.</p>
+          <ol>
+            <li>Select New note, or press the shortcut.</li>
+            <li>Open the history panel to browse your notes.</li>
+            <li>Type in the note search box to filter by text.</li>
+          </ol>
+          <p class="keys">Shortcuts: New note <kbd>Ctrl/⌘</kbd> + <kbd>Shift</kbd> + <kbd>Enter</kbd>; Toggle note history <kbd>Ctrl/⌘</kbd> + <kbd>\</kbd>; Search notes <kbd>Ctrl/⌘</kbd> + <kbd>Shift</kbd> + <kbd>F</kbd>; Save note <kbd>Ctrl/⌘</kbd> + <kbd>S</kbd>.</p>
+        </article>
+        <article id="preview">
+          <h3>Preview formatted content and diagrams</h3>
+          <p>See formatted Markdown, highlighted code and Mermaid diagrams while you write.</p>
+          <ol>
+            <li>Add a fenced code block with the language <code>mermaid</code>.</li>
+            <li>Write your diagram definition inside the block.</li>
+            <li>Check the rendered diagram in the preview, and open it in the viewer to zoom.</li>
+          </ol>
+        </article>
+        <article id="diff">
+          <h3>Compare text with the Diff Checker</h3>
+          <p>The local diff checker compares two pieces of text, JSON, YAML or SQL entirely in your browser.</p>
+          <ol>
+            <li>Open the Diff Checker.</li>
+            <li>Paste the original text on one side and the changed text on the other.</li>
+            <li>Format both panes if the content is JSON, YAML or SQL, then review the differences.</li>
+          </ol>
+          <p class="keys">Shortcuts: Open Diff Checker <kbd>Ctrl/⌘</kbd> + <kbd>Shift</kbd> + <kbd>D</kbd>; Format Diff Checker panes <kbd>Alt</kbd> + <kbd>Shift</kbd> + <kbd>F</kbd>.</p>
+        </article>
+        <article id="focus">
+          <h3>Focus mode and writing width</h3>
+          <p>Remove distractions and choose a comfortable line length for long writing sessions.</p>
+          <ol>
+            <li>Turn on focus mode to hide surrounding panels.</li>
+            <li>Toggle full width to let text use the whole window, or toggle it back for a narrower column.</li>
+          </ol>
+          <p class="keys">Shortcuts: Toggle focus mode <kbd>Ctrl/⌘</kbd> + <kbd>Shift</kbd> + <kbd>O</kbd>; Toggle full width <kbd>Ctrl/⌘</kbd> + <kbd>Shift</kbd> + <kbd>W</kbd>.</p>
+        </article>
+        <article id="export">
+          <h3>Copy and export your work</h3>
+          <p>Copy the Markdown source, or export the current view when you want to share a note.</p>
+          <ol>
+            <li>Open the note you want to share.</li>
+            <li>Select the export control, or press the shortcut to copy Markdown or export a PDF of the current view.</li>
+          </ol>
+          <p class="keys">Shortcuts: Copy Markdown <kbd>Ctrl/⌘</kbd> + <kbd>Shift</kbd> + <kbd>C</kbd>; Copy Markdown / Export PDF (current view) <kbd>Ctrl/⌘</kbd> + <kbd>Shift</kbd> + <kbd>E</kbd>.</p>
+        </article>
+        <article id="backup">
+          <h3>Import, back up and restore</h3>
+          <p>Bring in existing Markdown files and keep backups so notes can move between devices or browser profiles.</p>
+          <ol>
+            <li>Choose Import Markdown files to add .md files as notes.</li>
+            <li>Choose Download complete backup to save all notes and Trash as a JSON file.</li>
+            <li>On another device or profile, choose Restore backup and select that file.</li>
+          </ol>
+        </article>
+        <article id="trash">
+          <h3>Recover deleted notes from Trash</h3>
+          <p>Deleting a note moves it to Trash, so a mistake is not final until you empty it.</p>
+          <ol>
+            <li>Delete the current note.</li>
+            <li>Open Trash to see removed notes.</li>
+            <li>Restore a note, or choose Delete forever to remove it permanently.</li>
+          </ol>
+          <p class="keys">Shortcuts: Open Trash <kbd>Ctrl/⌘</kbd> + <kbd>Shift</kbd> + <kbd>T</kbd>; Delete current note <kbd>Ctrl/⌘</kbd> + <kbd>Shift</kbd> + <kbd>Backspace</kbd>.</p>
+        </article>
+        <article id="theme">
+          <h3>Light, dark and system themes</h3>
+          <p>Match the editor to your surroundings or follow your operating system.</p>
+          <ol>
+            <li>Use the theme control in the editor, or press a shortcut to switch directly.</li>
+          </ol>
+          <p class="keys">Shortcuts: System theme <kbd>Alt</kbd> + <kbd>Shift</kbd> + <kbd>1</kbd>; Light theme <kbd>Alt</kbd> + <kbd>Shift</kbd> + <kbd>2</kbd>; Dark theme <kbd>Alt</kbd> + <kbd>Shift</kbd> + <kbd>3</kbd>.</p>
+        </article>
       </section>
 
-      <section aria-labelledby="how-to-heading">
-        <h2 id="how-to-heading">How to use ConText Editor</h2>
-        <ol>
-          <li>Open the editor and select <strong>New note</strong>.</li>
-          <li>Write in Markdown or switch to <strong>Rich</strong> for visual editing.</li>
-          <li>Use preview, focus mode, and the writing-width control to shape your workspace.</li>
-          <li>Import, export, or back up notes from the note library tools.</li>
-        </ol>
+      <section aria-labelledby="shortcuts-heading">
+        <h2 id="shortcuts-heading">Keyboard shortcuts</h2>
+        <p>
+          Use <kbd>Ctrl</kbd> on Windows and Linux, or <kbd>⌘</kbd> on macOS.
+          Press <kbd>Ctrl/⌘</kbd> + <kbd>K</kbd> inside the editor to open the
+          searchable command list, which shows every command and its shortcut.
+        </p>
+        <table>
+          <thead><tr><th scope="col">Action</th><th scope="col">Shortcut</th></tr></thead>
+          <tbody>
+            <tr><td>Open commands and shortcuts</td><td><kbd>Ctrl/⌘</kbd> + <kbd>K</kbd></td></tr>
+            <tr><td>Toggle Markdown / Rich</td><td><kbd>Ctrl/⌘</kbd> + <kbd>E</kbd></td></tr>
+            <tr><td>New note</td><td><kbd>Ctrl/⌘</kbd> + <kbd>Shift</kbd> + <kbd>Enter</kbd></td></tr>
+            <tr><td>Toggle note history</td><td><kbd>Ctrl/⌘</kbd> + <kbd>\</kbd></td></tr>
+            <tr><td>Search notes</td><td><kbd>Ctrl/⌘</kbd> + <kbd>Shift</kbd> + <kbd>F</kbd></td></tr>
+            <tr><td>Save note</td><td><kbd>Ctrl/⌘</kbd> + <kbd>S</kbd></td></tr>
+            <tr><td>Open Diff Checker</td><td><kbd>Ctrl/⌘</kbd> + <kbd>Shift</kbd> + <kbd>D</kbd></td></tr>
+            <tr><td>Format Diff Checker panes</td><td><kbd>Alt</kbd> + <kbd>Shift</kbd> + <kbd>F</kbd></td></tr>
+            <tr><td>Toggle focus mode</td><td><kbd>Ctrl/⌘</kbd> + <kbd>Shift</kbd> + <kbd>O</kbd></td></tr>
+            <tr><td>Toggle full width</td><td><kbd>Ctrl/⌘</kbd> + <kbd>Shift</kbd> + <kbd>W</kbd></td></tr>
+            <tr><td>Copy Markdown</td><td><kbd>Ctrl/⌘</kbd> + <kbd>Shift</kbd> + <kbd>C</kbd></td></tr>
+            <tr><td>Copy Markdown / Export PDF (current view)</td><td><kbd>Ctrl/⌘</kbd> + <kbd>Shift</kbd> + <kbd>E</kbd></td></tr>
+            <tr><td>Open Trash</td><td><kbd>Ctrl/⌘</kbd> + <kbd>Shift</kbd> + <kbd>T</kbd></td></tr>
+            <tr><td>Delete current note</td><td><kbd>Ctrl/⌘</kbd> + <kbd>Shift</kbd> + <kbd>Backspace</kbd></td></tr>
+            <tr><td>System theme</td><td><kbd>Alt</kbd> + <kbd>Shift</kbd> + <kbd>1</kbd></td></tr>
+            <tr><td>Light theme</td><td><kbd>Alt</kbd> + <kbd>Shift</kbd> + <kbd>2</kbd></td></tr>
+            <tr><td>Dark theme</td><td><kbd>Alt</kbd> + <kbd>Shift</kbd> + <kbd>3</kbd></td></tr>
+            <tr><td>Open privacy policy</td><td><kbd>Alt</kbd> + <kbd>Shift</kbd> + <kbd>P</kbd></td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section aria-labelledby="faq-heading">
+        <h2 id="faq-heading">Frequently asked questions</h2>
+        <h3>Does ConText Editor upload or sync my notes?</h3>
+        <p>No. Notes, history and Trash live in your browser&#x27;s storage on this device. The website host only serves the app files. There is no account, analytics or tracking.</p>
+        <h3>How do I move my notes to another device?</h3>
+        <p>Use Download complete backup from the note library tools, then choose Restore backup on the other device. Backups are unencrypted JSON files, so keep them somewhere you trust. You can also export single notes as Markdown.</p>
+        <h3>What happens if I clear my browser data?</h3>
+        <p>Clearing this site&#x27;s data removes your notes and Trash, because they are stored only in the browser. Download a backup first if you want to keep a copy.</p>
+        <h3>Can I recover a note I deleted?</h3>
+        <p>Yes. Deleted notes move to Trash first. Open Trash, restore the note, or choose Delete forever to remove it for good.</p>
+        <h3>What is the difference between Markdown and Rich view?</h3>
+        <p>Markdown view shows the raw source with syntax. Rich view shows the same note formatted, with headings, lists, tables and code blocks. Both edit one note, and you can switch at any time.</p>
+        <h3>Does the editor support diagrams?</h3>
+        <p>Yes. Mermaid diagrams are rendered in the preview, and you can open them in a larger viewer.</p>
+        <h3>Can I collaborate with other people in real time?</h3>
+        <p>No. ConText Editor is a single-user, local-first tool with no shared accounts, comments or server-side sync.</p>
       </section>
 
       <section aria-labelledby="audience-heading">
@@ -151,7 +322,9 @@
           drafting ideas, researchers keeping private working notes, and anyone
           who prefers plain-text portability over an account-based workspace.
           It is not a cloud collaboration suite: there are no shared accounts,
-          comments, or server-side sync.
+          comments, or server-side sync. Read the
+          <a href="privacy.html">ConText Editor privacy policy</a> for details
+          on how your data is handled.
         </p>
       </section>
     </main>
