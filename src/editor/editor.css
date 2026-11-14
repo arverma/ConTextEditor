@@ -151,6 +151,16 @@ body {
   font-weight: 600;
 }
 
+/* Stack the intro links with breathing room; long link text wraps instead of crowding the next line. */
+.seo-intro-content > a {
+  display: block;
+  margin: 0 0 0.6rem;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.seo-intro-content .seo-more { margin: 0; }
+
 #app {
   display: flex;
   flex-direction: column;
