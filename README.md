@@ -4,6 +4,8 @@ A local-first Markdown editor that runs in the browser. One note string is the s
 
 **Live editor:** [editor.arverma.dev](https://editor.arverma.dev/) · [Privacy policy](https://editor.arverma.dev/privacy.html) · [Source](https://github.com/arverma/ConTextEditor)
 
+Built by [Aman Ranjan Verma](https://arverma.dev). Also see [Bihar Police Notebook](https://bpdiary.arverma.dev).
+
 ## Stack
 
 | Piece | Role |
