@@ -123,6 +123,18 @@ footer {
   padding-top: 1rem;
 }
 
+footer .more-from-aman {
+  flex-basis: 100%;
+  margin: 0.25rem 0 0;
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 400;
+}
+
+footer .more-from-aman a {
+  font-weight: 400;
+}
+
 @media (max-width: 640px) {
   body {
     padding-inline: 1rem;
