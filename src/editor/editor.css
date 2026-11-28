@@ -160,6 +160,16 @@ body {
 }
 
 .seo-intro-content .seo-more { margin: 0; }
+.seo-intro-content .more-from-aman {
+  margin-top: 0.5rem;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-weight: 400;
+}
+.seo-intro-content .more-from-aman a {
+  font-size: inherit;
+  font-weight: 400;
+}
 
 #app {
   display: flex;
